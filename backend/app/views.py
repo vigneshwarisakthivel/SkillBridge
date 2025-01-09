@@ -3,11 +3,12 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.authtoken.models import Token
 from rest_framework_simplejwt.tokens import AccessToken
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.authentication import JWTAuthentication
-
 from .models import (
     Role, Category, Test, Question, TestQuestion, TestAttempt, TestResult,
     ProctoringSession, ProctoringLog, Leaderboard, Achievement, UserProfile,
@@ -40,27 +41,39 @@ class RegisterView(APIView):
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# Login View (Token-based Authentication)
-class LoginView(APIView):
-    permission_classes = [AllowAny]
-
+# JWT Token View (Login API)
+class LoginView(TokenObtainPairView):
+    permission_classes = [AllowAny]  # Allow any user to log in
+    # This will automatically handle the login and return the JWT tokens
     def post(self, request):
+        # Retrieve username and password from request data
         username = request.data.get('username')
         password = request.data.get('password')
+
+        # Check if username and password are provided
+        if not username or not password:
+            return Response({'error': 'Username and password are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Authenticate user
         user = authenticate(username=username, password=password)
+
+        # Check if authentication was successful
         if user is not None:
-            token = str(AccessToken.for_user(user))
+            # Generate token for the user
+            token, created = Token.objects.get_or_create(user=user)
             return Response({
                 'username': user.username,
                 'email': user.email,
-                'token': token
+                'token': token.key
             }, status=status.HTTP_200_OK)
+
+        # If authentication fails, return an error
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 # User Detail View (Get the authenticated user details)
 class UserDetailView(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]  # Requires the user to be authenticated
 
     def get(self, request):
         # Assuming you're using the User model, change it if you're using a custom User model
@@ -72,6 +85,7 @@ class UserDetailView(APIView):
             'last_name': user.last_name,
             'date_joined': user.date_joined,
         })
+
 # Role ViewSet
 class RoleViewSet(viewsets.ModelViewSet):
     queryset = Role.objects.all()
@@ -193,6 +207,3 @@ class UserActivityLogViewSet(viewsets.ModelViewSet):
     queryset = UserActivityLog.objects.all()
     serializer_class = UserActivityLogSerializer
     permission_classes = [IsAuthenticated]
-
-
-# Create your views here.

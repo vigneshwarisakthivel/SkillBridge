@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework_simplejwt',
     'app',
+    # 'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -130,7 +131,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [ "http://localhost:3000", ]
 
-REST_FRAMEWORK = { 'DEFAULT_AUTHENTICATION_CLASSES': ( 'rest_framework.authentication.TokenAuthentication','rest_framework_simplejwt.authentication.JWTAuthentication', ),'DEFAULT_PERMISSION_CLASSES': ( 'rest_framework.permissions.AllowAny','rest_framework.permissions.IsAuthenticated', ),
-                  
-         }
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',  # Added comma
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
 
