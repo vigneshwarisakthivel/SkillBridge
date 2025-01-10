@@ -1,17 +1,20 @@
-import React from 'react';
-import './App.css'; // Optional: Custom styles for the entire app
-import Register from './Register'; // Import the Register component
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Login from "./Login";
+import Password from "./Password"; // OTP verification page
+import ChangePassword from "./ChangePassword"; // Change password page
+import Register from "./Register"; // Register page
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Welcome to the Quiz Website</h1>
-      </header>
-      <main>
-        <Register /> {/* Render the Register component */}
-      </main>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Register />} /> {/* Default to Register */}
+        <Route path="/login" element={<Login />} /> {/* Login page */}
+        <Route path="/forgot-password" element={<Password />} /> {/* OTP verification */}
+        <Route path="/change-password" element={<ChangePassword />} /> {/* Change password */}
+      </Routes>
+    </Router>
   );
 }
 

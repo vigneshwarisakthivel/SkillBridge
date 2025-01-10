@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 import './Register.css';
 
 const Register = () => {
@@ -8,6 +9,9 @@ const Register = () => {
     email: '',
     password: '',
   });
+
+  // Initialize the navigate function from useNavigate
+  const navigate = useNavigate();
 
   // Handle input changes
   const handleChange = (e) => {
@@ -24,7 +28,10 @@ const Register = () => {
     console.log(formData);
 
     // Here you would send the form data to the backend or an API for registration
-    alert('Registration data has been logged. Connect to a backend to submit.');
+    alert('Registration successful! You will be redirected to the login page.');
+
+    // Redirect to the Login page after registration
+    navigate('/login');
   };
 
   return (
