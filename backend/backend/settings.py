@@ -11,10 +11,14 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
+import os
 
+AUTH_USER_MODEL = 'app.CustomUser'
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -48,6 +52,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -129,16 +134,53 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-CORS_ALLOWED_ORIGINS = [ "http://localhost:3000", ]
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Your React frontend URL
+    "http://127.0.0.1:3000",
+]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',  # Added comma
+        'app.authentication.UserTokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+}
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # Access token expiration time
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  # Refresh token expiration time
+    'ROTATE_REFRESH_TOKENS': False,  # Disable rotating refresh tokens
+    'BLACKLIST_AFTER_ROTATION': False,  # Disable blacklisting after token rotation
+    'ALGORITHM': 'HS256',  # JWT algorithm
+    'SIGNING_KEY': SECRET_KEY,  # Use Django's SECRET_KEY for signing JWTs
+    'VERIFYING_KEY': None,  # Set this if you have a public key for verification
+    'AUDIENCE': None,  # Optional audience (if you use it)
+    'ISSUER': None,  # Optional issuer (if you use it)
+}
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+]
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"  
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "skillbridgeonlinetestplatform@gmail.com"  # Your Gmail address
+EMAIL_HOST_PASSWORD = "qxli bulx qyve gyrr"  # App password (not your main password)
+
+# Use Redis to store OTP temporarily
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
 }
 
 

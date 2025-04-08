@@ -1,27 +1,32 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
-from .models import User, Role, Test, TestQuestion, Question, TestAttempt, TestResult, ProctoringSession, ProctoringLog, Leaderboard, Achievement, Category, UserProfile, Notification, PasswordReset, AnalyticsReport, TestProctoringSetting, QuestionImportLog, UserActivityLog
+from .models import Test, TestAttempt, UserAnswer,RecentActivity
 
-# Register the custom User model with the built-in UserAdmin
-admin.site.register(User, UserAdmin)
-admin.site.register(Role)
-admin.site.register(Test)
-admin.site.register(TestQuestion)
-admin.site.register(Question)
-admin.site.register(TestAttempt)
-admin.site.register(TestResult)
-admin.site.register(ProctoringSession)
-admin.site.register(ProctoringLog)
-admin.site.register(Leaderboard)
-admin.site.register(Achievement)
-admin.site.register(Category)
-admin.site.register(UserProfile)
+@admin.register(Test)
+class TestAdmin(admin.ModelAdmin):
+    list_display = ('title', 'subject', 'created_at')
+    search_fields = ('title', 'subject')
+    ordering = ('-created_at',)
+
+@admin.register(TestAttempt)
+class TestAttemptAdmin(admin.ModelAdmin):
+    list_display = ('user', 'test', 'status', 'score', 'start_time', 'end_time')
+    list_filter = ('status',)
+    search_fields = ('user__username', 'test__title')
+    ordering = ('-start_time',)
+
+@admin.register(UserAnswer)
+class UserAnswerAdmin(admin.ModelAdmin):
+    list_display = ('attempt', 'question', 'selected_option')
+    search_fields = ('attempt__user__username', 'question__text')
+    ordering = ('attempt',)
+
+class RecentActivityAdmin(admin.ModelAdmin):
+    list_display = ('user', 'description', 'details','timestamp')
+    search_fields = ('description',)
+    
+admin.site.register(RecentActivity, RecentActivityAdmin) 
+from .models import Announcement, Notification
+
+admin.site.register(Announcement)
 admin.site.register(Notification)
-admin.site.register(PasswordReset)
-admin.site.register(AnalyticsReport)
-admin.site.register(TestProctoringSetting)
-admin.site.register(QuestionImportLog)
-admin.site.register(UserActivityLog)
 
-
-# Register your models here.
