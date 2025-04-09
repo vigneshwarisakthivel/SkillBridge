@@ -27,24 +27,21 @@ import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
   const [userData, setUserData] = useState(null);
-  const [activityLogs, setActivityLogs] = useState([]);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [image, setImage] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem('user_token');
 
   const API_BASE_URL = 'http://127.0.0.1:8000/api';
   const USER_PROFILE_URL = `${API_BASE_URL}/users/`;
-  const ACTIVITY_LOGS_URL = `${API_BASE_URL}/admin/activities/`;
   const UPLOAD_PROFILE_PICTURE_URL = `${API_BASE_URL}/users/upload_profile_picture/`; // For uploading profile picture
   const CHANGE_PASSWORD_URL = `${API_BASE_URL}/users/change_password/`; // For changing password
   const LOGOUT_URL = `${API_BASE_URL}/logout/`; // For logging out
@@ -53,37 +50,39 @@ const Profile = () => {
     const storedUserData = localStorage.getItem('user_data');
     if (storedUserData) {
       setUserData(JSON.parse(storedUserData));
-    }
-
-    const fetchUserData = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(USER_PROFILE_URL, {
-          headers: {
-            'Authorization': `Token ${token}`,
-          },
-        });
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setUserData(data);
-        if (data.profile_picture) {
-          setImage(`${API_BASE_URL}${data.profile_picture}`);
-        }
-        localStorage.setItem('user_data', JSON.stringify(data));
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        setErrorMessage('Failed to fetch user data. Please try again.');
-        setSnackbarOpen(true);
-      } finally {
-        setLoading(false);
+      if (JSON.parse(storedUserData).profile_picture) {
+        setImage(`${API_BASE_URL}${JSON.parse(storedUserData).profile_picture}`);
       }
-    };
+    } else {
+      fetchUserData();
+    }
+  }, [token]);
 
-    fetchUserData();
-
-  },[]);
+  const fetchUserData = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(USER_PROFILE_URL, {
+        headers: {
+          'Authorization': `Token ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setUserData(data);
+      if (data.profile_picture) {
+        setImage(`${API_BASE_URL}${data.profile_picture}`);
+      }
+      localStorage.setItem('user_data', JSON.stringify(data)); // Store user data in localStorage
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      setErrorMessage('Failed to fetch user data. Please try again.');
+      setSnackbarOpen(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -105,6 +104,7 @@ const Profile = () => {
         const data = await response.json();
         setImage(`${API_BASE_URL}${data.profile_picture}`);
         setUserData((prevData) => ({ ...prevData, profile_picture: data.profile_picture }));
+        localStorage.setItem('user_data', JSON.stringify({ ...userData, profile_picture: data.profile_picture })); // Update localStorage
       } catch (error) {
         console.error('Error uploading profile picture:', error);
         setErrorMessage('Failed to upload profile picture. Please try again.');
@@ -125,7 +125,7 @@ const Profile = () => {
     formData.append("linkedin", userData.linkedin);
 
     try {
-      const response = await fetch(`${USER_PROFILE_URL}${userData.id}/`, { // Use the correct URL with user ID
+      const response = await fetch(`${USER_PROFILE_URL}${userData.id}/`, {
         method: "PUT",
         headers: {
           "Authorization": `Token ${token}`,
@@ -139,6 +139,7 @@ const Profile = () => {
 
       const data = await response.json();
       setUserData(data);
+      localStorage.setItem('user_data', JSON.stringify(data)); // Update localStorage
       setIsEditing(false);
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -148,7 +149,6 @@ const Profile = () => {
       setLoading(false);
     }
   };
-
   const handleChangePassword = async (e) => {
     e.preventDefault();
     if (newPassword === confirmPassword) {
@@ -202,7 +202,6 @@ const Profile = () => {
       setSnackbarOpen(true);
     }
   };
-
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -273,250 +272,263 @@ const Profile = () => {
         </Box>
       </Drawer>
 
-      <Box sx={{ flex: 1, p: 3, marginTop: '64px', display: 'flex', alignItems: 'stretch' }}>
-        <Grid container spacing={2} sx={{ height: '100%' }}>
-          <Grid item xs={12} md={4}>
-            <Card sx={{ borderRadius: 2, boxShadow: 3, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <Typography variant="h5" sx={{ mb: 2, fontWeight: 'bold', color: '#003366' }}>
-                <center>User Profile</center>
-              </Typography>
-              <CardContent sx={{ textAlign: 'center' }}>
-                <Box sx={{ position: 'relative', display: 'inline-block' }}>
-                  {image ? (
-                    <img
-                      src={image}
-                      alt="Profile"
-                      style={{
-                        width: '120px',
-                        height: '120px',
-                        borderRadius: '50%',
-                        objectFit: 'cover',
-                        border: '4px solid #003366',
-                      }}
-                    />
-                  ) : (
-                    <FaUser  size={80} style={{ color: '#003366' }} />
-                  )}
-                  {isEditing && (
-                    <label htmlFor="upload-image" style={{ cursor: 'pointer' }}>
-                      <FaUpload
-                        style={{
-                          position: 'absolute',
-                          bottom: '0',
-                          right: '0',
-                          backgroundColor: '#003366',
-                          color: '#fff',
-                          padding: '8px',
-                          borderRadius: '50%',
-                        }}
-                      />
-                    </label>
-                  )}
-                  <input
-                    type="file"
-                    id="upload-image"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    style={{ display: 'none' }}
-                  />
-                </Box>
-                <Typography variant="h6" sx={{ mt: 2, fontWeight: 'bold' }}>
-                  {userData ? userData.full_name : 'N/A'}
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                  {userData ? userData.role : 'N/A'}
-                </Typography>
-                {!isEditing && (
-                  <Button
-                    variant="contained"
-                    startIcon={<FaEdit />}
-                    onClick={() => setIsEditing(true)}
-                    sx={{ mt: 2, backgroundColor: '#003366', '&:hover': { backgroundColor: '#002244' } }}
-                  >
-                    Edit Profile
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          </Grid>
+      <Box
+  sx={{
+    flex: 1,
+    p: 3,
+    marginTop: "64px",
+    display: "flex",
+    alignItems: "stretch",
+  }}
+>
+  <Grid container spacing={2}>
+    {/* Left Side - User Profile */}
+    <Grid item xs={12} md={4}>
+      <Card
+        sx={{
+          borderRadius: 2,
+          boxShadow: 3,
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+        }}
+      >
+        <Typography
+          variant="h5"
+          sx={{ mb: 2, fontWeight: "bold", color: "#003366" }}
+        >
+          <center>Admin Profile</center>
+        </Typography>
+        <CardContent sx={{ textAlign: "center" }}>
+          <Box sx={{ position: "relative", display: "inline-block" }}>
+            {image ? (
+              <img
+                src={image}
+                alt="Profile"
+                style={{
+                  width: "120px",
+                  height: "120px",
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  border: "4px solid #003366",
+                }}
+              />
+            ) : (
+              <FaUser size={80} style={{ color: "#003366" }} />
+            )}
+            {isEditing && (
+              <label htmlFor="upload-image" style={{ cursor: "pointer" }}>
+                <FaUpload
+                  style={{
+                    position: "absolute",
+                    bottom: "0",
+                    right: "0",
+                    backgroundColor: "#003366",
+                    color: "#fff",
+                    padding: "8px",
+                    borderRadius: "50%",
+                  }}
+                />
+              </label>
+            )}
+            <input
+              type="file"
+              id="upload-image"
+              accept="image/*"
+              onChange={handleImageUpload}
+              style={{ display: "none" }}
+            />
+          </Box>
+          <Typography variant="h6" sx={{ mt: 2, fontWeight: "bold" }}>
+            {userData ? userData.full_name : "N/A"}
+          </Typography>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+            {userData ? userData.role : "N/A"}
+          </Typography>
+          {!isEditing && (
+            <Button
+              variant="contained"
+              startIcon={<FaEdit />}
+              onClick={() => setIsEditing(true)}
+              sx={{
+                mt: 2,
+                backgroundColor: "#003366",
+                "&:hover": { backgroundColor: "#002244" },
+              }}
+            >
+              Edit Profile
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+    </Grid>
 
-          <Grid item xs={12} md={8}>
-            <Card sx={{ borderRadius: 2, boxShadow: 3 }}>
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
-                  Profile Information
-                </Typography>
-                {isEditing ? (
-                  <form onSubmit={handleProfileSubmit}>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12} md={6}>
-                        <TextField
-                          fullWidth
-                          label="Full Name"
-                          value={userData ? userData.full_name : ''}
-                          onChange={(e) => setUserData({ ...userData, full_name: e.target.value })}
-                          required
-                        />
-                      </Grid>
-                      <Grid item xs={12} md={6}>
-                        <TextField
-                          fullWidth
-                          label="Phone"
-                          value={userData ? userData.phone : ''}
-                          onChange={(e) => setUserData({ ...userData, phone: e.target.value })}
-                          required
-                        />
-                      </Grid>
-                      <Grid item xs={12} md={6}>
-                        <TextField
-                          fullWidth
-                          label="Email"
-                          type="email"
-                          value={userData ? userData.email : ''}
-                          onChange={(e) => setUserData({ ...userData, email: e.target.value })}
-                          required
-                        />
-                      </Grid>
-                      <Grid item xs={12} md={6}>
-                        <TextField
-                          fullWidth
-                          label="Status"
-                          value={userData ? userData.status : ''}
-                          onChange={(e) => setUserData({ ...userData, status: e.target.value })}
-                          required
-                        />
-                      </Grid>
-                      <Grid item xs={12} md={6}>
-                        <TextField
-                          fullWidth
-                          label="Role"
-                          value={userData.role} // Display role but do not allow editing
-                          InputProps={{
-                            readOnly: true, // Make the field read-only
-                          }}
-                        />
-                      </Grid>
-                      <Grid item xs={12} md={6}>
-                        <TextField
-                          fullWidth
-                          label="LinkedIn"
-                          value={userData ? userData.linkedin : ''}
-                          onChange={(e) => setUserData({ ...userData, linkedin: e.target.value })}
-                          required
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Button
-                          type="submit"
-                          variant="contained"
-                          sx={{ backgroundColor: '#003366', '&:hover': { backgroundColor: '#002244' } }}
-                        >
-                          Save Profile
-                        </Button>
-                      </Grid>
-                    </Grid>
-                  </form>
-                ) : (
+    {/* Right Side - Profile Information & Security Settings */}
+    <Grid item xs={12} md={8}>
+      <Grid container spacing={2}>
+        {/* Profile Information */}
+        <Grid item xs={12}>
+           <Card sx={{ borderRadius: 2, boxShadow: 3, flexGrow: 1 }}>
+            <CardContent>
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
+                Profile Information
+              </Typography>
+              {isEditing ? (
+                <form onSubmit={handleProfileSubmit}>
                   <Grid container spacing={2}>
                     <Grid item xs={12} md={6}>
-                      <Typography variant="body1">
-                        <strong>Full Name:</strong> {userData ? userData.full_name : 'N/A'}
-                      </Typography>
+                      <TextField
+                        fullWidth
+                        label="Full Name"
+                        value={userData ? userData.full_name : ""}
+                        onChange={(e) =>
+                          setUserData({ ...userData, full_name: e.target.value })
+                        }
+                        required
+                      />
                     </Grid>
                     <Grid item xs={12} md={6}>
-                      <Typography variant="body1">
-                        <strong>Phone:</strong> {userData ? userData.phone : 'N/A'}
-                      </Typography>
+                      <TextField
+                        fullWidth
+                        label="Phone"
+                        value={userData ? userData.phone : ""}
+                        onChange={(e) =>
+                          setUserData({ ...userData, phone: e.target.value })
+                        }
+                        required
+                      />
                     </Grid>
                     <Grid item xs={12} md={6}>
-                      <Typography variant="body1">
-                        <strong>Email:</strong> {userData ? userData.email : 'N/A'}
-                      </Typography>
+                      <TextField
+                        fullWidth
+                        label="Email"
+                        type="email"
+                        value={userData ? userData.email : ""}
+                        onChange={(e) =>
+                          setUserData({ ...userData, email: e.target.value })
+                        }
+                        required
+                      />
                     </Grid>
                     <Grid item xs={12} md={6}>
-                      <Typography variant="body1">
-                        <strong>Status:</strong> {userData ? userData.status : 'N/A'}
-                      </Typography>
+                      <TextField
+                        fullWidth
+                        label="Status"
+                        value={userData ? userData.status : ""}
+                        onChange={(e) =>
+                          setUserData({ ...userData, status: e.target.value })
+                        }
+                        required
+                      />
                     </Grid>
                     <Grid item xs={12} md={6}>
-                      <Typography variant="body1">
-                        <strong>Role:</strong> {userData ? userData.role : 'N/A'}
-                      </Typography>
+                      <TextField
+                        fullWidth
+                        label="Role"
+                        value={userData.role}
+                        InputProps={{ readOnly: true }}
+                      />
                     </Grid>
                     <Grid item xs={12} md={6}>
-                      <Typography variant="body1">
-                        <strong>LinkedIn:</strong> {userData ? <a href={userData.linkedin} target="_blank" rel="noopener noreferrer">{userData.linkedin}</a> : 'N/A'}
-                      </Typography>
+                      <TextField
+                        fullWidth
+                        label="LinkedIn"
+                        value={userData ? userData.linkedin : ""}
+                        onChange={(e) =>
+                          setUserData({ ...userData, linkedin: e.target.value })
+                        }
+                        required
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        sx={{
+                          backgroundColor: "#003366",
+                          "&:hover": { backgroundColor: "#002244" },
+                        }}
+                      >
+                        Save Profile
+                      </Button>
                     </Grid>
                   </Grid>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card sx={{ mt: 2, borderRadius: 2, boxShadow: 3 }}>
-              <CardContent>
-                <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
-                  Security Settings
-                </Typography>
-                <Button
-                  variant="contained"
-                  onClick={() => setIsChangingPassword(!isChangingPassword)}
-                  sx={{ backgroundColor: '#003366', '&:hover': { backgroundColor: '#002244' } }}
-                >
-                  Change Password
-                </Button>
-                {isChangingPassword && (
-                  <form onSubmit={handleChangePassword} style={{ marginTop: '20px' }}>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12} md={6}>
-                        <TextField
-                          fullWidth
-                          label="Current Password"
-                          type="password"
-                          value={currentPassword}
-                          onChange={(e) => setCurrentPassword(e.target.value)}
-                          required
-                        />
-                      </Grid>
-                      <Grid item xs={12} md={6}>
-                        <TextField
-                          fullWidth
-                          label="New Password"
-                          type="password"
-                          value={newPassword}
-                          onChange={(e) => setNewPassword(e.target.value)}
-                          required
-                        />
-                      </Grid>
-                      <Grid item xs={12} md={6}>
-                        <TextField
-                          fullWidth
-                          label="Confirm New Password"
-                          type="password"
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          required
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Button
-                          type="submit"
-                          variant="contained"
-                          sx={{ backgroundColor: '#003366', '&:hover': { backgroundColor: '#002244' } }}
-                        >
-                          Submit
-                        </Button>
-                      </Grid>
-                    </Grid>
-                  </form>
-                )}
-              </CardContent>
-            </Card>
-
-          </Grid>
+                </form>
+              ) : (
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="body1">
+                      <strong>Full Name:</strong> {userData ? userData.full_name : "N/A"}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="body1">
+                      <strong>Phone:</strong> {userData ? userData.phone : "N/A"}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="body1">
+                      <strong>Email:</strong> {userData ? userData.email : "N/A"}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="body1">
+                      <strong>Status:</strong> {userData ? userData.status : "N/A"}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="body1">
+                      <strong>Role:</strong> {userData ? userData.role : "N/A"}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="body1">
+                      <strong>LinkedIn:</strong>{" "}
+                      {userData ? (
+                        <a href={userData.linkedin} target="_blank" rel="noopener noreferrer">
+                          {userData.linkedin}
+                        </a>
+                      ) : (
+                        "N/A"
+                      )}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              )}
+            </CardContent>
+          </Card>
         </Grid>
-      </Box>
 
+        {/* Security Settings */}
+        <Grid item xs={12}>
+        <Card sx={{ borderRadius: 2, boxShadow: 3, flexGrow: 1, mt: 2 }}>
+            <CardContent>
+              <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
+                Security Settings
+              </Typography>
+              <Button
+                variant="contained"
+                onClick={() => setIsChangingPassword(!isChangingPassword)}
+                sx={{ backgroundColor: "#003366", "&:hover": { backgroundColor: "#002244" } }}
+              >
+                Change Password
+              </Button>
+              {isChangingPassword && (
+                <form onSubmit={handleChangePassword} style={{ marginTop: "20px" }}>
+                  <TextField fullWidth label="Current Password" type="password" required />
+                  <TextField fullWidth label="New Password" type="password" required />
+                  <TextField fullWidth label="Confirm New Password" type="password" required />
+                  <Button type="submit" variant="contained">Submit</Button>
+                </form>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Grid>
+  </Grid>
+</Box>
       <Box sx={{ backgroundColor: "#003366", color: "white", textAlign: "center", py: 2 }}>
         <Typography variant="body2">
           {new Date().getFullYear()} Skill Bridge Online Test Platform. All rights reserved.

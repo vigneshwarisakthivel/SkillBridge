@@ -126,7 +126,8 @@ const questionTypes = {
 const API_BASE_URL = "http://127.0.0.1:8000/api";
 
 export default function OnlineTestPage() {
-    const { testId } = useParams();
+    const { uuid } = useParams(); // ✅ Now we use uuid from the URL
+    const [testId, setTestId] = useState(null);
     const [hoveredIndex, setHoveredIndex] = useState(null);
     const [questions, setQuestions] = useState([]);
     const [selectedOption, setSelectedOption] = useState("");
@@ -164,9 +165,21 @@ export default function OnlineTestPage() {
         setTimeLeft(2559);
         setCurrentQuestionTime(questionTime);
     };
-
     const userToken = localStorage.getItem("user_token");
-
+    const decodeUUID = useCallback(async () => {
+        
+        try {
+            const response = await axios.get(
+                `${API_BASE_URL}/tests/decode-uuid/`,
+                { uuid },
+                { headers: { Authorization: `Token ${userToken}` } }
+            );
+            setTestId(response.data.test_id);
+        } catch (error) {
+            console.error("Error decoding UUID:", error);
+        }
+    }, [uuid, userToken]);
+    
     const fetchQuestions = useCallback(async () => {
         try {
             const response = await axios.get(`${API_BASE_URL}/tests/${testId}/`, {
@@ -225,10 +238,16 @@ export default function OnlineTestPage() {
     }, [userToken, testId]);
 
     useEffect(() => {
-        fetchQuestions();
-        startTest();
-    }, [fetchQuestions, startTest]);
-
+        decodeUUID(); // Decode UUID and set testId
+    }, [decodeUUID]);
+    
+    useEffect(() => { 
+        if (testId !== null) {
+            fetchQuestions(); // Fetch questions only after testId is available
+            startTest();      // Start the test attempt only after testId is available
+        }
+    }, [fetchQuestions, startTest, testId]);
+    
     const fetchUserDetails = async () => {
         try {
             const response = await axios.get(`${API_BASE_URL}/user-profile/`, {

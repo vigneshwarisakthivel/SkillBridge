@@ -134,14 +134,19 @@ const ManageTestsPage = () => {
 
   return (
     <Box sx={{ display: "flex" }}>
-      <AppBar position="fixed" sx={{ backgroundColor: "#003366", padding: "6px 16px" }}>
+      <AppBar position="fixed" sx={{ backgroundColor: "#003366" }}>
         <Toolbar>
           <IconButton color="inherit" onClick={toggleSidebar} edge="start" sx={{ marginRight: 2 }}>
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1, fontSize: "1rem" }}>
-            Skill Bridge Online Test Platform
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          Skill Bridge Online Test Platform
           </Typography>
+          <Button color="inherit" onClick={() => navigate("/")}>Home</Button>
+          <Button color="inherit" onClick={() => navigate("/aboutus")}>About Us</Button>
+          <Button color="inherit" onClick={() => navigate("/contactpage")}>Contact Us</Button>
+          <Button color="inherit" onClick={() => navigate("/register")}>Sign Up</Button>
+          <Button color="inherit" onClick={() => navigate("/login")}>Login</Button>
         </Toolbar>
       </AppBar>
 
@@ -171,9 +176,6 @@ const ManageTestsPage = () => {
             </ListItem>
             <ListItem button onClick={() => navigate("/manage-tests")}>
               <ListItemText primary="Manage Tests" />
-            </ListItem>
-            <ListItem button onClick={() => navigate("/userresponse")}>
-              <ListItemText primary="Test Analytics" />
             </ListItem>
             <ListItem button onClick={() => navigate("/announcements")}>
               <ListItemText primary="Announcements" />

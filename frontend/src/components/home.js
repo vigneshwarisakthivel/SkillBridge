@@ -127,7 +127,7 @@ const HomePage = () => {
             backgroundColor: "#003366",
           },
         }}
-        onClick={() => navigate('/Registerpage')} // Commented out to avoid error
+        onClick={() => navigate('/register')} // Commented out to avoid error
       >
         Get Started
       </Button>
@@ -317,7 +317,7 @@ const HomePage = () => {
   const Benefits = () => (
     <Box sx={{ backgroundColor: "#e0f7fa", padding: "30px 16px" }}>
       <Typography variant="h4" sx={{ textAlign: "center", marginBottom: "20px" }}>
-      ⭐ Why Choose Vdart?
+      ⭐ Why Choose Skill Bridge?
       </Typography>
       <Grid container spacing={2} justifyContent="center">
         <Grid item xs={12} sm={4}>
@@ -374,7 +374,7 @@ const HomePage = () => {
  
   // FAQ Data Array
   const faqData = [
-    { question: "How can I register on Vdart?", answer: "You can register by clicking on the 'Sign Up' button on the homepage." },
+    { question: "How can I register on skill Bridge?", answer: "You can register by clicking on the 'Sign Up' button on the homepage." },
     { question: "How do I start a test?", answer: "Once logged in, you can browse the test list and start any test you like." },
     { question: "What happens if I don't complete a test?", answer: "Your progress will be saved, and you can continue the test from where you left off." }
   ];
@@ -488,7 +488,7 @@ const HomePage = () => {
             }}
           >
             Join thousands of users who are improving their skills on{" "}
-            <b style={{ color: "#0077b6" }}>Vdart</b> today. Get access to
+            <b style={{ color: "#0077b6" }}>Skill Bridge</b> today. Get access to
             high-quality tests, real-time analytics, and AI-powered
             recommendations.
           </Typography>
@@ -605,20 +605,16 @@ const HomePage = () => {
             />
           )}
            <List>
-            <ListItem button onClick={() => navigate('/')}>
-              <ListItemText primary="Home" />
+            <ListItem>
+            <Button color="inherit" onClick={() => navigate("/")}>Home</Button>
             </ListItem>
-            <ListItem button onClick={() => navigate('/login')}>
-              <ListItemText primary="Login" />
+            <ListItem> <Button color="inherit" onClick={() => navigate("/login")}>Login</Button>
             </ListItem>
-            <ListItem button onClick={() => navigate('/register')}>
-              <ListItemText primary="Register" />
+            <ListItem ><Button color="inherit" onClick={() => navigate("/register")}>Register</Button>
             </ListItem>
-            <ListItem button onClick={() => navigate('/aboutus')}>
-              <ListItemText primary="About Us" />
+            <ListItem> <Button color="inherit" onClick={() => navigate("/aboutus")}>About Us</Button>
             </ListItem>
-            <ListItem button onClick={() => navigate('/contactpage')}>
-              <ListItemText primary="Contact Us" />
+            <ListItem> <Button color="inherit" onClick={() => navigate("/contactpage")}>Contact Us</Button>
             </ListItem>
           </List>
         </Box>

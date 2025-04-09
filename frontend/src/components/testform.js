@@ -1,17 +1,35 @@
-import { useState } from "react";
+import { useEffect,useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, TextField, Button, Box, Typography } from "@mui/material";
+import axios from "axios"; 
 
 const PreTestForm = () => {
-  const { testId,randomString } = useParams();
+  const { uuid } = useParams();// Changed testId → secureId
+  const [testId, setTestId] = useState(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (uuid) {
+      axios.get(`http://localhost:8000/api/decode-test-uuid/${uuid}/`)
+        .then(res => {
+          setTestId(res.data.test_id);
+        })
+        .catch(err => {
+          console.error("Failed to decode test ID", err);
+        });
+    }
+  }, [uuid]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const userData = { name, email };
+    const userData = {
+      name,
+      email,
+      test_id: testId, // ✅ Use decoded test ID
+    };
 
     try {
       const response = await fetch("http://localhost:8000/api/test-users/", {
@@ -23,10 +41,10 @@ const PreTestForm = () => {
       });
 
       if (response.ok) {
-        navigate(`/smartbridge/online-test-assessment/${randomString}/${testId}/cover/`);
+        navigate(`/smartbridge/online-test-assessment/${uuid}/cover/`);
       } else {
         const data = await response.json();
-        alert(data.message || "Failed to register");
+        alert(data.message || "You are not allowed to take this test.");
       }
     } catch (error) {
       console.error("Error:", error);

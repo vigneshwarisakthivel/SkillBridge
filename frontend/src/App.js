@@ -29,10 +29,10 @@ import ProfileUser from './components/userprofile';
 import ForgotPasswordPage from './components/forgotpassword';
 import ChangePasswordPage from './components/changepassword';
 import CoverPage from "./components/cover";
-import TestReport from "./components/TestReport";
+
 import PreTestForm from "./components/testform";
 import AdminProfile from "./components/admin-profile";
-import AdminNotifications from "./components/adminnotifications";
+
 
 const App = () => {
   
@@ -66,14 +66,14 @@ const App = () => {
         
           <Route path="/" element={<HomePage />} />
           <Route path="/userprofile" element={<ProfileUser/>} />
-          <Route path="/smartbridge/online-test-assessment/:randomString/:testId" element={<PreTestForm/>} />
+          <Route path="/smartbridge/online-test-assessment/:uuid" element={<PreTestForm/>} />
           <Route path="/Proctoring" element={<WebcamProctoring/>} />
           <Route path="/image-capture" element={<Proctoring/>} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/change-password" element={<ChangePasswordPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/smartbridge/online-test-assessment/:randomString/:testId/cover" element={<CoverPage />} />
-          <Route path="/smartbridge/online-test-assessment/:randomString/:testId/write" element={<TestWritePage />} />
+          <Route path="/smartbridge/online-test-assessment/:uuid/cover" element={<CoverPage />} />
+          <Route path="/smartbridge/online-test-assessment/:uuid/write" element={<TestWritePage />} />
           <Route path="/questioncreation" element={<QuestionCreator />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/logout" element={<LogoutPage />} />
@@ -90,9 +90,7 @@ const App = () => {
           <Route path="/adminSettings" element={<AdminSettingsPage />} />
           <Route path="/announcement" element={<AnnouncementsPage />} />
           <Route path="/attempted-tests" element={<AttemptedTest />} />
-          <Route path="/test-report/:testId" element={<TestReport />} />
-          <Route path="/admin-notifications" element={<AdminNotifications />} />
-          <Route path="/smartbridge/online-test-assessment/:randomString/:testId/instructions" element={<InstructionPage />} />
+          <Route path="/smartbridge/online-test-assessment/:uuid/instructions" element={<InstructionPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

@@ -214,7 +214,7 @@ const sendDataToAttemptedTestsAPI = async (testId, testTitle, testSubject, perce
           Skill Bridge Dashboard
           </Typography>
           <Button color="inherit" onClick={() => navigate("/")}>Home</Button>
-          <Button color="inherit" onClick={() => navigate("/userprofile")}>User  Profile</Button>
+          <Button color="inherit" onClick={() => navigate("/userprofile")}>User Profile</Button>
           <Button color="inherit" onClick={() => navigate("/available-tests")}>Test List</Button>
           <Button color="inherit" onClick={() => navigate("/usersetting")}>Settings</Button>
           <Button color="inherit" onClick={() => navigate("/logout")}>Logout</Button>
@@ -239,17 +239,11 @@ const sendDataToAttemptedTestsAPI = async (testId, testTitle, testSubject, perce
             <ListItem button onClick={() => navigate('/user-dashboard')}>
               <ListItemText primary="Dashboard" />
             </ListItem>
-            <ListItem button onClick={() => navigate('/available-tests')}>
-              <ListItemText primary="Available Tests" />
-            </ListItem>
             <ListItem button onClick={() => navigate('/attempted-tests')}>
               <ListItemText primary="Attempted Tests" />
             </ListItem>
             <ListItem button onClick={() => navigate('/performancehistory')}>
               <ListItemText primary="Performance History" />
-            </ListItem>
-            <ListItem button onClick={() => navigate('/leaderboard')}>
-              <ListItemText primary="Leaderboard" />
             </ListItem>
             <ListItem button onClick={() => navigate('/usersetting')}>
               <ListItemText primary="Settings" />

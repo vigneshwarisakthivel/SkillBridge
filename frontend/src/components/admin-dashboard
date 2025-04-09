@@ -31,6 +31,7 @@ const AdminDashboard = () => {
   const [feedback, setFeedback] = useState([]);
   const [tests, setTests] = useState([]);
   const [open, setOpen] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
   const [testData, setTestData] = useState({ name: "", schedule: "", type: "" });
   const [dashboardData, setDashboardData] = useState({});
   const [setUserManagementData] = useState({});
@@ -64,6 +65,50 @@ const AdminDashboard = () => {
     }
     return acc;
   }, []);
+  useEffect(() => {
+    const userRole = localStorage.getItem("role"); // Retrieve role from localStorage
+
+    if (userRole !== "admin") {
+      setOpenModal(true); // Show modal if not admin
+    } else {
+      fetchData(); // Fetch data if the user is an admin
+    }
+  }, []);
+
+  const handleClose = () => {
+    setOpenModal(false);
+    navigate("/"); // Redirect to home or another page
+  };
+  const fetchData = async () => {
+      const token = localStorage.getItem('user_token');
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`,
+      };
+
+      try {
+        const userResponse = await axios.get('http://127.0.0.1:8000/api/userss/', { headers });
+        setUserData(userResponse.data);
+        const dashboardResponse = await axios.get('http://127.0.0.1:8000/api/dashboard-overview/', { headers });
+        setDashboardData(dashboardResponse.data);
+        const userManagementResponse = await axios.get("http://127.0.0.1:8000/api/user-management-stats/", { headers });
+        setUserManagement(userManagementResponse.data);
+        const response = await axios.get('http://127.0.0.1:8000/api/tests-data/', { headers });
+        setAnalyticsData(response.data);
+
+        const [ feedbacksResponse] = await Promise.all([
+          
+          axios.get('http://127.0.0.1:8000/api/feedbacks/', { headers }),
+        ]);
+
+        setUserManagement(userManagementResponse.data);
+        setFeedback(feedbacksResponse.data);
+      } catch (error) {
+        console.error("Error fetching data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
   useEffect(() => {
     const fetchTests = async () => {
@@ -157,44 +202,6 @@ const AdminDashboard = () => {
     setOpenNotifications(false);
   };
   
-
-  // Close modal
-  const handleClose = () => setOpen(false);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const token = localStorage.getItem('user_token');
-      const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': `Token ${token}`,
-      };
-
-      try {
-        const userResponse = await axios.get('http://127.0.0.1:8000/api/userss/', { headers });
-        setUserData(userResponse.data);
-        const dashboardResponse = await axios.get('http://127.0.0.1:8000/api/dashboard-overview/', { headers });
-        setDashboardData(dashboardResponse.data);
-        const userManagementResponse = await axios.get("http://127.0.0.1:8000/api/user-management-stats/", { headers });
-        setUserManagement(userManagementResponse.data);
-        const response = await axios.get('http://127.0.0.1:8000/api/tests-data/', { headers });
-        setAnalyticsData(response.data);
-
-        const [ feedbacksResponse] = await Promise.all([
-          
-          axios.get('http://127.0.0.1:8000/api/feedbacks/', { headers }),
-        ]);
-
-        setUserManagement(userManagementResponse.data);
-        setFeedback(feedbacksResponse.data);
-      } catch (error) {
-        console.error("Error fetching data", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  },[]);
   useEffect(() => {
     if (!userData?.id) return; // ✅ Ensure user ID is available
 
@@ -204,6 +211,7 @@ const AdminDashboard = () => {
       .get(`http://127.0.0.1:8000/api/users/${userData.id}/`, {
         headers: { Authorization: `Token ${userToken}` },
       })
+      
       .then((response) => {
         setUserData(response.data);
       })
@@ -252,6 +260,43 @@ const AdminDashboard = () => {
 
   return (
     <>
+<div>
+        {/* Admin Dashboard Content */}
+        <h1>Welcome to Admin Dashboard</h1>
+
+        {/* Modal for Unauthorized Access */}
+        <Modal open={openModal} onClose={handleClose}>
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: 400,
+              bgcolor: "background.paper",
+              boxShadow: 24,
+              p: 4,
+              textAlign: "center",
+              borderRadius: 2,
+            }}
+          >
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold", color: "red" }}>
+              Access Denied!
+            </Typography>
+            <Typography variant="body1">
+              This page is restricted to admins only.
+            </Typography>
+            <Button
+              variant="contained"
+              onClick={handleClose}
+              sx={{ mt: 2, backgroundColor: "#003366", "&:hover": { backgroundColor: "#002244" } }}
+            >
+              Go Back
+            </Button>
+          </Box>
+        </Modal>
+      </div>
+
       <Drawer open={isSidebarOpen} onClose={toggleSidebar}>
         <Box sx={{ width: 220, textAlign: "center", padding: "12px" }}>
           {isSidebarOpen && (
@@ -266,13 +311,33 @@ const AdminDashboard = () => {
               }}
             />
           )}
-          <List>
-            {["Dashboard", "Test Creation", "Question Creation", "Manage Tests", "Test Analytics", "Announcements", "Settings", "Logout"].map((text, index) => (
-              <ListItem button key={text} onClick={() => navigate(`/${text.toLowerCase().replace(" ", "")}`)}>
-                <ListItemText primary={text} />
-              </ListItem>
-            ))}
-          </List>
+        <List>
+          <ListItem button onClick={() => navigate('/admin-dashboard')}>
+            <ListItemText primary="Dashboard" />
+          </ListItem>
+          <ListItem button onClick={() => navigate('/testcreation')}>
+            <ListItemText primary="Test Creation" />
+          </ListItem>
+          <ListItem button onClick={() => navigate('/questioncreation')}>
+            <ListItemText primary="Question Creation" />
+          </ListItem>
+          <ListItem button onClick={() => navigate('/manage-tests')}>
+            <ListItemText primary="Manage Tests" />
+          </ListItem>
+
+          <ListItem button onClick={() => navigate('/announcement')}>
+            <ListItemText primary="Announcements" />
+          </ListItem>
+          <ListItem button onClick={() => navigate('/adminsettings')}>
+            <ListItemText primary="Settings" />
+          </ListItem>
+          <ListItem button onClick={() => {
+            localStorage.removeItem('user_token');
+            navigate('/login');
+          }}>
+            <ListItemText primary="Logout" />
+          </ListItem>
+        </List>
         </Box>
       </Drawer>
 
@@ -287,8 +352,8 @@ const AdminDashboard = () => {
           </Typography>
           <Button color="inherit" onClick={() => navigate("/")}>Home</Button>
           <Button color="inherit" onClick={() => navigate("/admin-profile")}>Admin Profile</Button>
-          <Button color="inherit" onClick={() => navigate("/test-list")}>Test List</Button>
-          <Button color="inherit" onClick={() => navigate("/settings")}>Settings</Button>
+          <Button color="inherit" onClick={() => navigate("/manage-tests")}>Test List</Button>
+          <Button color="inherit" onClick={() => navigate("/adminsettings")}>Settings</Button>
           <Button color="inherit" onClick={() => navigate("/logout")}>Logout</Button>
 
 {/* Notification Bell Icon */}
@@ -420,60 +485,59 @@ const AdminDashboard = () => {
                 </Typography>
 
                 <Grid container spacing={2}>
-                  {[
-                    {
-                      label: "Total Students",
-                      value: dashboardData?.total_students || "0",
-                      icon: <PeopleAlt color="primary" sx={{ fontSize: 22 }} />,
-                    },
-                    {
-                      label: "Tests Conducted",
-                      value: dashboardData?.total_tests || "0",
-                      icon: <Assessment color="secondary" sx={{ fontSize: 22 }} />,
-                    },
-                    {
-                      label: "Average Score",
-                      value: `${dashboardData?.average_score ? dashboardData.average_score.toFixed(2) : "N/A"}%`,
-                      icon: <BarChart color="primary" sx={{ fontSize: 22 }} />,
-                    },
-                    {
-                      label: "Completion Rate",
-                      value: `${dashboardData?.completion_rate ? (dashboardData.completion_rate * 100).toFixed(2) : "0"}%`,
-                      icon: <CheckCircle color="success" sx={{ fontSize: 22 }} />,
-                    },
-                    {
-                      label: "Top Scorers",
-                      value: dashboardData?.top_scorers && dashboardData.top_scorers.length > 0
-                        ? dashboardData.top_scorers.map(scorer => `${scorer.user__username} (${scorer.average_score.toFixed(2)})`).join(", ")
-                        : "None",
-                      icon: <PeopleAlt color="warning" sx={{ fontSize: 22 }} />,
-                    },
-
-                  ].map((item, index) => (
-                    <Grid item xs={6} key={index}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          backgroundColor: "#f0f8ff",
-                          borderRadius: 1,
-                          padding: "8px",
-                          boxShadow: 1,
-                        }}
-                      >
-                        <Box sx={{ marginRight: "10px" }}>{item.icon}</Box>
-                        <Box>
-                          <Typography variant="body2" sx={{ color: "gray" }}>
-                            {item.label}
-                          </Typography>
-                          <Typography variant="body1" sx={{ fontWeight: "bold", color: "#003366" }}>
-                            {item.value}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                  ))}
-                </Grid>
+  {[
+    {
+      label: "Total Students",
+      value: dashboardData?.total_students || "0",
+      icon: <PeopleAlt color="primary" sx={{ fontSize: 22 }} />,
+    },
+    {
+      label: "Tests Conducted",
+      value: dashboardData?.total_tests || "0",
+      icon: <Assessment color="secondary" sx={{ fontSize: 22 }} />,
+    },
+    {
+      label: "Average Score",
+      value: `${dashboardData?.average_score != null ? dashboardData.average_score.toFixed(2) : "N/A"}%`,
+      icon: <BarChart color="primary" sx={{ fontSize: 22 }} />,
+    },
+    {
+      label: "Completion Rate",
+      value: `${dashboardData?.completion_rate != null ? (dashboardData.completion_rate * 100).toFixed(2) : "0"}%`,
+      icon: <CheckCircle color="success" sx={{ fontSize: 22 }} />,
+    },
+    {
+      label: "Top Scorers",
+      value: dashboardData?.top_scorers && dashboardData.top_scorers.length > 0
+        ? dashboardData.top_scorers.map(scorer => `${scorer.user__username} (${scorer.average_score != null ? scorer.average_score.toFixed(2) : "N/A"})`).join(", ")
+        : "None",
+      icon: <PeopleAlt color="warning" sx={{ fontSize: 22 }} />,
+    },
+  ].map((item, index) => (
+    <Grid item xs={6} key={index}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          backgroundColor: "#f0f8ff",
+          borderRadius: 1,
+          padding: "8px",
+          boxShadow: 1,
+        }}
+      >
+        <Box sx={{ marginRight: "10px" }}>{item.icon}</Box>
+        <Box>
+          <Typography variant="body2" sx={{ color: "gray" }}>
+            {item.label}
+          </Typography>
+          <Typography variant="body1" sx={{ fontWeight: "bold", color: "#003366" }}>
+            {item.value}
+          </Typography>
+        </Box>
+      </Box>
+    </Grid>
+  ))}
+</Grid>
               </CardContent>
             </Card>
           </Grid>
@@ -626,7 +690,7 @@ const AdminDashboard = () => {
                   <Grid item xs={4}>
                     <Box sx={{ textAlign: "center", backgroundColor: "#f0f8ff", borderRadius: 1, padding: "4px", boxShadow: 1 }}>
                       <Typography variant="body2" color="textSecondary">Avg Score</Typography>
-                      <Typography variant="body1" color="primary">{analyticsData.average_marks !== undefined ? analyticsData.average_marks.toFixed(2) : "0"}</Typography>
+                      <Typography variant="body1" color="primary">{analyticsData.average_marks != null ? analyticsData.average_marks.toFixed(2) : "0"}</Typography>
                     </Box>
                   </Grid>
                   <Grid item xs={4}>

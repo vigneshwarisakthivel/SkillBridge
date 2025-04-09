@@ -9,8 +9,9 @@ import Webcam from "react-webcam";
 import axios from "axios";
 
 const InstructionPage = () => {
-    const { randomString, testId } = useParams();
+    const { uuid,randomString } = useParams();
     const navigate = useNavigate();
+    const [testId, setTestId] = useState(null);
     const [testData, setTestData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -34,42 +35,40 @@ const InstructionPage = () => {
 
     useEffect(() => {
         const userToken = localStorage.getItem("user_token");
-
-        if (!userToken) {
-            setError("User not authenticated. Please login first.");
-            setLoading(false);
-            return;
-        }
-
-        if (!testId) {
-            setError("Test ID is missing.");
-            setLoading(false);
-            return;
-        }
-
-        fetch(`http://localhost:8000/api/tests/${testId}/`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Token ${userToken}`
-            }
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Failed to fetch test details");
+      
+        if (uuid) {
+          axios.get(`http://localhost:8000/api/decode-test-uuid/${uuid}/`)
+            .then(res => {
+              const decodedId = res.data.test_id;
+              setTestId(decodedId);
+      
+              // ✅ Fetch test data only after testId is available
+              return fetch(`http://localhost:8000/api/tests/${decodedId}/`, {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Token ${userToken}`,
                 }
-                return response.json();
+              });
+            })
+            .then(response => {
+              if (!response.ok) {
+                throw new Error("Failed to fetch test details");
+              }
+              return response.json();
             })
             .then(data => {
-                setTestData(data);
-                setLoading(false);
+              setTestData(data);
+              setLoading(false);
             })
-            .catch(err => {
-                console.error("Error fetching test data:", err);
-                setError("Failed to load test details.");
-                setLoading(false);
+            .catch(error => {
+              console.error("Error fetching test:", error);
+              setError("Failed to load test details.");
+              setLoading(false);
             });
-    }, [testId]);
+        }
+      }, [uuid]);
+      
 
     const handleConsentToggle = (key) => {
         setConsent(prev => ({ ...prev, [key]: !prev[key] }));

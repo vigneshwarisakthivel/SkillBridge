@@ -6,23 +6,26 @@ import { useNavigate } from "react-router-dom";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
 import TwitterIcon from '@mui/icons-material/Twitter';
+import Papa from "papaparse";
 import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 const steps = ["Test Name & Description", "Question Creation", "Question Bank", "Set Time Limit & Marks", "Set Pass/Fail Criteria", "Settings", "Publish & Share"];
-const BASE_URL = "http://localhost:3000/smartbridge/online-test-assessment"; // Replace with your actual base URL
-const CreateNewTest = () => {
-       
+const BASE_URL = "http://localhost:3000/smartbridge/online-test-assessment/"; // Replace with your actual base URL
+const CreateNewTest = (onClose) => {
+
         const [allowRetakes, setAllowRetakes] = useState(false); // Default: false
         const [numberOfRetakes, setNumberOfRetakes] = useState(0); // Default: 0
-        const [ setStartDate] = useState("");  // Default empty
-        const [ setEndDate] = useState("");  // Default empty
-        const [ setDueTime] = useState("");  // Default empty
+        const [startDate, setStartDate] = useState("");  // Default empty
+        const [endDate, setEndDate] = useState("");  // Default empty
+        const [dueTime, setDueTime] = useState("");  // Default empty
         const [timeLimitPerQuestion, setTimeLimitPerQuestion] = useState(0); // Add this line
         const [fetchedQuestions, setFetchedQuestions] = useState([]); // State to hold fetched questions
         const [testId, setTestId] = useState(null);
         const [category,setCategory] = useState(1);// Unique Test Id
         const [activeStep, setActiveStep] = useState(0);
+        const [openCSVModal, setOpenCSVModal] = useState(false);
+        const [emailList, setEmailList] = useState([]);
         const [selectedQuestions, setSelectedQuestions] = useState([]);
         const [instructions, setInstructions] = useState(""); // For the introduction text
         const [conclusion, setConclusion] = useState(""); // For the conclusion text
@@ -52,11 +55,25 @@ const CreateNewTest = () => {
         const [loading, setLoading] = useState(false);
         const [isSidebarOpen, setIsSidebarOpen] = useState(false);
         const [questions, setQuestions] = useState([]);
+        const [testLink, setTestLink] = useState("");
         const [newOption, setNewOption] = useState("");
         const navigate = useNavigate();
     const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+  useEffect(() => {
+    if (openSuccessDialog && testId) {
+        axios.get(`http://localhost:8000/api/get-secure-uuid/${testId}/`)
+
+        .then((res) => {
+          const encodedUuid = res.data.encoded_uuid;
+          setTestLink(`${BASE_URL}/${encodedUuid}`);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch secure test UUID", err);
+        });
+    }
+  }, [openSuccessDialog, testId]);
   useEffect(() => {
     const fetchQuestions = async () => {
       const userToken = localStorage.getItem("user_token");
@@ -79,7 +96,7 @@ const CreateNewTest = () => {
 
     fetchQuestions();
   }, []);
-
+  
   const handleCorrectAnswersChange = (qIndex, optionIndex) => {
     const updatedQuestions = [...questions];
     let correctAnswers = updatedQuestions[qIndex].correctAnswers || [];
@@ -128,6 +145,58 @@ const CreateNewTest = () => {
     navigator.clipboard.writeText(text);
     alert("Test link copied!");
   };
+  const handleCSVUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      Papa.parse(file, {
+        complete: (results) => {
+          const emails = results.data
+            .map((row) => row[0]?.trim())
+            .filter((email) => email && /\S+@\S+\.\S+/.test(email)); // Basic email check
+          setEmailList(emails);
+        },
+      });
+    }
+  };
+
+  const handleSaveAndSendEmails = async () => {
+    if (!testId || emailList.length === 0) {
+      alert("Please upload a valid CSV and ensure test ID is set.");
+      return;
+    }
+    const userToken = localStorage.getItem("user_token"); 
+    try {
+      setLoading(true);
+  
+      const response = await fetch("http://localhost:8000/api/upload-allowed-emails/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Token ${userToken}` // ✅ If you’re using token-based auth
+        },
+        body: JSON.stringify({
+          test_id: testId,
+          emails: emailList
+        })
+      });
+  
+      const data = await response.json();
+      console.log("✅ Email upload response:", data);
+  
+      if (response.ok) {
+        alert("Emails uploaded and invitations sent!");
+      } else {
+        console.error("❌ Upload failed:", data);
+        alert(data.error || "Failed to send emails.");
+      }
+    } catch (error) {
+      console.error("❌ Error sending emails:", error);
+      alert("An unexpected error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   const handleBack = () => {
     setActiveStep((prevStep) => prevStep - 1);
   };
@@ -977,29 +1046,29 @@ const handleQuestionSelect = (question) => {
                                     Date and Time Settings
                                 </Typography>
                                 <TextField
-                                    label="Start Date"
-                                    type="date"
-                                    fullWidth
-                                    onChange={(e) => setStartDate(e.target.value)}
-                                    sx={{ mb: 2 }}
-                                    InputLabelProps={{ shrink: true }}
-                                />
-                                <TextField
-                                    label="End Date"
-                                    type="date"
-                                    fullWidth
-                                    onChange={(e) => setEndDate(e.target.value)}
-                                    sx={{ mb: 2 }}
-                                    InputLabelProps={{ shrink: true }}
-                                />
-                                <TextField
-                                    label="Due Time"
-                                    type="time"
-                                    fullWidth
-                                    onChange={(e) => setDueTime(e.target.value)}
-                                    sx={{ mb: 2 }}
-                                    InputLabelProps={{ shrink: true }}
-                                />
+    label="Start Date"
+    type="date"
+    fullWidth
+    onChange={(e) => setStartDate(e.target.value)} // Correct usage
+    sx={{ mb: 2 }}
+    InputLabelProps={{ shrink: true }}
+/>
+<TextField
+    label="End Date"
+    type="date"
+    fullWidth
+    onChange={(e) => setEndDate(e.target.value)} // Correct usage
+    sx={{ mb: 2 }}
+    InputLabelProps={{ shrink: true }}
+/>
+<TextField
+    label="Due Time"
+    type="time"
+    fullWidth
+    onChange={(e) => setDueTime(e.target.value)} // Correct usage
+    sx={{ mb: 2 }}
+    InputLabelProps={{ shrink: true }}
+/>
                                 {/* Navigation Settings */}
                                 <Typography variant="h6" sx={{ mb: 1, fontWeight: 'bold' }}>
                                     Navigation Settings
@@ -1309,31 +1378,56 @@ const handleQuestionSelect = (question) => {
           </Button>
         </Box>
         <Dialog open={openSuccessDialog} onClose={() => setOpenSuccessDialog(false)}>
-          <DialogTitle>Test Published Successfully!</DialogTitle>
-          <DialogContent>
-            <Typography>Your test has been published. You can now share the test link below:</Typography>
-            <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
-              <TextField
-                value={`${BASE_URL}/${Math.random().toString(36).substring(2, 15)}/${testId}`}
-                fullWidth
-                margin="normal"
-                InputProps={{
-                  readOnly: true,
-                }}
-              />
-              <Tooltip title="Copy Link">
-                <IconButton onClick={() => copyToClipboard(`${BASE_URL}/${Math.random().toString(36).substring(2, 15)}/${testId}`)}>
-                  <ContentCopy />
-                </IconButton>
-              </Tooltip>
+        <DialogTitle>Test Published Successfully!</DialogTitle>
+        <DialogContent>
+          <Typography>Your test has been published. You can now share the test link below:</Typography>
+          <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
+            <TextField
+              value={testLink}
+              fullWidth
+              margin="normal"
+              InputProps={{ readOnly: true }}
+            />
+            <Tooltip title="Copy Link">
+              <IconButton onClick={() => copyToClipboard(testLink)}>
+                <ContentCopy />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenCSVModal(true)} color="primary">Send to</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openCSVModal} onClose={() => setOpenCSVModal(false)}>
+        <DialogTitle>Upload Emails for Test Access</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" sx={{ mb: 2 }}>
+            Upload a CSV file with a column named <b>email</b> to give test access to selected participants.
+          </Typography>
+          <input type="file" accept=".csv" onChange={handleCSVUpload} />
+
+          {emailList.length > 0 && (
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="body2">✅ {emailList.length} valid emails loaded:</Typography>
+              <ul style={{ maxHeight: 150, overflowY: "auto" }}>
+                {emailList.map((email, idx) => (
+                  <li key={idx}>{email}</li>
+                ))}
+              </ul>
             </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => navigate("/manage-tests")} color="primary">
-              Go to Manage Tests
-            </Button>
-          </DialogActions>
-        </Dialog>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenCSVModal(false)} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleSaveAndSendEmails} variant="contained" color="primary">
+            Save & Send
+          </Button>
+        </DialogActions>
+      </Dialog>
         {loading && (
           <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
             <CircularProgress />

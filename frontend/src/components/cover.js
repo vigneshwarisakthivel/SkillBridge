@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom"; // ✅ Import useNavigate
-import { Container, Typography, Box, Button, CircularProgress } from "@mui/material";
-
+import { Container, Typography, Box, Button,navigate, CircularProgress } from "@mui/material";
+import axios from "axios";
 const styles = {
     container: { 
         position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', 
@@ -13,49 +13,52 @@ const styles = {
 };
 
 const CoverPage = () => {
-    const { randomString, testId } = useParams();// ✅ Get testId from URL params
-    const navigate = useNavigate(); // ✅ Get navigate function
-
+    const { uuid } = useParams();// Changed testId → secureId
+    const [testId, setTestId] = useState(null);
+    const navigate = useNavigate();
     const [testData, setTestData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const userToken = localStorage.getItem("user_token"); // ✅ Fetch token from local storage
-
-        if (!testId) {
-            setError("Test ID is missing.");
-            setLoading(false);
-            return;
-        }
-
-        fetch(`http://localhost:8000/api/tests/${testId}/`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Token ${userToken}`, // ✅ Add user token to headers
-            }
-        })
-        .then((response) => {
-            if (!response.ok) {
+        const userToken = localStorage.getItem("user_token");
+      
+        if (uuid) {
+          axios.get(`http://localhost:8000/api/decode-test-uuid/${uuid}/`)
+            .then(res => {
+              const decodedId = res.data.test_id;
+              setTestId(decodedId);
+      
+              // ✅ Fetch test data only after testId is available
+              return fetch(`http://localhost:8000/api/tests/${decodedId}/`, {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Token ${userToken}`,
+                }
+              });
+            })
+            .then(response => {
+              if (!response.ok) {
                 throw new Error("Failed to fetch test details");
-            }
-            return response.json();
-        })
-        .then((data) => {
-            setTestData(data);
-            setLoading(false);
-        })
-        .catch((error) => {
-            console.error("Error fetching test:", error);
-            setError("Failed to load test details.");
-            setLoading(false);
-        });
-    }, [testId]);
-
+              }
+              return response.json();
+            })
+            .then(data => {
+              setTestData(data);
+              setLoading(false);
+            })
+            .catch(error => {
+              console.error("Error fetching test:", error);
+              setError("Failed to load test details.");
+              setLoading(false);
+            });
+        }
+      }, [uuid]);
+      
     // ✅ Function to navigate to the instruction page
     const handleStartTest = () => {
-        navigate(`/smartbridge/online-test-assessment/${randomString}/${testId}/instructions/`); // Redirects to the instruction page
+        navigate(`/smartbridge/online-test-assessment/${uuid}/cover/`); // Redirects to the instruction page
     };
 
     if (loading) {
@@ -106,7 +109,7 @@ const CoverPage = () => {
             <Button 
                 variant="contained" 
                 color="primary" 
-                onClick={() => navigate(`/smartbridge/online-test-assessment/${randomString}/${testId}/instructions`)}
+                onClick={() => navigate(`/smartbridge/online-test-assessment/${uuid}/cover/`)}
                 sx={{ padding: '12px 24px', fontSize: '1rem', fontWeight: 'bold', borderRadius: '8px', background: 'linear-gradient(135deg, #003366, #00509e)', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 6px 12px rgba(0, 0, 0, 0.2)' } }}
             >
                 Start Test
