@@ -2,8 +2,8 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 import io
 from django.db import models
-from django.db import transaction, IntegrityError
-from rest_framework.exceptions import NotFound
+from django.core.mail import send_mail
+from django.conf import settings
 from rest_framework.decorators import action
 from django.db.models import Max, Sum, Count
 from rest_framework.decorators import api_view,permission_classes
@@ -27,7 +27,7 @@ from django.contrib.auth.decorators import login_required
 import json
 from rest_framework.exceptions import NotAuthenticated
 from reportlab.pdfgen import canvas
-from .models import (Category,TestUser,save_completed_test,CustomUser,Enrollment,Test,LeaderboardEntry,TestAttempt,ManageTests,Learner,Assessment,UserSettings,
+from .models import (Category,TestUser,AllowedParticipant,save_completed_test,CustomUser,Enrollment,Test,LeaderboardEntry,TestAttempt,ManageTests,Learner,Assessment,UserSettings,
 TestResult,Question,UserResponse,UserProfile,AdminSettings,RecentActivity,Announcement,
 Performer,Feature,ActivityLog,Testimonial,FAQ,Feedback,PasswordReset,ContactMessage,AdminNotification,
 UserToken,Notification,AttemptedTest,Achievement,PerformanceStat,CompletedTest,TestSummary,PerformanceHistory
@@ -77,6 +77,12 @@ from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
 from .utils import generate_otp, send_otp_email
 from django.middleware.csrf import get_token
+from .utils import encode_testid_to_secure_uuid,decode_secure_uuid_to_testid
+
+def get_secure_uuid(request, testid):
+    uuid_str = encode_testid_to_secure_uuid(int(testid))
+    return JsonResponse({"encoded_uuid": uuid_str})
+
 @api_view(['POST'])
 def request_otp(request):
     """API to generate and send OTP"""
@@ -913,18 +919,47 @@ class AchievementView(APIView):
         achievements = Achievement.objects.all()
         serializer = AchievementSerializer(achievements, many=True)
         return Response(serializer.data)
-class TestUserViewSet(viewsets.ModelViewSet):
-    queryset = TestUser.objects.all()
-    serializer_class = TestUserSerializer
 
-    def create(self, request, *args, **kwargs):
-        email = request.data.get('email')
-        
-        # Check if email already exists
-        if TestUser.objects.filter(email=email).exists():
-            return Response({"message": "Email already registered"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        return super().create(request, *args, **kwargs)
+@api_view(['POST'])
+@permission_classes([AllowAny])  # Since test takers don't login
+def register_test_user(request):
+    data = request.data
+
+    # Debug raw input
+    print("📥 Raw request data:", data)
+
+    name = data.get('name')
+    email = data.get('email')
+    test_id = data.get('test_id')
+
+    # Check for missing values
+    if not test_id or not email:
+        print("❌ Missing test_id or email")
+        return Response({"error": "test_id and email required."}, status=400)
+
+    # Normalize email
+    normalized_email = email.strip().lower()
+
+    # Get test object
+    try:
+        test = Test.objects.get(id=test_id)
+    except Test.DoesNotExist:
+        print(f"❌ Test with ID {test_id} not found.")
+        return Response({"error": "Test not found."}, status=404)
+
+    # DEBUG: Show stored allowed emails
+    allowed_emails = AllowedParticipant.objects.filter(test=test).values_list('email', flat=True)
+    print("📃 Allowed Emails for Test:", list(allowed_emails))
+    print("🔍 Submitted Email:", normalized_email)
+
+    # Check if email is allowed
+    if not AllowedParticipant.objects.filter(test=test, email=normalized_email).exists():
+        print("⛔ Access denied for email:", normalized_email)
+        return Response({"error": "You are not allowed to take this test."}, status=403)
+
+    # ✅ Access allowed
+    print("✅ Access granted for:", normalized_email)
+    return Response({"message": "Access granted."}, status=200)
 
 @api_view(['GET'])
 def get_leaderboard(request):
@@ -1103,7 +1138,55 @@ def assign_badges(score, total_questions):
         badges.append("Bronze Badge")  
         
     return badges
+@api_view(['POST'])
+def upload_allowed_emails(request):
+    test_id = request.data.get('test_id')
+    emails = request.data.get('emails')
 
+    if not test_id or not emails:
+        return Response({"error": "test_id and emails required."}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        test = Test.objects.get(id=test_id)
+    except Test.DoesNotExist:
+        return Response({"error": "Test not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    # Clear old ones
+    AllowedParticipant.objects.filter(test=test).delete()
+
+    # Save new emails
+    allowed_objs = [AllowedParticipant(test=test, email=email.lower()) for email in emails]
+    AllowedParticipant.objects.bulk_create(allowed_objs)
+
+    # ✅ Encode testId to UUID-like format
+    from .utils import encode_testid_to_secure_uuid
+    secure_uuid = encode_testid_to_secure_uuid(test.id)
+
+    # ✅ Build full test link
+    BASE_URL = "http://localhost:3000"
+    random_string = "sharelink"  # or generate dynamically
+    test_link = f"{BASE_URL}/smartbridge/online-test-assessment/{random_string}/{secure_uuid}"
+
+    # ✅ Send email invitations
+    send_test_invite_emails(emails, test_link)
+
+    return Response({"message": f"{len(allowed_objs)} emails saved and invitations sent."}, status=status.HTTP_201_CREATED)
+
+def send_test_invite_emails(emails, test_link):
+    subject = "Your Access Link for the Online Test"
+    message = f"Hello,\n\nYou have been invited to take an online test.\n\nClick the link below to start:\n{test_link}\n\nGood luck!"
+    from_email = settings.DEFAULT_FROM_EMAIL
+
+    for email in emails:
+        send_mail(subject, message, from_email, [email], fail_silently=False)
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def decode_uuid_and_get_test_id(request, uuid_str):
+    try:
+        test_id = decode_secure_uuid_to_testid(uuid_str)  # this uses your XOR function
+        return Response({"test_id": test_id}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"error": "Invalid UUID"}, status=status.HTTP_400_BAD_REQUEST)
 class TestViewSet(viewsets.ModelViewSet):
     queryset = Test.objects.all()
     serializer_class = TestSerializer

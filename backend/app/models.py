@@ -9,6 +9,7 @@ import secrets
 from django.utils import timezone
 from django.utils.timezone import now
 from django.contrib.auth.models import AbstractUser
+
 class CustomUser(AbstractUser):
     ROLE_CHOICES = (
         ('Admin', 'Admin'),
@@ -48,6 +49,7 @@ class CustomUser(AbstractUser):
         
     def __str__(self):
         return f"{self.name} - {self.role}"
+
 class Test(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
@@ -100,7 +102,13 @@ class Question(models.Model):
     type = models.CharField(max_length=50, choices=QUESTION_TYPES)
     options = models.JSONField(default=list, blank=True, null=True)  # ✅ Default to empty list
     correct_answer = models.JSONField(default=list, blank=True)
+    
+class AllowedParticipant(models.Model):
+    test = models.ForeignKey(Test, on_delete=models.CASCADE, related_name='allowed_participants')
+    email = models.EmailField()
 
+    def __str__(self):
+        return f"{self.email} for {self.test.title}"
 class Category(models.Model):
     category_name = models.CharField(max_length=255)
     description = models.TextField()

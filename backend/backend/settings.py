@@ -14,7 +14,6 @@ from pathlib import Path
 from datetime import timedelta
 import os
 
-AUTH_USER_MODEL = 'app.CustomUser'
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_URL = "/media/"

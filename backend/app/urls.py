@@ -4,6 +4,7 @@ from .views import TestViewSet, TestAttemptViewSet,submit_test,user_attempted_te
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from django.conf import settings
+from . import views
 from django.conf.urls.static import static
 from .views import (
     LoginView, RegisterView,RecentActivityDeleteView,get_csrf_token, get_test_questions,create_test, CategoryListCreateView, get_tests,
@@ -19,13 +20,12 @@ from .views import (
     NotificationViewSet, TestSummaryList,test_report,test_overview_view,test_completion_rate_view,
     UserSettingsView, CompletedTestCreateView, dashboards_overview, analytics_report,CompletedTestViewSet,
     user_management_overview,UserProfileViewSet, enroll_student,save_consent, FeedbackViewSet, AchievementsView,
-    AchievementRetrieveUpdateDestroyView,TestUserViewSet, PerformanceStatListCreateView, ReviewAPIView, ExportAPIView
+    AchievementRetrieveUpdateDestroyView,PerformanceStatListCreateView, ReviewAPIView, ExportAPIView
 )
 
 router = DefaultRouter()
 admin_notification_list = AdminNotificationViewSet.as_view({'get': 'list'})
 router.register(r'manage-tests', ManageTestsViewSet)
-router.register(r'test-users', TestUserViewSet, basename='test-user')
 router.register(r'tests', TestViewSet)
 router.register(r'attempted-tests', AttemptedTestViewSet, basename='attempted-test')
 router.register(r'answers', UserAnswerViewSet)
@@ -40,6 +40,7 @@ test_attempt_viewset = TestAttemptViewSet.as_view({
     'get': 'get_user_rank', # Maps GET requests to get_user_statistics
 })
 urlpatterns = [
+    path('decode-test-uuid/<str:uuid_str>/', views.decode_uuid_and_get_test_id),
     path('announcements/<int:pk>/', AnnouncementDetailView.as_view(), name='announcement-detail'),
     path("notifications/mark-as-read/", mark_notifications_as_read, name="mark-notifications-as-read"),
     path('forgot-password/request-otp/', request_otp, name="request_otp"),
@@ -55,6 +56,7 @@ urlpatterns = [
     path('dashboard/', dashboards_overview, name='dashboard-overview'),
     path('user-managements/', user_management_overview, name='user-management'),
     path('enroll/', enroll_student, name='enroll-student'),
+    path('test-users/', views.register_test_user, name='register_test_user'),
     path('tests/<int:pk>/review/', ReviewAPIView.as_view(), name='test-review'),
     path('tests/<int:pk>/export/', ExportAPIView.as_view(), name='test-export'),
     path('dashboard-overview/', dashboard_view, name='dashboard-overview'),
@@ -70,6 +72,7 @@ urlpatterns = [
     path('completed-testss/', CompletedTestCreateView.as_view(), name='completed-tests'),
     path('performance-stats/', PerformanceStatListCreateView.as_view(), name='performance-stats'),
     path('recent-activities/', RecentActivityListCreateView.as_view(), name='recent-activities'),
+    path('get-secure-uuid/<int:testid>/', views.get_secure_uuid),
     path('test-attempts/<int:pk>/export_certificate/', 
          TestAttemptViewSet.as_view({'get': 'export_certificate'}), 
          name='export_certificate'),
@@ -79,7 +82,7 @@ urlpatterns = [
     path('categories/', CategoryListCreateView.as_view(), name='category-list-create'),
     path('categories/<int:pk>/', CategoryRetrieveUpdateDestroyView.as_view(), name='category-detail'),
     path('test/', TestListCreateView.as_view(), name='test-list-create'),
-
+    path('upload-allowed-emails/', views.upload_allowed_emails, name='upload_allowed_emails'),
     path('tests/<int:pk>/', TestDetailAPIView.as_view(), name='test-detail'),
     path('question/', QuestionListCreateView.as_view(), name='question-list-create'),
     path('question/<int:pk>/', QuestionDetailAPIView.as_view(), name='question-detail'),
