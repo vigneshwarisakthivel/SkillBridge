@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ThemeProvider, CssBaseline } from '@mui/material';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
+import 'bootstrap/dist/css/bootstrap.min.css';
 import theme from './components/theme'; // Import your custom theme
 import React, { useEffect, useState } from "react";
 // Import Pages
