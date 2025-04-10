@@ -9,7 +9,6 @@ import secrets
 from django.utils import timezone
 from django.utils.timezone import now
 from django.contrib.auth.models import AbstractUser
-
 class CustomUser(AbstractUser):
     ROLE_CHOICES = (
         ('Admin', 'Admin'),
@@ -70,8 +69,8 @@ class Test(models.Model):
     end_date = models.DateField(blank=True, null=True)
     due_time = models.TimeField(blank=True, null=True)
     total_marks = models.IntegerField(null=True, blank=True)
-    
-    # ✅ Add these missing fields
+    receive_email_notifications = models.BooleanField(default=False)
+    notification_emails = models.TextField(blank=True)  # Or CharField if you prefer
     is_public = models.BooleanField(default=True)
     is_proctored = models.BooleanField(default=False)
     allow_retakes = models.BooleanField(default=False)

@@ -921,6 +921,48 @@ class AchievementView(APIView):
         return Response(serializer.data)
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def import_questions(request):
+    source_test_id = request.data.get('source_test_id')
+    target_test_id = request.data.get('target_test_id')
+
+    try:
+        source_test = Test.objects.get(id=source_test_id, is_public=True)
+        target_test = Test.objects.get(id=target_test_id)
+    except Test.DoesNotExist:
+        return Response({"error": "Invalid test IDs"}, status=400)
+
+    questions = Question.objects.filter(test=source_test)
+    for q in questions:
+        Question.objects.create(
+            test=target_test,
+            text=q.text,
+            type=q.type,
+            options=q.options,
+            correct_answer=q.correct_answer
+        )
+    
+    # Optional: Update question count in target test
+    target_test.total_questions = Question.objects.filter(test=target_test).count()
+    target_test.save()
+
+    return Response({"message": "Questions imported successfully!"})
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_questions_from_test(request, test_id):
+    questions = Question.objects.filter(test_id=test_id)
+    serializer = QuestionSerializer(questions, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def public_tests(request):
+    tests = Test.objects.filter(is_public=True).exclude(owner=request.user)
+    serializer = TestSerializer(tests, many=True)
+    return Response(serializer.data)
+
+@api_view(['POST'])
 @permission_classes([AllowAny])  # Since test takers don't login
 def register_test_user(request):
     data = request.data
@@ -1292,6 +1334,18 @@ class TestAttemptViewSet(viewsets.ModelViewSet):
                 if total_questions > 0 and len(answers_data) == total_questions:
                     attempt.status = "completed"
                     attempt.passed = attempt.score >= 50  # Pass if score is 50% or higher
+                                     # ✅ Email Notification if enabled
+                test = attempt.test
+                if test.receive_email_notifications and test.notification_emails:
+                    recipients = [email.strip() for email in test.notification_emails.split(",") if email.strip()]
+                    send_mail(
+                        subject=f"[Test Completed] {test.title}",
+                        message=f"User {request.user.username} ({request.user.email}) has completed the test '{test.title}' with a score of {attempt.score:.2f}%",
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=recipients,
+                        fail_silently=False,
+                        )
+
                 else:
                     attempt.status = "ongoing"  # Keep it as ongoing if not all questions are answered
                     attempt.save()
@@ -1305,34 +1359,6 @@ class TestAttemptViewSet(viewsets.ModelViewSet):
 
         if instance.status == "completed" and instance.score is not None:
             save_completed_test(instance.user, instance)
-    @action(detail=True, methods=["get"])
-    def export_certificate(self, request, pk=None):
-        """
-        Generate and return a PDF certificate for completed tests.
-        """
-        attempt = get_object_or_404(TestAttempt, id=pk, user=request.user, status="completed")
-
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="certificate_{attempt.test.title}.pdf"'
-
-        # Generate PDF
-        pdf = canvas.Canvas(response)
-        pdf.setTitle("Certificate of Completion")
-
-        # Design the certificate
-        pdf.setFont("Helvetica-Bold", 20)
-        pdf.drawString(200, 750, "Certificate of Completion")
-
-        pdf.setFont("Helvetica", 14)
-        pdf.drawString(150, 700, f"This certifies that {request.user.get_full_name()} has successfully completed:")
-        pdf.drawString(150, 680, f"Test: {attempt.test.title}")
-        pdf.drawString(150, 660, f"Score: {attempt.score}%")
-        pdf.drawString(150, 640, f"Date: {attempt.end_time.strftime('%Y-%m-%d')}")
-
-        pdf.showPage()
-        pdf.save()
-
-        return response
 
     def list(self, request):
         """Fetch all attempted tests of the user"""

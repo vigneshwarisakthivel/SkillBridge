@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState,useEffect, useCallback } from "react";
 import axios from "axios"; // Inline CSS styles
 import { useParams } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 import { FormControl, FormControlLabel, Radio, RadioGroup, Checkbox } from "@mui/material";
 import WebcamProctoring from './face'; 
 // Styles
@@ -148,6 +149,7 @@ export default function OnlineTestPage() {
     const [passCriteria, setPassCriteria] = useState(50.0);
     const [isTimerRunning, setIsTimerRunning] = useState(false);
     const [totalTimeLeft, setTotalTimeLeft] = useState(2559);
+    const navigate = useNavigate();
     const [testTitle, setTestTitle] = useState("Unknown Test");
     const [testSubject, setTestSubject] = useState("Unknown Subject");
     const [previousScore, setPreviousScore] = useState(null);
@@ -166,19 +168,18 @@ export default function OnlineTestPage() {
         setCurrentQuestionTime(questionTime);
     };
     const userToken = localStorage.getItem("user_token");
+
     const decodeUUID = useCallback(async () => {
-        
         try {
-            const response = await axios.get(
-                `${API_BASE_URL}/tests/decode-uuid/`,
-                { uuid },
-                { headers: { Authorization: `Token ${userToken}` } }
-            );
-            setTestId(response.data.test_id);
+          const response = await axios.get(`${API_BASE_URL}/decode-test-uuid/${uuid}/`, {
+            params: { uuid },
+            headers: { Authorization: `Token ${userToken}` },
+          });
+          setTestId(response.data.test_id);
         } catch (error) {
-            console.error("Error decoding UUID:", error);
+          console.error("Error decoding UUID:", error);
         }
-    }, [uuid, userToken]);
+      }, [uuid, userToken]);      
     
     const fetchQuestions = useCallback(async () => {
         try {
@@ -492,13 +493,14 @@ export default function OnlineTestPage() {
                     setTotalTimeLeft((prevTime) => {
                         if (prevTime <= 0) {
                             clearInterval(timer);
+                            navigate('/exit');
                             return 0;
                         }
                         return prevTime - 1;
                     });
                 }, 1000);
                 return () => clearInterval(timer);
-            }, []);
+            }, [navigate]);
         
             useEffect(() => {
                 const questionTimer = setInterval(() => {

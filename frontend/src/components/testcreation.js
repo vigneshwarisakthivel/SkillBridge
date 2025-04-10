@@ -1,22 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import {  Typography, Stepper, Step,StepLabel, Button, TextField, Checkbox, FormControlLabel, Paper, Box, Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress, IconButton, Drawer, Toolbar, List, ListItem, ListItemText, AppBar, Tooltip } from "@mui/material";
+import {  Typography, Stepper,Switch, Step,StepLabel, Button, TextField, Checkbox, FormControlLabel, Paper, Box, Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress, IconButton, Drawer, Toolbar, List, ListItem, ListItemText, AppBar, Tooltip } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router-dom";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
 import TwitterIcon from '@mui/icons-material/Twitter';
 import Papa from "papaparse";
+import ImportQuestionsModal from './ImportQuestionModal';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 const steps = ["Test Name & Description", "Question Creation", "Question Bank", "Set Time Limit & Marks", "Set Pass/Fail Criteria", "Settings", "Publish & Share"];
 const BASE_URL = "http://localhost:3000/smartbridge/online-test-assessment/"; // Replace with your actual base URL
-const CreateNewTest = (onClose) => {
-
+const CreateNewTest = () => {
         const [allowRetakes, setAllowRetakes] = useState(false); // Default: false
         const [numberOfRetakes, setNumberOfRetakes] = useState(0); // Default: 0
         const [startDate, setStartDate] = useState("");  // Default empty
+        const [modalOpen, setModalOpen] = useState(false);
+        const [IsPublic, setIsPublic] = useState(false);
         const [endDate, setEndDate] = useState("");  // Default empty
         const [dueTime, setDueTime] = useState("");  // Default empty
         const [timeLimitPerQuestion, setTimeLimitPerQuestion] = useState(0); // Add this line
@@ -26,6 +28,7 @@ const CreateNewTest = (onClose) => {
         const [activeStep, setActiveStep] = useState(0);
         const [openCSVModal, setOpenCSVModal] = useState(false);
         const [emailList, setEmailList] = useState([]);
+        const [importTestId, setImportTestId] = useState(null);
         const [selectedQuestions, setSelectedQuestions] = useState([]);
         const [instructions, setInstructions] = useState(""); // For the introduction text
         const [conclusion, setConclusion] = useState(""); // For the conclusion text
@@ -96,7 +99,8 @@ const CreateNewTest = (onClose) => {
 
     fetchQuestions();
   }, []);
-  
+
+  const handleCloseImportModal = () => setModalOpen(false);
   const handleCorrectAnswersChange = (qIndex, optionIndex) => {
     const updatedQuestions = [...questions];
     let correctAnswers = updatedQuestions[qIndex].correctAnswers || [];
@@ -322,91 +326,111 @@ const handleQuestionSelect = (question) => {
   };
   const handleSubmit = async () => {
     const userToken = localStorage.getItem("user_token");
-
+    setLoading(true);
+  
     try {
-        const totalQuestionsCount = questions.length + selectedQuestions.length; // Total questions count
-        const totalTimeLimit = totalQuestionsCount * timeLimitPerQuestion; // Calculate total time in seconds
-
-        const testData = {
-            title: testName,
-            description: testDescription,
-            category: category,
-            max_score: totalQuestionsCount * marksPerQuestion, // Use total questions for max score
-            total_marks: totalQuestionsCount * marksPerQuestion,
-            subject: subject,
-            difficulty: difficulty,
-            owner: owner,
-            time_limit_per_question: timeLimitPerQuestion, // Time per question (seconds)
-            total_time_limit: totalTimeLimit / 60, // Convert to minutes
-            marks_per_question: marksPerQuestion,
-            pass_criteria: passCriteria,
-            instructions: instructions,
-            conclusion: conclusion,
-            scheduled_date: null,
-            is_public: true,
-            allow_retakes: allowRetakes,
-            number_of_retakes: numberOfRetakes,
-            randomize_order: false,
-            allow_blank_answers: false,
-            penalize_incorrect_answers: false,
-            allow_jump_around: false,
-            only_move_forward: false,
-            indicate_correctness: false,
-            display_correct_answer: false,
-            show_explanation: false,
-            move_on_without_feedback: false,
-            show_score: false,
-            show_test_outline: false,
-            disable_right_click: false,
-            disable_copy_paste: false,
-            disable_translate: false,
-            disable_autocomplete: false,
-            disable_spellcheck: false,
-            disable_printing: false,
-            receive_email_notifications: false,
-            notification_emails: '',
-            start_date: null,
-            end_date: null,
-            due_time: null,
-            status: "published",
-            rank: 1,
-            questions: [
-                ...questions.map((question) => ({
-                    text: question.text,
-                    type: question.type,
-                    options: question.options ?? [],
-                    correct_answer: question.type === "multipleresponse" ? question.correctAnswers : question.correctAnswer ?? "N/A",
-                })),
-                ...selectedQuestions.map((question) => ({
-                    text: question.text,
-                    type: question.type,
-                    options: question.options ?? [],
-                    correct_answer: question.type === "multipleresponse" ? question.correctAnswers : question.correctAnswer ?? "N/A",
-                })),
-            ],
-        };
-
-        console.log("Test Data Being Sent:", JSON.stringify(testData, null, 2));
-        const response = await axios.post(
-            "http://localhost:8000/api/tests/",
-            testData,
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Token ${userToken}`,
-                },
-            }
+      const totalQuestionsCount = questions.length + selectedQuestions.length;
+      const totalTimeLimit = totalQuestionsCount * timeLimitPerQuestion;
+  
+      const testData = {
+        title: testName,
+        description: testDescription,
+        category,
+        max_score: totalQuestionsCount * marksPerQuestion,
+        total_marks: totalQuestionsCount * marksPerQuestion,
+        subject,
+        difficulty,
+        owner,
+        time_limit_per_question: timeLimitPerQuestion,
+        total_time_limit: totalTimeLimit / 60,
+        marks_per_question: marksPerQuestion,
+        pass_criteria: passCriteria,
+        instructions,
+        conclusion,
+        scheduled_date: null,
+        is_public: IsPublic,
+        allow_retakes: allowRetakes,
+        number_of_retakes: numberOfRetakes,
+        randomize_order: false,
+        allow_blank_answers: false,
+        penalize_incorrect_answers: false,
+        allow_jump_around: false,
+        only_move_forward: false,
+        indicate_correctness: false,
+        display_correct_answer: false,
+        show_explanation: false,
+        move_on_without_feedback: false,
+        show_score: false,
+        show_test_outline: false,
+        disable_right_click: false,
+        disable_copy_paste: false,
+        disable_translate: false,
+        disable_autocomplete: false,
+        disable_spellcheck: false,
+        disable_printing: false,
+        receive_email_notifications: receiveEmailNotifications,
+        notification_emails: notificationEmails,
+        start_date: startDate || null,
+        end_date: endDate || null,
+        due_time: dueTime || null,        
+        status: "published",
+        rank: 1,
+        questions: [
+          ...questions.map((question) => ({
+            text: question.text,
+            type: question.type,
+            options: question.options ?? [],
+            correct_answer: question.type === "multipleresponse" ? question.correctAnswers : question.correctAnswer ?? "N/A",
+          })),
+          ...selectedQuestions.map((question) => ({
+            text: question.text,
+            type: question.type,
+            options: question.options ?? [],
+            correct_answer: question.type === "multipleresponse" ? question.correctAnswers : question.correctAnswer ?? "N/A",
+          })),
+        ],
+      };
+  
+      const response = await axios.post(
+        "http://localhost:8000/api/tests/",
+        testData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Token ${userToken}`,
+          },
+        }
+      );
+  
+      const newTestId = response.data.id;
+      setTestId(newTestId);
+  
+      // ✅ Import questions if selected from a public test
+      if (importTestId) {
+        await axios.post(
+          "http://localhost:8000/api/tests/import-questions/",
+          {
+            source_test_id: importTestId,
+            target_test_id: newTestId,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+               Authorization: `Token ${userToken}`,
+            },
+          }
         );
-
-        setTestId(response.data.id);
-        setOpenSuccessDialog(true); // Show success dialog
+      }
+  
+      setOpenSuccessDialog(true);
     } catch (error) {
-        console.error("Test creation failed:", error);
-        alert("Error: Unable to create the test.");
+      console.error("Test creation failed:", error);
+      alert("Error: Unable to create the test.");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
+
  const saveQuestions = async (createdTestId) => {
     const userToken = localStorage.getItem("user_token");
 
@@ -947,10 +971,21 @@ const handleQuestionSelect = (question) => {
             );
             case 2: // Question Bank Selection
             return (
+              
                 <Box>
                     <Typography variant="h6" sx={{ mb: 2 }}>
                         SELECT QUESTIONS FROM QUESTION BANK
                     </Typography>
+                    <Button variant="outlined" onClick={() => setModalOpen(true)}>
+        Import Questions
+      </Button>
+  <ImportQuestionsModal
+open={modalOpen}
+onClose={handleCloseImportModal}
+setSelectedImportTest={setImportTestId}
+/>
+
+
                     {fetchedQuestions.map((question, index) => (
                         <Box key={index} sx={{ mb: 2, p: 2, backgroundColor: '#fff', borderRadius: 1, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
                             <FormControlLabel
@@ -1197,6 +1232,7 @@ const handleQuestionSelect = (question) => {
                                     }
                                     label="Randomize the order of the questions during the test"
                                 />
+
                                 <FormControlLabel
                                     control={
                                         <Checkbox
@@ -1217,6 +1253,17 @@ const handleQuestionSelect = (question) => {
                                     }
                                     label="Penalize incorrect answers (negative marking)"
                                 />
+                                          <FormControlLabel
+  control={
+    <Switch
+      checked={IsPublic}
+      onChange={(e) => setIsPublic(e.target.checked)}
+      name="isPublic"
+    />
+  }
+  label="Make this test public"
+/>
+
                                  {/* Notifications */}
                                  <Typography variant="h6" sx={{ mt: 4, mb: 2, fontWeight: 'bold', color: '#333' }}>
                                     Notifications
