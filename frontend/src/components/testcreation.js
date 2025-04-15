@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import {  Typography, Stepper,Switch, Step,StepLabel, Button, TextField, Checkbox, FormControlLabel, Paper, Box, Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress, IconButton, Drawer, Toolbar, List, ListItem, ListItemText, AppBar, Tooltip } from "@mui/material";
+import {  Typography, Stepper,CardContent,Card,Fade,Alert,Input,Stack,Switch, Step,StepLabel, Button, TextField, Checkbox, FormControlLabel, Paper, Box, Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress, IconButton, Drawer, Toolbar, List, ListItem, ListItemText, AppBar, Tooltip } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import { useNavigate } from "react-router-dom";
+import { Form, useNavigate } from "react-router-dom";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
 import TwitterIcon from '@mui/icons-material/Twitter';
@@ -14,6 +14,8 @@ import ContentCopy from '@mui/icons-material/ContentCopy';
 const steps = ["Test Name & Description", "Question Creation", "Question Bank", "Set Time Limit & Marks", "Set Pass/Fail Criteria", "Settings", "Publish & Share"];
 const BASE_URL = "http://localhost:3000/smartbridge/online-test-assessment/"; // Replace with your actual base URL
 const CreateNewTest = () => {
+        const [option, setOption] = useState(null);
+        const [file, setFile] = useState(null);
         const [allowRetakes, setAllowRetakes] = useState(false); // Default: false
         const [numberOfRetakes, setNumberOfRetakes] = useState(0); // Default: 0
         const [startDate, setStartDate] = useState("");  // Default empty
@@ -29,6 +31,10 @@ const CreateNewTest = () => {
         const [openCSVModal, setOpenCSVModal] = useState(false);
         const [emailList, setEmailList] = useState([]);
         const [importTestId, setImportTestId] = useState(null);
+        const [uploadType, setUploadType] = useState('');
+        const [uploading, setUploading] = useState(false);
+        const [success, setSuccess] = useState(null);
+        const [error, setError] = useState(null);
         const [selectedQuestions, setSelectedQuestions] = useState([]);
         const [instructions, setInstructions] = useState(""); // For the introduction text
         const [conclusion, setConclusion] = useState(""); // For the conclusion text
@@ -168,10 +174,10 @@ const CreateNewTest = () => {
       alert("Please upload a valid CSV and ensure test ID is set.");
       return;
     }
-    const userToken = localStorage.getItem("user_token"); 
+    const userToken = localStorage.getItem("user_token");
     try {
       setLoading(true);
-  
+ 
       const response = await fetch("http://localhost:8000/api/upload-allowed-emails/", {
         method: "POST",
         headers: {
@@ -183,10 +189,10 @@ const CreateNewTest = () => {
           emails: emailList
         })
       });
-  
+ 
       const data = await response.json();
       console.log("✅ Email upload response:", data);
-  
+ 
       if (response.ok) {
         alert("Emails uploaded and invitations sent!");
       } else {
@@ -200,7 +206,7 @@ const CreateNewTest = () => {
       setLoading(false);
     }
   };
-  
+ 
   const handleBack = () => {
     setActiveStep((prevStep) => prevStep - 1);
   };
@@ -324,158 +330,174 @@ const handleQuestionSelect = (question) => {
     setTotalQuestions(totalQuestions - 1);
     setTotalMarks(totalQuestions - 1 * marksPerQuestion);
   };
-  const handleSubmit = async () => {
+const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
+    setSuccess(null);
+    setError(null);
+};
+
+const handleSubmit = async () => {
     const userToken = localStorage.getItem("user_token");
     setLoading(true);
-  
-    try {
-      const totalQuestionsCount = questions.length + selectedQuestions.length;
-      const totalTimeLimit = totalQuestionsCount * timeLimitPerQuestion;
-  
-      const testData = {
-        title: testName,
-        description: testDescription,
-        category,
-        max_score: totalQuestionsCount * marksPerQuestion,
-        total_marks: totalQuestionsCount * marksPerQuestion,
-        subject,
-        difficulty,
-        owner,
-        time_limit_per_question: timeLimitPerQuestion,
-        total_time_limit: totalTimeLimit / 60,
-        marks_per_question: marksPerQuestion,
-        pass_criteria: passCriteria,
-        instructions,
-        conclusion,
-        scheduled_date: null,
-        is_public: IsPublic,
-        allow_retakes: allowRetakes,
-        number_of_retakes: numberOfRetakes,
-        randomize_order: false,
-        allow_blank_answers: false,
-        penalize_incorrect_answers: false,
-        allow_jump_around: false,
-        only_move_forward: false,
-        indicate_correctness: false,
-        display_correct_answer: false,
-        show_explanation: false,
-        move_on_without_feedback: false,
-        show_score: false,
-        show_test_outline: false,
-        disable_right_click: false,
-        disable_copy_paste: false,
-        disable_translate: false,
-        disable_autocomplete: false,
-        disable_spellcheck: false,
-        disable_printing: false,
-        receive_email_notifications: receiveEmailNotifications,
-        notification_emails: notificationEmails,
-        start_date: startDate || null,
-        end_date: endDate || null,
-        due_time: dueTime || null,        
-        status: "published",
-        rank: 1,
-        questions: [
-          ...questions.map((question) => ({
-            text: question.text,
-            type: question.type,
-            options: question.options ?? [],
-            correct_answer: question.type === "multipleresponse" ? question.correctAnswers : question.correctAnswer ?? "N/A",
-          })),
-          ...selectedQuestions.map((question) => ({
-            text: question.text,
-            type: question.type,
-            options: question.options ?? [],
-            correct_answer: question.type === "multipleresponse" ? question.correctAnswers : question.correctAnswer ?? "N/A",
-          })),
-        ],
-      };
-  
-      const response = await axios.post(
-        "http://localhost:8000/api/tests/",
-        testData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${userToken}`,
-          },
-        }
-      );
-  
-      const newTestId = response.data.id;
-      setTestId(newTestId);
-  
-      // ✅ Import questions if selected from a public test
-      if (importTestId) {
-        await axios.post(
-          "http://localhost:8000/api/tests/import-questions/",
-          {
-            source_test_id: importTestId,
-            target_test_id: newTestId,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-               Authorization: `Token ${userToken}`,
-            },
-          }
-        );
-      }
-  
-      setOpenSuccessDialog(true);
-    } catch (error) {
-      console.error("Test creation failed:", error);
-      alert("Error: Unable to create the test.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
- const saveQuestions = async (createdTestId) => {
-    const userToken = localStorage.getItem("user_token");
 
     try {
-        for (const question of questions) {
-            // Ensure options are provided and not empty
-            const questionData = {
-                text: question.text,
-                type: question.type,
-                options: question.options, // Ensure options is an array
-                correct_answer: question.type === "multipleresponse" ? question.correctAnswers : question.correctAnswer,
-                test: createdTestId // Associate the question with the test
-            };
+        const totalQuestionsCount = questions.length + selectedQuestions.length;
+        const totalTimeLimit = totalQuestionsCount * timeLimitPerQuestion;
 
-            // Check if the question type requires options
-            if ((question.type === "multiplechoice" || question.type === "multipleresponse") && questionData.options.length === 0) {
-                alert("Please provide options for the question.");
-                return; // Prevent saving if options are missing
+        const testData = {
+            title: testName,
+            description: testDescription,
+            category,
+            max_score: totalQuestionsCount * marksPerQuestion,
+            total_marks: totalQuestionsCount * marksPerQuestion,
+            subject,
+            difficulty,
+            owner,
+            time_limit_per_question: timeLimitPerQuestion,
+            total_time_limit: totalTimeLimit / 60,
+            marks_per_question: marksPerQuestion,
+            pass_criteria: passCriteria,
+            instructions,
+            conclusion,
+            scheduled_date: null,
+            is_public: IsPublic,
+            allow_retakes: allowRetakes,
+            number_of_retakes: numberOfRetakes,
+            randomize_order: false,
+            allow_blank_answers: false,
+            penalize_incorrect_answers: false,
+            allow_jump_around: false,
+            only_move_forward: false,
+            indicate_correctness: false,
+            display_correct_answer: false,
+            show_explanation: false,
+            move_on_without_feedback: false,
+            show_score: false,
+            show_test_outline: false,
+            disable_right_click: false,
+            disable_copy_paste: false,
+            disable_translate: false,
+            disable_autocomplete: false,
+            disable_spellcheck: false,
+            disable_printing: false,
+            receive_email_notifications: receiveEmailNotifications,
+            notification_emails: notificationEmails,
+            start_date: startDate || null,
+            end_date: endDate || null,
+            due_time: dueTime || null,
+            status: "published",
+            rank: 1,
+            questions: [
+                ...questions.map((question) => ({
+                    text: question.text,
+                    type: question.type,
+                    options: question.options ?? [],
+                    correct_answer:
+                        question.type === "multipleresponse"
+                            ? question.correctAnswers
+                            : question.correctAnswer ?? "N/A",
+                })),
+                ...selectedQuestions.map((question) => ({
+                    text: question.text,
+                    type: question.type,
+                    options: question.options ?? [],
+                    correct_answer:
+                        question.type === "multipleresponse"
+                            ? question.correctAnswers
+                            : question.correctAnswer ?? "N/A",
+                })),
+            ],
+        };
+
+        // Step 1: Create the test
+        const response = await axios.post(
+            "http://localhost:8000/api/tests/",
+            testData,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Token ${userToken}`,
+                },
             }
+        );
 
-            // Make the API call to save the question
-            const response = await axios.post(
-                "http://localhost:8000/api/questions/",
-                questionData,
+        const newTestId = response.data.id;
+        setTestId(newTestId); // Save test ID to state
+
+        // Step 2: Upload file if selected
+        if (file) {
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("test_id", newTestId);
+
+            await axios.post(
+                "http://localhost:8000/api/questions/upload/",
+                formData,
                 {
                     headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Token ${userToken}` // Include the token in the header
+                        Authorization: `Token ${userToken}`,
                     },
                 }
             );
+        }
 
-            console.log("Question saved:", response.data); // Debugging log
-        }
-        alert("Questions saved successfully!"); // Feedback to the user
+        setSuccess("Test and questions uploaded successfully!");
+        setFile(null); // Clear file
+        setOpenSuccessDialog(true);
     } catch (error) {
-        if (error.response) {
-            console.error("Submission failed:", error.response.data);
-            alert(`Error: ${JSON.stringify(error.response.data)}`); // Log the error response
-        } else {
-            console.error("Submission failed:", error.message);
-            alert("Error: Unable to connect to the server.");
-        }
+        console.error("Error creating test or uploading questions:", error);
+        setError(error.response?.data?.error || "Something went wrong.");
+    } finally {
+        setLoading(false);
     }
 };
+
+    const saveQuestions = async (createdTestId) => {
+        const userToken = localStorage.getItem("user_token");
+   
+        try {
+            for (const question of questions) {
+                // Ensure options are provided and not empty
+                const questionData = {
+                    text: question.text,
+                    type: question.type,
+                    options: question.options, // Ensure options is an array
+                    correct_answer: question.type === "multipleresponse" ? question.correctAnswers : question.correctAnswer,
+                    test: createdTestId // Associate the question with the test
+                };
+   
+                // Check if the question type requires options
+                if ((question.type === "multiplechoice" || question.type === "multipleresponse") && questionData.options.length === 0) {
+                    alert("Please provide options for the question.");
+                    return; // Prevent saving if options are missing
+                }
+   
+                // Make the API call to save the question
+                const response = await axios.post(
+                    "http://localhost:8000/api/questions/",
+                    questionData,
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Token ${userToken}` // Include the token in the header
+                        },
+                    }
+                );
+   
+                console.log("Question saved:", response.data); // Debugging log
+            }
+            alert("Questions saved successfully!"); // Feedback to the user
+        } catch (error) {
+            if (error.response) {
+                console.error("Submission failed:", error.response.data);
+                alert(`Error: ${JSON.stringify(error.response.data)}`); // Log the error response
+            } else {
+                console.error("Submission failed:", error.message);
+                alert("Error: Unable to connect to the server.");
+            }
+        }
+    };
+
   const renderStepContent = (step) => {
     switch (step) {
       case 0:
@@ -964,46 +986,148 @@ const handleQuestionSelect = (question) => {
                             }} onClick={addFillInTheBlankQuestion}>
                                 Fill-in-Blanks
                             </Button>
+                         
                         </Box>
-                       
-                    </form>
+                        </form>
                 </Box>
+             
             );
-            case 2: // Question Bank Selection
+            case 2:
             return (
-              
-                <Box>
+             
+                <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                  p: 4,
+                }}
+              >
+                <Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>
+                  Select How You Want to Add Questions
+                </Typography>
+         
+                {/* Selection Buttons */}
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ mb: 4 }}>
+                  <Button
+                    variant={option === 'import' ? 'contained' : 'outlined'}
+                    onClick={() => { setOption('import'); setUploadType(''); }}
+                    sx={{ borderRadius: 2, textTransform: 'none', px: 4 }}
+                  >
+                    Import Questions
+                  </Button>
+                  <Button
+                    variant={option === 'bank' ? 'contained' : 'outlined'}
+                    onClick={() => setOption('bank')}
+                    sx={{ borderRadius: 2, textTransform: 'none', px: 4 }}
+                  >
+                    Select from Question Bank
+                  </Button>
+                </Stack>
+         
+                {/* Case 1: Import Questions */}
+                <Fade in={option === 'import'}>
+                  <Box sx={{ display: option === 'import' ? 'block' : 'none' }}>
                     <Typography variant="h6" sx={{ mb: 2 }}>
-                        SELECT QUESTIONS FROM QUESTION BANK
+                      Import Questions
                     </Typography>
-                    <Button variant="outlined" onClick={() => setModalOpen(true)}>
-        Import Questions
-      </Button>
-  <ImportQuestionsModal
-open={modalOpen}
-onClose={handleCloseImportModal}
-setSelectedImportTest={setImportTestId}
-/>
-
-
+         
+                    <Stack direction="row" spacing={2} sx={{ mb: 2 }} justifyContent="center">
+                      <Button
+                        variant={uploadType === 'modal' ? 'contained' : 'outlined'}
+                        onClick={() => setUploadType('modal')}
+                        sx={{ borderRadius: 2 }}
+                      >
+                        Import from Test
+                      </Button>
+                      <Button
+                        variant={uploadType === 'file' ? 'contained' : 'outlined'}
+                        onClick={() => setUploadType('file')}
+                        sx={{ borderRadius: 2 }}
+                      >
+                        Upload CSV / PDF
+                      </Button>
+                    </Stack>
+         
+                    {/* Modal Option */}
+                    {uploadType === 'modal' && (
+                      <>
+                        <Typography variant="body1" sx={{ mb: 1 }}>
+                          Open import modal to select questions from an existing test
+                        </Typography>
+                        <Button
+                          variant="outlined"
+                          onClick={() => setModalOpen(true)}
+                          sx={{ borderRadius: 2, textTransform: 'none' }}
+                        >
+                          Open Import Modal
+                        </Button>
+         
+                        <ImportQuestionsModal
+                          open={modalOpen}
+                          onClose={() => setModalOpen(false)}
+                          setSelectedImportTest={() => {}}
+                        />
+                      </>
+                    )}
+         
+                    {/* File Upload Option */}
+             
+                    {uploadType === 'file' && (
+  <Box sx={{ mt: 3, maxWidth: 400, mx: 'auto' }}>
+    <Input
+      type="file"
+      onChange={handleFileChange}
+      fullWidth
+      sx={{ mb: 2 }}
+    />
+    <Typography variant="body2" color="textSecondary">
+      The selected file will be uploaded automatically after test creation.
+    </Typography>
+  </Box>
+                    )}
+                  </Box>
+                </Fade>
+         
+                {/* Case 2: Question Bank */}
+                <Fade in={option === 'bank'}>
+                  <Box sx={{ display: option === 'bank' ? 'block' : 'none' }}>
+                    <Typography variant="h6" sx={{ mb: 2 }}>
+                      SELECT QUESTIONS FROM QUESTION BANK
+                    </Typography>
+         
                     {fetchedQuestions.map((question, index) => (
-                        <Box key={index} sx={{ mb: 2, p: 2, backgroundColor: '#fff', borderRadius: 1, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={selectedQuestions.some(q => q.id === question.id)} // Check if the question is selected
-                                        onChange={() => handleQuestionSelect(question)} // Handle selection
-                                    />
-                                }
-                                label={
-                                    <Typography variant="body1" sx={{ fontWeight: 'bold', color: '#00796b' }}>
-                                        {question.text}
-                                    </Typography>
-                                }
-                            />
-                        </Box>
+                      <Card
+                        key={index}
+                        sx={{
+                          mb: 2,
+                          borderRadius: 2,
+                          boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+                          transition: 'transform 0.2s',
+                          '&:hover': { transform: 'scale(1.01)' },
+                        }}
+                      >
+                        <CardContent>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={selectedQuestions.some(q => q.id === question.id)}
+                                onChange={() => handleQuestionSelect(question)}
+                              />
+                            }
+                            label={
+                              <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                                {question.text}
+                              </Typography>
+                            }
+                          />
+                        </CardContent>
+                      </Card>
                     ))}
-                </Box>
+                  </Box>
+                </Fade>
+              </Box>
             );
             case 3:
                 return (

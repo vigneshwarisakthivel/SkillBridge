@@ -320,3 +320,5 @@ const ConsentToggle = ({ icon, label, enabled, onClick }) => (
 );
 
 export default InstructionPage;
+
+
