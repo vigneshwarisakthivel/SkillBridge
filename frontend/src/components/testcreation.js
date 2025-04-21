@@ -124,7 +124,6 @@ const CreateNewTest = () => {
     updatedQuestions[qIndex].correctAnswers = correctAnswers; // Store values, not indexes
     setQuestions(updatedQuestions);
 };
-
   const handleNext = async () => {
     // Check if all required fields are filled in case 0
     if (activeStep === 0) {
@@ -269,9 +268,8 @@ const CreateNewTest = () => {
         const questionType = updatedQuestions[qIndex].type;
 
         if (questionType === "multiplechoice") {
-            // For multiple choice, value should be the option string
-            const selectedOption = updatedQuestions[qIndex].options[value]; // value is the index
-            updatedQuestions[qIndex].correctAnswer = selectedOption; // Store the option string
+            // For multiple choice, value should be the index of the selected option
+            updatedQuestions[qIndex].correctAnswer = value; // Store the index of the selected option
         } else if (questionType === "truefalse") {
             // For true/false, value should be a boolean
             updatedQuestions[qIndex].correctAnswer = value; // Store the boolean value
@@ -284,22 +282,22 @@ const CreateNewTest = () => {
     }
 };
 const handleCorrectAnswerChanges = (qIndex, optionIndex) => {
-    console.log(`Question ${qIndex}, Selected Option: ${optionIndex}`);
-    const updatedQuestions = [...questions];
-    let correctAnswers = updatedQuestions[qIndex].correct_answers || [];
+  console.log(`Question ${qIndex}, Selected Option: ${optionIndex}`);
+  const updatedQuestions = [...questions];
+  let correctAnswers = updatedQuestions[qIndex].correctAnswers || []; // Ensure correctAnswers is initialized
 
-    const optionValue = updatedQuestions[qIndex].options[optionIndex];  // ✅ Get answer text
+  const optionValue = updatedQuestions[qIndex].options[optionIndex];  // Get answer text
 
-    if (correctAnswers.includes(optionValue)) {
-        // Remove answer if already selected
-        correctAnswers = correctAnswers.filter(answer => answer !== optionValue);
-    } else {
-        // Add the answer text
-        correctAnswers.push(optionValue);
-    }
+  if (correctAnswers.includes(optionValue)) {
+      // Remove answer if already selected
+      correctAnswers = correctAnswers.filter(answer => answer !== optionValue);
+  } else {
+      // Add the answer text
+      correctAnswers.push(optionValue);
+  }
 
-    updatedQuestions[qIndex].correct_answers = correctAnswers;  // ✅ Store values, not indexes
-    setQuestions(updatedQuestions);
+  updatedQuestions[qIndex].correctAnswers = correctAnswers;  // Store values, not indexes
+  setQuestions(updatedQuestions);
 };
 
 const handleQuestionSelect = (question) => {
@@ -596,47 +594,46 @@ const handleSubmit = async () => {
                                     transform: "scale(1.02)"
                                 }
                             }}>
-                                <div className="question-content" sx={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center"
-                                }}>
-                                    <div className="question-number" style={{
-                                        fontWeight: "bold",
-                                        color: "#00796b",
-                                        fontSize: "18px",
-                                        background: "#e0f7fa",
-                                        padding: "8px 12px",
-                                        borderRadius: "50%",
-                                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
-                                    }}>
-                                        {qIndex + 1}.
-                                    </div>
-                                    <textarea
-                                        value={question.text}
-                                        onChange={(e) => handleQuestionTextChange(qIndex, e.target.value)}
-                                        placeholder={`Enter the question ${qIndex + 1} here`}
-                                        required
-                                        rows="2"
-                                        style={{
-                                            width: "100%",
-                                            padding: "12px",
-                                            fontSize: "16px",
-                                            borderRadius: "8px",
-                                            border: "1px solid #ddd",
-                                            marginTop: "8px",
-                                            marginBottom: "16px",
-                                            backgroundColor: "#fafafa",
-                                            transition: "border-color 0.3s, box-shadow 0.3s",
-                                            "&:focus": {
-                                                borderColor: "#00796b",
-                                                boxShadow: "0 0 8px rgba(0,121,107,0.3)"
-                                            }
-                                        }}
-                                        onFocus={(e) => (e.target.style.borderColor = "#00796b")}
-                                        onBlur={(e) => (e.target.style.borderColor = "#ddd")}
-                                    />
-                                </div>
+                         <div
+                          style={{
+                            display: "flex",
+                            alignItems: "flex-start",
+                            marginBottom: "16px",
+                            gap: "10px"
+                        }}
+                        >
+                        <div
+                            style={{
+                            fontWeight: "bold",
+                            color: "#00796b",
+                            fontSize: "16px",
+                            paddingTop: "12px"
+                            }}
+                        >
+                            {qIndex + 1}.
+                        </div>
+
+                        <textarea
+                            value={question.text}
+                            onChange={(e) => handleQuestionTextChange(qIndex, e.target.value)}
+                            placeholder={`Enter question ${qIndex + 1} here`}
+                            required
+                            rows="2"
+                            style={{
+                            width: "100%",
+                            padding: "12px",
+                            fontSize: "16px",
+                            borderRadius: "8px",
+                            border: "1px solid #ddd",
+                            backgroundColor: "#fafafa",
+                            resize: "vertical",
+                            transition: "border-color 0.3s, box-shadow 0.3s"
+                            }}
+                            onFocus={(e) => (e.target.style.borderColor = "#00796b")}
+                            onBlur={(e) => (e.target.style.borderColor = "#ddd")}
+                        />
+                        </div>
+
                                 {question.type === "multiplechoice" && (
     <>
         {question.options.map((option, optionIndex) => (
@@ -653,10 +650,10 @@ const handleSubmit = async () => {
             }}>
                 <label style={{ display: "flex", alignItems: "center", fontSize: "14px" }}>
                     <input
-                         type="radio"
-                         name={`correct_answer-${qIndex}`}
-                         checked={question.correctAnswer === option} // Check if the correct answer is the option string
-                         onChange={() => handleCorrectAnswerChange(qIndex, optionIndex)} // Pass the index
+                        type="radio"
+                        name={`correct_answer-${qIndex}`}
+                        checked={question.correctAnswer === optionIndex}
+                        onChange={() => handleCorrectAnswerChange(qIndex, optionIndex)}
                         style={{
                             marginRight: "12px",
                             transform: "scale(1.2)",
@@ -669,7 +666,7 @@ const handleSubmit = async () => {
                     <input
                         type="text"
                         value={option || ""}
-                        onChange={(e) => handleOptionChange(qIndex, optionIndex, e.target.value)} // Update option text
+                        onChange={(e) => handleOptionChange(qIndex, optionIndex, e.target.value)}
                         placeholder={`Option ${optionIndex + 1}`}
                         required
                         style={{
@@ -689,21 +686,21 @@ const handleSubmit = async () => {
             </div>
         ))}
 
-
-        <div className="add-option-group" sx={{ display: "flex", justifyContent: "space-between" }}>
+<div className="add-option-group" style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
             <input
                 type="text"
+                className="custom-input"
                 value={newOption}
                 placeholder="Add another option"
                 onChange={(e) => setNewOption(e.target.value)}
                 style={{
-                    width: "80%",
-                    padding: "10px",
                     fontSize: "14px",
-                    borderRadius: "8px",
+                    padding: "6px 12px",
                     border: "1px solid #ccc",
-                    backgroundColor: "#e0f7fa",
+                    borderRadius: "20px",
                     cursor: "pointer",
+                    width: "100%",
+                    maxWidth: "200px",
                 }}
             />
             <Button onClick={() => handleAddOption(qIndex)}>Add</Button>
@@ -729,7 +726,11 @@ const handleSubmit = async () => {
             <input
                 type="text"
                 value={question.options[question.correctAnswer] || ""}
-                onChange={(e) => handleCorrectAnswerChange(qIndex, question.options.indexOf(e.target.value))}
+                onChange={(e) => {
+                    const selectedOption = e.target.value;
+                    const selectedIndex = question.options.indexOf(selectedOption);
+                    handleCorrectAnswerChange(qIndex, selectedIndex);
+                }}
                 placeholder="Type the correct answer here"
                 style={{
                     padding: "10px",
@@ -753,8 +754,8 @@ const handleSubmit = async () => {
                 <label style={{ display: "flex", alignItems: "center", fontSize: "14px" }}>
                     <input
                         type="checkbox"
-                        checked={question.correctAnswers.includes(option)} // Check if the current option is in the correctAnswers array
-                        onChange={() => handleCorrectAnswersChange(qIndex, optionIndex)} // Update correct answers
+                        checked={question.correctAnswers.includes(option)}
+                        onChange={() => handleCorrectAnswersChange(qIndex, optionIndex)}
                         style={{ marginRight: "12px", transform: "scale(1.2)" }}
                     />
                     <input
@@ -769,8 +770,6 @@ const handleSubmit = async () => {
             </div>
         ))}
 
-
-        {/* Add new option input */}
         <div className="add-option-group" style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
             <input
                 type="text"
@@ -788,6 +787,7 @@ const handleSubmit = async () => {
                     maxWidth: "200px",
                 }}
             />
+            <Button onClick={() => handleAddOption(qIndex)}>Add</Button>
             <IconButton
                 onClick={() => handleRemoveQuestion(qIndex)}
                 sx={{
@@ -804,42 +804,43 @@ const handleSubmit = async () => {
             </IconButton>
         </div>
 
-        {/* Correct Answer Input */}
-        <div style={{ marginTop: "16px" }}>
-            <label style={{ fontSize: "14px", fontWeight: "bold" }}>Correct Answers:</label>
-            <input
-                type="text"
-                value={question.correctAnswers.map(index => question.options[index]).join(", ")} // Display correct answers as option texts
-                onChange={(e) => {
-                    const answers = e.target.value.split(",").map(item => item.trim());
-                    const correctAnswerIndices = answers.map(answer => question.options.indexOf(answer)).filter(index => index !== -1);
-                    handleCorrectAnswersChange(qIndex, correctAnswerIndices); // Update correct answers
-                }}
-                placeholder="Type the correct answers here (comma separated)"
-                style={{
-                    padding: "10px",
-                    width: "100%",
-                    fontSize: "14px",
-                    borderRadius: "8px",
-                    border: "1px solid #ccc",
-                    backgroundColor: "#fafafa",
-                    transition: "border 0.3s, box-shadow 0.3s",
-                    marginTop: "8px"
-                }}
-            />
-        </div>
+     {/* Correct Answer Input */}
+<div style={{ marginTop: "16px" }}>
+    <label style={{ fontSize: "14px", fontWeight: "bold" }}>Correct Answers:</label>
+    <input
+        type="text"
+        value={question.correctAnswers.join(", ")} // Display selected correct answers directly
+        onChange={(e) => {
+            const answers = e.target.value.split(",").map(item => item.trim());
+            const correctAnswerIndices = answers.map(answer => question.options.indexOf(answer)).filter(index => index !== -1);
+            handleCorrectAnswersChange(qIndex, correctAnswerIndices); // Update correct answers based on input
+        }}
+        placeholder="Type the correct answers here (comma separated)"
+        style={{
+            padding: "10px",
+            width: "100%",
+            fontSize: "14px",
+            borderRadius: "8px",
+            border: "1px solid #ccc",
+            backgroundColor: "#fafafa",
+            transition: "border 0.3s, box-shadow 0.3s",
+            marginTop: "8px"
+        }}
+    />
+</div>
     </>
 )}
-                                {question.type === "truefalse" && (
+
+{question.type === "truefalse" && (
     <>
         <div className="form-group" sx={{ mb: 2 }}>
             <label style={{ display: "flex", alignItems: "center", fontSize: "14px" }}>
                 <input
-                   type="radio"
-                   name={`correct_answer-${qIndex}`}
-                   value={true} // Set value to true
-                   checked={question.correctAnswer === true} // Check if the correct answer is true
-                   onChange={() => handleCorrectAnswerChange(qIndex, true)} // Pass true
+                    type="radio"
+                    name={`correct_answer-${qIndex}`}
+                    value={true}
+                    checked={question.correctAnswer === true}
+                    onChange={() => handleCorrectAnswerChange(qIndex, true)}
                     style={{ marginRight: "12px", transform: "scale(1.2)" }}
                 />
                 True
@@ -847,11 +848,11 @@ const handleSubmit = async () => {
             <br />
             <label style={{ display: "flex", alignItems: "center", fontSize: "14px" }}>
                 <input
-                   type="radio"
-                   name={`correct_answer-${qIndex}`}
-                   value={false} // Set value to false
-                   checked={question.correctAnswer === false} // Check if the correct answer is false
-                   onChange={() => handleCorrectAnswerChange(qIndex, false)} // Pass false
+                    type="radio"
+                    name={`correct_answer-${qIndex}`}
+                    value={false}
+                    checked={question.correctAnswer === false}
+                    onChange={() => handleCorrectAnswerChange(qIndex, false)}
                     style={{ marginRight: "12px", transform: "scale(1.2)" }}
                 />
                 False
@@ -863,10 +864,10 @@ const handleSubmit = async () => {
             <label style={{ fontSize: "14px", fontWeight: "bold" }}>Correct Answer:</label>
             <input
                 type="text"
-                value={question.correctAnswer ? "True" : "False"} // Display the correct answer as text
+                value={question.correctAnswer ? "True" : "False"}
                 onChange={(e) => {
                     const value = e.target.value.trim().toLowerCase();
-                    handleCorrectAnswerChange(qIndex, value === "true"); // Update correct answer based on input
+                    handleCorrectAnswerChange(qIndex, value === "true");
                 }}
                 placeholder="Type the correct answer here (True/False)"
                 style={{
@@ -885,16 +886,16 @@ const handleSubmit = async () => {
         <div className="add-option-group">
             <br />
             <IconButton
-                onClick={() => handleRemoveQuestion(qIndex)} // Handle question removal
+                onClick={() => handleRemoveQuestion(qIndex)}
                 sx={{
-                    color: "#d32f2f", // Icon color
+                    color: "#d32f2f",
                     "&:hover": {
-                        backgroundColor: "#f8d7da", // Light red background on hover
+                        backgroundColor: "#f8d7da",
                     },
-                    borderRadius: "50%", // Circular button
-                    padding: "8px", // Padding for the icon button
+                    borderRadius: "50%",
+                    padding: "8px",
                 }}
-                title="Remove question" // Tooltip for accessibility
+                title="Remove question"
             >
                 <DeleteIcon />
             </IconButton>
@@ -902,47 +903,47 @@ const handleSubmit = async () => {
     </>
 )}
 
-                                {question.type === "fillintheblank" && (
-                                    <>
-                                        <input
-                                            type="text"
-                                            value={question.correctAnswer}
-                                            onChange={(e) => handleFillInTheBlankAnswerChange(qIndex, e.target.value)}
-                                            placeholder="Type your answer"
-                                            required
-                                            className="input-field"
-                                            style={{
-                                                padding: "12px",
-                                                width: "100%",
-                                                fontSize: "16px",
-                                                borderRadius: "8px",
-                                                marginTop: "8px",
-                                                marginBottom: "16px",
-                                                border: "1px solid #ccc",
-                                                backgroundColor: "#fafafa",
-                                                transition: "border-color 0.3s",
-                                            }}
-                                            onFocus={(e) => (e.target.style.borderColor = "#00796b")}
-                                            onBlur={(e) => (e.target.style.borderColor = "#ccc")}
-                                        />
-                                        <div className="add-option-group">
-                                            <IconButton
-                                                onClick={() => handleRemoveQuestion(qIndex)} // Handle question removal
-                                                sx={{
-                                                    color: "#d32f2f", // Icon color
-                                                    "&:hover": {
-                                                        backgroundColor: "#f8d7da", // Light red background on hover
-                                                    },
-                                                    borderRadius: "50%", // Circular button
-                                                    padding: "8px", // Padding for the icon button
-                                                }}
-                                                title="Remove question" // Tooltip for accessibility
-                                            >
-                                                <DeleteIcon />
-                                            </IconButton>
-                                        </div>
-                                    </>
-                                )}
+{question.type === "fillintheblank" && (
+    <>
+        <input
+            type="text"
+            value={question.correctAnswer}
+            onChange={(e) => handleFillInTheBlankAnswerChange(qIndex, e.target.value)}
+            placeholder="Type your answer"
+            required
+            className="input-field"
+            style={{
+                padding: "12px",
+                width: "100%",
+                fontSize: "16px",
+                borderRadius: "8px",
+                marginTop: "8px",
+                marginBottom: "16px",
+                border: "1px solid #ccc",
+                backgroundColor: "#fafafa",
+                transition: "border-color 0.3s",
+            }}
+            onFocus={(e) => (e.target.style.borderColor = "#00796b")}
+            onBlur={(e) => (e.target.style.borderColor = "#ccc")}
+        />
+        <div className="add-option-group">
+            <IconButton
+                onClick={() => handleRemoveQuestion(qIndex)}
+                sx={{
+                    color: "#d32f2f",
+                    "&:hover": {
+                        backgroundColor: "#f8d7da",
+                    },
+                    borderRadius: "50%",
+                    padding: "8px",
+                }}
+                title="Remove question"
+            >
+                <DeleteIcon />
+            </IconButton>
+        </div>
+    </>
+)}
                             </div>
                         ))}
                         <Box sx={{ display: "flex", justifyContent: "space-around", mt: 3 }}>
