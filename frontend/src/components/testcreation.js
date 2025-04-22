@@ -16,9 +16,9 @@ const BASE_URL = "http://localhost:3000/smartbridge/online-test-assessment/"; //
 const CreateNewTest = () => {
         const [option, setOption] = useState(null);
         const [file, setFile] = useState(null);
-        const [allowRetakes, setAllowRetakes] = useState(false); // Default: false
-        const [numberOfRetakes, setNumberOfRetakes] = useState(0); // Default: 0
-        const [startDate, setStartDate] = useState("");  // Default empty
+        const [allowRetakes, setAllowRetakes] = useState(false);
+        const [numberOfRetakes, setNumberOfRetakes] = useState(0); 
+        const [startDate, setStartDate] = useState("");
         const [modalOpen, setModalOpen] = useState(false);
         const [IsPublic, setIsPublic] = useState(false);
         const [endDate, setEndDate] = useState("");  // Default empty
