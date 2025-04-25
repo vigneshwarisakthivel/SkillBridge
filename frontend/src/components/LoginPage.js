@@ -17,7 +17,7 @@ import { Lock, AccountCircle } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 
-const API_BASE_URL = 'http://127.0.0.1:8000/api'; // Ensure this matches your backend URL
+const API_BASE_URL = 'https://onlineplatform.onrender.com/api'; // Ensure this matches your backend URL
 
 const LoginPage = () => {
     const [formData, setFormData] = useState({ username: '', password: '' });

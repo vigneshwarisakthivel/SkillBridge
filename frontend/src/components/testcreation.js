@@ -7,18 +7,18 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
 import TwitterIcon from '@mui/icons-material/Twitter';
 import Papa from "papaparse";
-import ImportQuestionsModal from './ImportQuestionModal';
+import ImportQuestionsModal from '/ImportQuestionModal';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 const steps = ["Test Name & Description", "Question Creation", "Question Bank", "Set Time Limit & Marks", "Set Pass/Fail Criteria", "Settings", "Publish & Share"];
-const BASE_URL = "http://localhost:3000/smartbridge/online-test-assessment/"; // Replace with your actual base URL
+const BASE_URL = "https://onlinetestplatformfrontend.vercel.app/smartbridge/online-test-assessment"; // Replace with your actual base URL
 const CreateNewTest = () => {
         const [option, setOption] = useState(null);
         const [file, setFile] = useState(null);
-        const [allowRetakes, setAllowRetakes] = useState(false);
-        const [numberOfRetakes, setNumberOfRetakes] = useState(0); 
-        const [startDate, setStartDate] = useState("");
+        const [allowRetakes, setAllowRetakes] = useState(false); // Default: false
+        const [numberOfRetakes, setNumberOfRetakes] = useState(0); // Default: 0
+        const [startDate, setStartDate] = useState("");  // Default empty
         const [modalOpen, setModalOpen] = useState(false);
         const [IsPublic, setIsPublic] = useState(false);
         const [endDate, setEndDate] = useState("");  // Default empty
@@ -72,7 +72,7 @@ const CreateNewTest = () => {
   };
   useEffect(() => {
     if (openSuccessDialog && testId) {
-        axios.get(`http://localhost:8000/api/get-secure-uuid/${testId}/`)
+        axios.get(`https://onlineplatform.onrender.com/api/get-secure-uuid/${testId}/`)
 
         .then((res) => {
           const encodedUuid = res.data.encoded_uuid;
@@ -92,7 +92,7 @@ const CreateNewTest = () => {
       }
 
       try {
-        const response = await axios.get("http://localhost:8000/api/questions/", {
+        const response = await axios.get("https://onlineplatform.onrender.com/api/questions/", {
           headers: {
             "Authorization": `Token ${userToken}`
           }
@@ -177,7 +177,7 @@ const CreateNewTest = () => {
     try {
       setLoading(true);
  
-      const response = await fetch("http://localhost:8000/api/upload-allowed-emails/", {
+      const response = await fetch("https://onlineplatform.onrender.com/api/upload-allowed-emails/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -409,7 +409,7 @@ const handleSubmit = async () => {
 
         // Step 1: Create the test
         const response = await axios.post(
-            "http://localhost:8000/api/tests/",
+            "https://onlineplatform.onrender.com/api/tests/",
             testData,
             {
                 headers: {
@@ -429,7 +429,7 @@ const handleSubmit = async () => {
             formData.append("test_id", newTestId);
 
             await axios.post(
-                "http://localhost:8000/api/questions/upload/",
+                "https://onlineplatform.onrender.com/api/questions/upload/",
                 formData,
                 {
                     headers: {
@@ -472,7 +472,7 @@ const handleSubmit = async () => {
    
                 // Make the API call to save the question
                 const response = await axios.post(
-                    "http://localhost:8000/api/questions/",
+                    "https://onlineplatform.onrender.com/api/questions/",
                     questionData,
                     {
                         headers: {
@@ -1486,10 +1486,8 @@ const handleSubmit = async () => {
             <ListItem button onClick={() => navigate("/manage-tests")}>
               <ListItemText primary="Manage Tests" />
             </ListItem>
-            <ListItem button onClick={() => navigate("/userresponse")}>
-              <ListItemText primary="Test Analytics" />
-            </ListItem>
-            <ListItem button onClick={() => navigate("/announcements")}>
+
+            <ListItem button onClick={() => navigate("/announcement")}>
               <ListItemText primary="Announcements" />
             </ListItem>
             <ListItem button onClick={() => navigate("/adminsettings")}>
@@ -1511,8 +1509,8 @@ const handleSubmit = async () => {
           </Typography>
           <Button color="inherit" onClick={() => navigate("/")}>Home</Button>
           <Button color="inherit" onClick={() => navigate("/admin-profile")}>Admin profile</Button>
-          <Button color="inherit" onClick={() => navigate("/a")}>Test List</Button>
-          <Button color="inherit" onClick={() => navigate("/settings")}>Settings</Button>
+          <Button color="inherit" onClick={() => navigate("/manage-tests")}>Test List</Button>
+          <Button color="inherit" onClick={() => navigate("/adminsettings")}>Settings</Button>
           <Button color="inherit" onClick={() => handleLogout()}>Logout</Button>
         </Toolbar>
       </AppBar>

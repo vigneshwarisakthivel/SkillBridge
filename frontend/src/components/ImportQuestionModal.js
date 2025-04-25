@@ -24,7 +24,7 @@ const ImportQuestionsModal = ({ open, onClose, setSelectedImportTest }) => {
   useEffect(() => {
     if (open && token) {
       axios
-        .get('http://localhost:8000/api/tests/public/', {
+        .get('https://onlineplatform.onrender.com/api/tests/public/', {
           headers: {
             Authorization: `Token ${token}`,
           },
@@ -42,7 +42,7 @@ const ImportQuestionsModal = ({ open, onClose, setSelectedImportTest }) => {
     setLoading(true);
 
     axios
-      .get(`http://localhost:8000/api/tests/${testId}/questions/`, {
+      .get(`https://onlineplatform.onrender.com/api/tests/${testId}/questions/`, {
         headers: {
           Authorization: `Token ${token}`,
         },

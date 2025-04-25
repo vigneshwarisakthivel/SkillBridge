@@ -19,7 +19,7 @@ import { Lock, AccountCircle } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
 
-const API_BASE_URL = 'http://127.0.0.1:8000/api';
+const API_BASE_URL = 'https://onlineplatform.onrender.com/api';
 
 const RegisterPage = () => {
     const [formData, setFormData] = useState({ 
@@ -64,7 +64,7 @@ const RegisterPage = () => {
             const response = await axios.post(`${API_BASE_URL}/register/`, formData);
             localStorage.setItem('role', response.data.role); // Store role instead of token
             enqueueSnackbar('Registration successful!', { variant: 'success' });
-            navigate('/LoginPage');
+            navigate('/login');
         } catch (error) {
             console.error('Registration error:', error);
             setErrorMessage('Registration failed. Please check your input.');
