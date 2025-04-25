@@ -7,7 +7,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
 import TwitterIcon from '@mui/icons-material/Twitter';
 import Papa from "papaparse";
-import ImportQuestionsModal from '/ImportQuestionModal';
+import ImportQuestionsModal from './ImportQuestionModal';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import ContentCopy from '@mui/icons-material/ContentCopy';
