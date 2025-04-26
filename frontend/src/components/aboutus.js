@@ -25,7 +25,7 @@ const AboutUsPage = () => {
       }}>
         <FaChalkboardTeacher size={60} className="hero-icon" />
         <Typography variant="h3" sx={{ fontSize: "2.5rem", fontWeight: "bold" }}>
-          About SkillBridge Online Testing
+          About Skill Bridge Online Testing
         </Typography>
         <Typography variant="h6" sx={{ fontSize: "1.2rem", opacity: 0.9 }}>
           Revolutionizing assessments through secure, scalable, and accessible online testing solutions.
@@ -117,7 +117,7 @@ const AboutUsPage = () => {
             Ready to Take Your Learning to the Next Level?
           </Typography>
           <Typography variant="body1" sx={{ marginBottom: "24px" }} paragraph>
-            Join thousands of learners and professionals who trust SkillBridge for their online assessments.
+            Join thousands of learners and professionals who trust Skill Bridge for their online assessments.
           </Typography>
           <Button variant="contained" color="primary">
             Get Started Now

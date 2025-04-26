@@ -541,7 +541,6 @@ const onClose = () => {
       <Snackbar open={notification !== ""} autoHideDuration={3000} onClose={() => setNotification("")}>
         <Alert onClose={() => setNotification("")} severity="info">{notification}</Alert>
       </Snackbar>
-      {/* Footer */}
       <Box
           sx={{
             position: "fixed",

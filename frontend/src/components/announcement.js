@@ -30,7 +30,7 @@ import {
 } from "@mui/material";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import logo from "../assets/Image20210206041010-1024x518.png";
+import logo from "../assets/Image20250320122406.png";
 import TwitterIcon from '@mui/icons-material/Twitter';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
@@ -48,7 +48,7 @@ export default function AnnouncementsPage() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const API_BASE_URL = "http://127.0.0.1:8000/api/"; // Ensure your Django URL config is correct
+  const API_BASE_URL = "https://onlinetestcreationbackend.onrender.com/api/"; // Ensure your Django URL config is correct
   const token = localStorage.getItem("user_token");
   const navigate = useNavigate();
 
@@ -75,18 +75,20 @@ export default function AnnouncementsPage() {
     fetchAnnouncements();
   }, [token]);
 
-  // Function to create a new announcement
   const handleCreateAnnouncement = async () => {
     if (!newAnnouncement.title || !newAnnouncement.message || !newAnnouncement.date) {
       alert("Please fill in all required fields before posting.");
       return;
     }
-
-    if (!token) {
-      console.error("No token found in localStorage.");
+  
+    // Retrieve user_token from localStorage
+    const userToken = localStorage.getItem("user_token");
+  
+    if (!userToken) {
+      console.error("No user_token found in localStorage.");
       return;
     }
-
+  
     try {
       const response = await axios.post(
         `${API_BASE_URL}announcements/`,
@@ -94,10 +96,11 @@ export default function AnnouncementsPage() {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Token ${token}`,
+            Authorization: `Token ${userToken}`, // Use user_token from localStorage
           },
         }
       );
+  
       setAnnouncements([...announcements, response.data]);
       setNewAnnouncement({
         title: "",
@@ -112,6 +115,7 @@ export default function AnnouncementsPage() {
       console.error("Error creating announcement:", error.message);
     }
   };
+  
   const handleDeleteAnnouncement = async (id) => {
     if (!id) {
         console.error("Error: Announcement ID is undefined!");
@@ -155,8 +159,8 @@ export default function AnnouncementsPage() {
           </Typography>
           <Button color="inherit" onClick={() => navigate("/")}>Home</Button>
           <Button color="inherit" onClick={() => navigate("/admin-profile")}>Admin Profile</Button>
-          <Button color="inherit" onClick={() => navigate("/test-list")}>Test List</Button>
-          <Button color="inherit" onClick={() => navigate("/settings")}>Settings</Button>
+          <Button color="inherit" onClick={() => navigate("/manage-tests")}>Test List</Button>
+          <Button color="inherit" onClick={() => navigate("/adminsettings")}>Settings</Button>
           <Button color="inherit" onClick={() => navigate("/logout")}>Logout</Button>
         </Toolbar>
       </AppBar>
@@ -185,9 +189,6 @@ export default function AnnouncementsPage() {
                       </ListItem>
                       <ListItem button onClick={() => navigate('/manage-tests')}>
                         <ListItemText primary="Manage Tests" />
-                      </ListItem>
-                      <ListItem button onClick={() => navigate('/userresponse')}>
-                        <ListItemText primary="Test Analytics" />
                       </ListItem>
                       <ListItem button onClick={() => navigate('/announcement')}>
                         <ListItemText primary="Announcements" />

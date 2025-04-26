@@ -59,7 +59,7 @@ const SettingsCustomizationPage = () => {
       const headers = { Authorization: `Token ${token}` };
 
       try {
-        const response = await axios.get("http://localhost:8000/api/user-settings/", { headers });
+        const response = await axios.get("https://onlinetestcreationbackend.onrender.com/api/user-settings/", { headers });
         const settings = response.data;
         setDarkMode(settings.dark_mode);
         setTestAccess(settings.test_access);
@@ -80,7 +80,7 @@ const SettingsCustomizationPage = () => {
     const headers = { Authorization: `Token ${token}` };
 
     try {
-      await axios.post("http://localhost:8000/api/user-settings/reset/", {}, { headers });
+      await axios.post("https://onlinetestcreationbackend.onrender.com/api/user-settings/reset/", {}, { headers });
       // Reset local state to default values
       setDarkMode(false);
       setTestAccess("public");
@@ -102,7 +102,7 @@ const SettingsCustomizationPage = () => {
     const headers = { Authorization: `Token ${token}` };
 
     try {
-      await axios.put("http://localhost:8000/api/user-settings/", {
+      await axios.put("https://onlinetestcreationbackend.onrender.com/api/user-settings/", {
         dark_mode: darkMode,
         test_access: testAccess,
         integration: integration,
@@ -139,7 +139,7 @@ const SettingsCustomizationPage = () => {
             SkillBridge Online Test Platform
           </Typography>
           <Button color="inherit" onClick={() => navigate("/")}>Home</Button>
-          <Button color="inherit" onClick={() => navigate("/admin-profile")}>User Profile</Button>
+          <Button color="inherit" onClick={() => navigate("/userprofile")}>User Profile</Button>
           <Button color="inherit" onClick={() => navigate("/attempted-tests")}>Test List</Button>
           <Button color="inherit" onClick={() => navigate("/usersetting")}>Settings</Button>
           <Button color="inherit" onClick={() => navigate("/logout")}>Logout</Button>

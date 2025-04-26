@@ -28,7 +28,7 @@ const QuestionCreator = () => {
     if (!token) return;
   
     try {
-      const response = await axios.get('https://onlineplatform.onrender.com//api/questions/', {
+      const response = await axios.get('https://onlinetestcreationbackend.onrender.com/api/questions/', {
         headers: { 'Authorization': `Token ${token}` },
       });
   
@@ -78,7 +78,7 @@ const QuestionCreator = () => {
       };
   
       try {
-        const response = await axios.post('https://onlineplatform.onrender.com//api/questions/', questionData, {
+        const response = await axios.post('https://onlinetestcreationbackend.onrender.com/api/questions/', questionData, {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Token ${token}`,

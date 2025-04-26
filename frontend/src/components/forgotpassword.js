@@ -15,7 +15,7 @@ import {
 import { Lock, Email, Numbers } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
-const API_BASE_URL = 'http://127.0.0.1:8000/api';
+const API_BASE_URL = 'https://onlinetestcreationbackend.onrender.com/api';
 
 const ForgotPasswordPage = () => {
     const [step, setStep] = useState(1);

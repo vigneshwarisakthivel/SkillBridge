@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import logo from "../assets/Image20210206041010-1024x518.png";
+import logo from "../assets/Image20250320122406.png";
 import {
   AppBar,
   Toolbar,
@@ -26,7 +26,7 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API_BASE_URL = "http://127.0.0.1:8000/api";
+const API_BASE_URL = "https://onlinetestcreationbackend.onrender.com/api";
 
 const AttemptedTest = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -306,10 +306,7 @@ const sendDataToAttemptedTestsAPI = async (testId, testTitle, testSubject, perce
                 <td style={styles.td}>{test.max_score}</td>
                 <td style={styles.td}>{test.status}</td>
                 <td style={styles.td}>{test.rank}</td>
-                <td style={styles.td}>
-                  <button onClick={() => handleReview(test.id)} style={styles.button}>Review</button>
-                  <button onClick={() => handleExportPDF(test.id)} style={styles.button}>Download Certificate</button>
-                </td>
+
               </tr>
             ))}
           </tbody>

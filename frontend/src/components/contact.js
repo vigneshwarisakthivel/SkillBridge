@@ -10,50 +10,66 @@ const ContactPage = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  // Function to fetch admin notifications
-  const fetchAdminNotifications = async () => {
-    try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
-      const response = await axios.get(`${apiUrl}/api/admin-notifications/`);
-      console.log("Admin Notifications:", response.data); // You can update the UI as needed
-    } catch (error) {
-      console.error("Error fetching admin notifications:", error);
-    }
-  };
+// Function to fetch admin notifications
+const fetchAdminNotifications = async () => {
+  try {
+    const apiUrl = process.env.REACT_APP_API_URL || "https://onlinetestcreationbackend.onrender.com";
+    
+    // Retrieve user_token from localStorage (or wherever you store it after login)
+    const userToken = localStorage.getItem("user_token");
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
-
-    if (!name || !email || !message) {
-      setError("Please fill out all fields.");
-      setLoading(false);
+    if (!userToken) {
+      console.error("User token not found");
       return;
     }
 
-    try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
-      await axios.post(`${apiUrl}/api/contact-submissions/`, {
-        name,
-        email,
-        message,
-      });
+    const response = await axios.get(`${apiUrl}/api/admin-notifications/`, {
+      headers: {
+        Authorization: `Token ${userToken}`, // Add user token in headers
+      },
+    });
 
-      setSuccess(true);
-      setName("");
-      setEmail("");
-      setMessage("");
+    console.log("Admin Notifications:", response.data);
+  } catch (error) {
+    console.error("Error fetching admin notifications:", error);
+  }
+};
 
-      // Fetch admin notifications after successful submission
-      fetchAdminNotifications();
-    } catch (err) {
-      setError("There was an error submitting your message. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+// Function to handle form submission
+const handleSubmit = async (event) => {
+  event.preventDefault();
+  setLoading(true);
+  setError(null);
+  setSuccess(false);
+
+  if (!name || !email || !message) {
+    setError("Please fill out all fields.");
+    setLoading(false);
+    return;
+  }
+
+  try {
+    const apiUrl = process.env.REACT_APP_API_URL || "https://onlinetestcreationbackend.onrender.com";
+
+    await axios.post(`${apiUrl}/api/contact-submissions/`, {
+      name,
+      email,
+      message,
+    });
+
+    setSuccess(true);
+    setName("");
+    setEmail("");
+    setMessage("");
+
+    // Fetch admin notifications after successful submission
+    fetchAdminNotifications();
+  } catch (err) {
+    setError("There was an error submitting your message. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <Box sx={{ padding: "16px", maxWidth: "600px", margin: "0 auto" }}>

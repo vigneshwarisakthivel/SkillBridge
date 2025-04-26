@@ -29,10 +29,10 @@ import { MoreVert, Edit,ContentCopy, Delete, Menu as MenuIcon } from "@mui/icons
 import TwitterIcon from '@mui/icons-material/Twitter';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
-import logo from "../assets/Image20210206041010-1024x518.png";
+import logo from "../assets/Image20250320122406.png";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE_URL = "http://localhost:8000"; // Base URL
+const API_BASE_URL = "https://onlinetestcreationbackend.onrender.com"; // Base URL
 
 const ManageTestsPage = () => {
   const navigate = useNavigate(); // Get the navigate function
@@ -83,7 +83,7 @@ const ManageTestsPage = () => {
       const userToken = localStorage.getItem("user_token"); // Assuming userToken is stored in localStorage
   
       const response = await axios.post(
-        `http://localhost:8000/api/tests/${selectedTest.id}/duplicate/`,
+        `https://onlinetestcreationbackend.onrender.com/api/tests/${selectedTest.id}/duplicate/`,
         {},
         {
           headers: {
@@ -177,7 +177,7 @@ const ManageTestsPage = () => {
             <ListItem button onClick={() => navigate("/manage-tests")}>
               <ListItemText primary="Manage Tests" />
             </ListItem>
-            <ListItem button onClick={() => navigate("/announcements")}>
+            <ListItem button onClick={() => navigate("/announcement")}>
               <ListItemText primary="Announcements" />
             </ListItem>
             <ListItem button onClick={() => navigate("/adminsettings")}>

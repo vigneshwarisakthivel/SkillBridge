@@ -130,7 +130,7 @@ const WebcamProctoring = ({ studentId, testId }) => {
 
         try {
             const response = await axios.post(
-                "http://localhost:8000/api/log-malpractice/",
+                "https://onlinetestcreationbackend.onrender.com/api/log-malpractice/",
                 data,
                 {
                     headers: {
@@ -301,7 +301,7 @@ const WebcamProctoring = ({ studentId, testId }) => {
         // Automatically exit the test without alerting the user
         console.log("🚪 Exiting test due to multiple alerts.");
         // Redirect to an exit page or perform any other action
-        window.location.href = "/exit"; // Example redirect
+        window.location.href = "/smartbridge/online-test-assessment/:uuid/exit"; // Example redirect
     };
 
     useEffect(() => {
@@ -359,7 +359,7 @@ const WebcamProctoring = ({ studentId, testId }) => {
                     try {
                         const token = localStorage.getItem("usertoken"); // Retrieve user token
                         const response = await axios.post(
-                            "http://localhost:8000/api/log-malpractice/",
+                            "https://onlinetestcreationbackend.onrender.com/api/log-malpractice/",
                             formData,
                             {
                                 headers: {

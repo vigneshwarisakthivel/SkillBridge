@@ -26,9 +26,9 @@ import TwitterIcon from "@mui/icons-material/Twitter";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import MuiAlert from '@mui/material/Alert';
-import logo from "../assets/Image20210206041010-1024x518.png";
+import logo from "../assets/Image20250320122406.png";
 import { useParams } from "react-router-dom"; 
-const API_BASE_URL = "http://localhost:8000/api/questions/";
+const API_BASE_URL = "https://onlinetestcreationbackend.onrender.com/api/questions/";
 
 const EditTestPage = () => {
   const { testId } = useParams(); // Get test ID from the URL
@@ -163,7 +163,7 @@ const EditTestPage = () => {
   const fetchQuestions = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:8000/api/tests/${testId}/`, {
+      const response = await axios.get(`https://onlinetestcreationbackend.onrender.com/api/tests/${testId}/`, {
         headers: { Authorization: `Token ${token()}` },
       });
       
@@ -199,7 +199,7 @@ const EditTestPage = () => {
                 <Button color="inherit" onClick={() => navigate("/")}>Home</Button>
                 <Button color="inherit" onClick={() => navigate("/admin-profile")}>Admin profile</Button>
                 <Button color="inherit" onClick={() => navigate("/manage-tests")}>Test List</Button>
-                <Button color="inherit" onClick={() => navigate("/settings")}>Settings</Button>
+                <Button color="inherit" onClick={() => navigate("/adminsettings")}>Settings</Button>
                 <Button color="inherit" onClick={() => navigate("/logout")}>Logout</Button>
             </Toolbar>
       </AppBar>
@@ -213,13 +213,33 @@ const EditTestPage = () => {
               style={{ maxWidth: "80%", height: "auto", marginBottom: "12px", borderRadius: "8px" }}
             />
           )}
-          <List>
-            {['Dashboard', 'Create a Test', 'Manage Tests', 'Test Analytics', 'Announcements', 'Settings', 'Logout'].map(item => (
-              <ListItem button key={item}>
-                <ListItemText primary={item} />
-              </ListItem>
-            ))}
-          </List>
+        <List>
+          <ListItem button onClick={() => navigate('/admin-dashboard')}>
+            <ListItemText primary="Dashboard" />
+          </ListItem>
+          <ListItem button onClick={() => navigate('/testcreation')}>
+            <ListItemText primary="Test Creation" />
+          </ListItem>
+          <ListItem button onClick={() => navigate('/questioncreation')}>
+            <ListItemText primary="Question Creation" />
+          </ListItem>
+          <ListItem button onClick={() => navigate('/manage-tests')}>
+            <ListItemText primary="Manage Tests" />
+          </ListItem>
+
+          <ListItem button onClick={() => navigate('/announcement')}>
+            <ListItemText primary="Announcements" />
+          </ListItem>
+          <ListItem button onClick={() => navigate('/adminsettings')}>
+            <ListItemText primary="Settings" />
+          </ListItem>
+          <ListItem button onClick={() => {
+            localStorage.removeItem('user_token');
+            navigate('/login');
+          }}>
+            <ListItemText primary="Logout" />
+          </ListItem>
+        </List>
         </Box>
       </Drawer>
 

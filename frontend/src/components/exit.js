@@ -1,14 +1,13 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { AlertTriangle } from "lucide-react";
 
 const ProctoringExitPage = () => {
   const navigate = useNavigate();
-  const testId = "12345"; // Replace dynamically if needed
+  const { uuid } = useParams(); // Get test UUID from the URL
 
-  const handleRetake = () => navigate(`/test/${testId}/start`);
+  const handleRetake = () => navigate(`/smartbridge/online-test-assessment/${uuid}/cover`);
   const handleHome = () => navigate("/dashboard");
-
   return (
     <>
       <style>

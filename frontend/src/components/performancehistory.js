@@ -31,7 +31,7 @@ const TestHistory = () => {
 
     try {
         // Fetch performance history
-        const response = await fetch("http://127.0.0.1:8000/api/performance-history/", {
+        const response = await fetch("https://onlinetestcreationbackend.onrender.com/api/performance-history/", {
             headers: { Authorization: `Token ${token}` },
         });
         if (!response.ok) {
@@ -73,7 +73,7 @@ const TestHistory = () => {
     }
 
     try {
-      const response = await axios.get("http://127.0.0.1:8000/api/performance-history/", performanceData, {
+      const response = await axios.get("https://onlinetestcreationbackend.onrender.com/api/performance-history/", performanceData, {
         headers: { Authorization: `Token ${token}` },
       });
 
@@ -126,7 +126,7 @@ const TestHistory = () => {
             SkillBridge Online Test Platform
           </Typography>
           <Button color="inherit" onClick={() => navigate("/")}>Home</Button>
-          <Button color="inherit" onClick={() => navigate("/admin-profile")}>User  Profile</Button>
+          <Button color="inherit" onClick={() => navigate("/userprofile")}>User Profile</Button>
           <Button color="inherit" onClick={() => navigate("/attempted-tests")}>Test List</Button>
           <Button color="inherit" onClick={() => navigate("/usersetting")}>Setting</Button>
           <Button color="inherit" onClick={() => navigate("/Logout")}>Logout</Button>
