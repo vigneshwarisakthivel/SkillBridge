@@ -143,9 +143,9 @@ const handleSubmit = async (event) => {
 
       <Box sx={{ marginTop: "24px", textAlign: "center" }}>
         <Typography variant="h6">Contact Information</Typography>
-        <Typography variant="body2">Email: support@vdart.com</Typography>
+        <Typography variant="body2">Email: support@Skill Bridge.com</Typography>
         <Typography variant="body2">Phone: +1 (123) 456-7890</Typography>
-        <Typography variant="body2">Address: 123 Vdart Lane, Tech City</Typography>
+        <Typography variant="body2">Address: 123 Skill Brige Lane, Tech City</Typography>
       </Box>
     </Box>
   );
