@@ -86,11 +86,25 @@ const HomePage = () => {
   }, []);
 
   const testimonials = [
-
+    { id: 1, name: 'Jasime Doe', profile_picture_url: image7, message: 'This platform is amazing!' },
+    { id: 2, name: 'Jane Smith', profile_picture_url: image3, message: 'I learned so much from the tests!' },
+    { id: 3, name: 'Michael Johnson', profile_picture_url: image10, message: 'The tests here are well-structured and easy to follow.' },
+    { id: 5, name: 'Emily Davis', profile_picture_url: image5, message: 'I love the interactive exercises and quizzes!' },
+    { id: 6, name: 'Stephen Martinez', profile_picture_url: image1, message: 'A must-visit platform for anyone looking to upskill!' },
+    { id: 7, name: 'Jennice Andriya', profile_picture_url: image9, message: 'The best online learning experience I’ve had!' },
+    { id: 9, name: 'William Brown', profile_picture_url: image6, message: 'Fantastic resources and easy-to-understand lessons.' },
+    { id: 10, name: 'Isaiyah White',profile_picture_url: image1, message: 'Helped me improve my skills tremendously!' },
   ];
 
   const performers = [
-
+    { id: 1, name: 'Alan Johnson', profile_picture_url: image1, achievement: 'Top Scorer in Mathematics' },
+    { id: 2, name: 'Navier Smith', profile_picture_url: image2, achievement: 'Outstanding Performance in Science' },
+    { id: 3, name: 'Rashta Brown', profile_picture_url: image3, achievement: 'Excellence in Literature' },
+    { id: 5, name: 'Jeni Williams', profile_picture_url: image5, achievement: 'Champion in Coding Competitions' },
+    { id: 6, name: 'George Lee', profile_picture_url: image6, achievement: 'Top Innovator in Robotics' },
+    { id: 7, name: 'Gloria Eshther', profile_picture_url: image7, achievement: 'Best Research Paper in Physics' },
+    { id: 9, name: 'Fiona Garcia', profile_picture_url: image9, achievement: 'Top Speaker in Debate Championships' },
+    { id: 10, name: 'John Martinez', profile_picture_url: image10, achievement: 'Gold Medalist in Sports' },
   ];
 
   const HeroSection = () => (
