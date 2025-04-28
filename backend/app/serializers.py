@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
 from .models import (
-    UserProfile,CustomUser,UserPerformance,Review,Category,RecentActivity,Answer,Option,Question, UserSettings,AdminSettings, ManageTests,UserResponse,
+    UserProfile,CustomUser,UserPerformance,Review,Category,StudentCapture,RecentActivity,AllowedParticipant,Answer,Option,Question, UserSettings,AdminSettings, ManageTests,UserResponse,
  ActivityLog,Performer,Enrollment,TestUser,TestResult,TestAttempt,Feature, LeaderboardEntry,
  Testimonial,Test, Announcement, FAQ, PasswordReset, ContactMessage,AdminNotification, Notification,AttemptedTest,Achievement,
 PerformanceStat,CompletedTest, TestSummary,
@@ -214,7 +214,10 @@ class RecentActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = RecentActivity
         fields = fields = ['id', 'user', 'description', 'details', 'timestamp']
-
+class AllowedParticipantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AllowedParticipant
+        fields = ['test', 'email']
 class TestUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = TestUser
@@ -237,6 +240,7 @@ from .models import Test, Question
 class TestSerializer(serializers.ModelSerializer):
     questions = QuestionSerializer(many=True)  # ✅ Handle nested questions
     owner_name = serializers.CharField(source="owner.get_full_name", read_only=True)
+
     class Meta:
         model = Test
         fields = "__all__"
@@ -283,7 +287,14 @@ class UserAnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserAnswer
         fields = ['id', 'question_text', 'selected_option']
-        
+
+
+class StudentCaptureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentCapture
+        fields = '__all__'
+        read_only_fields = ('timestamp', 'is_valid', 'validation_message')
+
 class TestAttemptSerializer(serializers.ModelSerializer):
     test_name = serializers.CharField(source="test.title", read_only=True)
     subject = serializers.CharField(source="test.subject", read_only=True)

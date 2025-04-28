@@ -1,9 +1,19 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 import io
+import os
+import cv2
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+import PyPDF2
+import csv
+import tempfile
+from app.utils import send_congratulations_email
+from datetime import datetime
 from django.db import models
 from django.core.mail import send_mail
 from django.conf import settings
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import action
 from django.db.models import Max, Sum, Count
 from rest_framework.decorators import api_view,permission_classes
@@ -135,6 +145,7 @@ def user_management_stats(request):
         "admin_users": admin_users,
         "normal_users": normal_users
     })
+
 def test_completion_rate_view(request):
     # Initialize a dictionary to hold completion rates
     completion_rates = {}
@@ -228,6 +239,107 @@ def dashboard_view(request):
 
     return JsonResponse(dashboard_data)
 
+class CaptureImageView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        if 'image' not in request.FILES:
+            return Response(
+                {'success': False, 'message': 'No image provided'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            image_file = request.FILES['image']
+            user = request.user
+
+            # Create user-specific directory
+            user_dir = os.path.join(settings.MEDIA_ROOT, 'captures', str(user.id))
+            os.makedirs(user_dir, exist_ok=True)
+
+            # Read image content into memory once
+            image_bytes = image_file.read()
+
+            # Save image permanently
+            filename = f"capture_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
+            file_path = os.path.join(user_dir, filename)
+            default_storage.save(file_path, ContentFile(image_bytes))
+
+            # Write image to temporary file for OpenCV
+            with tempfile.NamedTemporaryFile(suffix='.jpg', delete=False) as tmp:
+                tmp.write(image_bytes)
+                tmp_path = tmp.name
+
+            try:
+                # Load image using OpenCV
+                img = cv2.imread(tmp_path)
+                if img is None:
+                    raise ValueError("Could not read the image file")
+
+                # Convert to grayscale
+                gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+                # Load OpenCV face detector
+                face_cascade = cv2.CascadeClassifier(
+                    cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
+                )
+
+                # Detect faces
+                faces = face_cascade.detectMultiScale(
+                    gray,
+                    scaleFactor=1.1,
+                    minNeighbors=5,
+                    minSize=(100, 100)
+                )
+
+                # Validation logic
+                validation = {
+                    'face_detected': len(faces) > 0,
+                    'multiple_faces': len(faces) > 1,
+                    'looking_straight': False,
+                    'is_valid': False,
+                    'message': ''
+                }
+
+                if not validation['face_detected']:
+                    validation['message'] = 'No face detected'
+                elif validation['multiple_faces']:
+                    validation['message'] = 'Multiple faces detected'
+                else:
+                    # Check if face is centered
+                    (x, y, w, h) = faces[0]
+                    face_center_x = x + w / 2
+                    img_center_x = img.shape[1] / 2
+
+                    if abs(face_center_x - img_center_x) < img.shape[1] * 0.1:
+                        validation['looking_straight'] = True
+                        validation['is_valid'] = True
+                        validation['message'] = 'Valid capture'
+                    else:
+                        validation['message'] = 'Face not centered'
+
+                return Response({
+                    'success': validation['is_valid'],
+                    'message': validation['message'],
+                    'validation': validation,
+                    'image_url': default_storage.url(file_path),
+                    'user': {
+                        'id': user.id,
+                        'username': user.username
+                    }
+                })
+
+            finally:
+                # Delete temp file
+                if os.path.exists(tmp_path):
+                    os.remove(tmp_path)
+
+        except Exception as e:
+            return Response(
+                {'success': False, 'message': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 class RecentActivityDeleteView(generics.DestroyAPIView):
     queryset = RecentActivity.objects.all()
     serializer_class = RecentActivitySerializer
@@ -269,7 +381,7 @@ def duplicate_test(request, test_id):
         # Generate a unique test code
         unique_code = str(uuid.uuid4())[:10]  # Generates a short, unique 10-character string
 
-        test_link = f"http://localhost:3000/smartbridge/online-test-assessment/{unique_code}/{new_test.id}/"
+        test_link = f"http://localhost:3000/skillbridge/online-test-assessment/{unique_code}/{new_test.id}/"
 
         return Response({
             "message": "Test duplicated successfully!",
@@ -841,16 +953,20 @@ class QuestionCreateAPIView(APIView):
 class AnnouncementViewSet(viewsets.ModelViewSet):
     queryset = Announcement.objects.all().order_by('-created_at')
     serializer_class = AnnouncementSerializer
-
-    def get_permissions(self):
-        if self.request.method in ['POST', 'DELETE']:
-            return [IsAdminUser()]
-        return [IsAuthenticated()]
+    permission_classes = [IsAuthenticated]  # Applies to all methods
 
     def perform_create(self, serializer):
-        # ✅ Prevent unnecessary multiple saves
-        if not Announcement.objects.filter(title=serializer.validated_data['title'], message=serializer.validated_data['message']).exists():
-            serializer.save()
+        # Log the request user for debugging
+        print("Creating announcement by:", self.request.user)
+
+        # Prevent duplicate announcements by title + message
+        if not Announcement.objects.filter(
+            title=serializer.validated_data['title'],
+            message=serializer.validated_data['message']
+        ).exists():
+            serializer.save(created_by=self.request.user)
+        else:
+            print("Duplicate announcement skipped")
 
 class NotificationViewSet(viewsets.ModelViewSet):
     queryset = Notification.objects.select_related('announcement')  # Prefetch related data
@@ -1205,9 +1321,9 @@ def upload_allowed_emails(request):
     secure_uuid = encode_testid_to_secure_uuid(test.id)
 
     # ✅ Build full test link
-    BASE_URL = "http://localhost:3000"
+    BASE_URL = "https://onlinetestplatformfrontend.vercel.app/"
     random_string = "sharelink"  # or generate dynamically
-    test_link = f"{BASE_URL}/smartbridge/online-test-assessment/{random_string}/{secure_uuid}"
+    test_link = f"{BASE_URL}/smartbridge/online-test-assessment/{secure_uuid}"
 
     # ✅ Send email invitations
     send_test_invite_emails(emails, test_link)
@@ -1324,31 +1440,32 @@ class TestAttemptViewSet(viewsets.ModelViewSet):
             question_id = answer_data.get("question")
             selected_option = answer_data.get("selected_option")
             question = get_object_or_404(Question, id=question_id)
-            UserAnswer.objects.create(attempt=attempt, question=question, selected_option=selected_option)
-            if str(selected_option).strip().lower() == str(question.correct_answer).strip().lower():
-                correct_answers += 1
-                attempt.total_questions = total_questions
-                attempt.correct_answers = correct_answers
-                attempt.score = (correct_answers / total_questions) * 100 if total_questions > 0 else 0
-                attempt.end_time = now()
-                if total_questions > 0 and len(answers_data) == total_questions:
-                    attempt.status = "completed"
-                    attempt.passed = attempt.score >= 50  # Pass if score is 50% or higher
-                                     # ✅ Email Notification if enabled
-                test = attempt.test
-                if test.receive_email_notifications and test.notification_emails:
-                    recipients = [email.strip() for email in test.notification_emails.split(",") if email.strip()]
-                    send_mail(
-                        subject=f"[Test Completed] {test.title}",
-                        message=f"User {request.user.username} ({request.user.email}) has completed the test '{test.title}' with a score of {attempt.score:.2f}%",
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        recipient_list=recipients,
-                        fail_silently=False,
-                        )
+        UserAnswer.objects.create(attempt=attempt, question=question, selected_option=selected_option)
+        if str(selected_option).strip().lower() == str(question.correct_answer).strip().lower():
+            correct_answers += 1
+            attempt.total_questions = total_questions
+            attempt.correct_answers = correct_answers
+            attempt.score = (correct_answers / total_questions) * 100 if total_questions > 0 else 0
+            attempt.end_time = now()
+        if total_questions > 0 and len(answers_data) == total_questions:
+            attempt.status = "completed"
+            attempt.passed = attempt.score >= 50  # Pass if score is 50% or higher
+        else:
+            attempt.status = "ongoing"
 
-                else:
-                    attempt.status = "ongoing"  # Keep it as ongoing if not all questions are answered
-                    attempt.save()
+        attempt.save()
+
+        test = attempt.test
+        if test.receive_email_notifications and test.notification_emails:
+            recipients = [email.strip() for email in test.notification_emails.split(",") if email.strip()]
+            send_mail(
+            subject=f"[Test Completed] {test.title}",
+            message=f"User {request.user.username} ({request.user.email}) has completed the test '{test.title}' with a score of {attempt.score:.2f}%",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=recipients,
+            fail_silently=False,
+        )
+            send_congratulations_email (request.user, attempt, test)
         return Response(TestAttemptSerializer(attempt).data, status=status.HTTP_200_OK)
 
     def perform_update(self, serializer):
@@ -1554,3 +1671,94 @@ class UserAnswerViewSet(viewsets.ModelViewSet):
             )
 
         return Response({"message": "Answers saved successfully"}, status=status.HTTP_201_CREATED)
+    
+import re
+from PyPDF2 import PdfReader
+
+class UploadQuestionsView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
+    def post(self, request, format=None):
+        file = request.FILES.get('file')
+        test_id = request.data.get('test_id')
+
+        if not file or not test_id:
+            return Response({'error': 'File and test_id are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            test = Test.objects.get(id=test_id)
+        except Test.DoesNotExist:
+            return Response({'error': 'Test not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if file.name.endswith('.csv'):
+            decoded_file = file.read().decode('utf-8')
+            io_string = io.StringIO(decoded_file)
+            reader = csv.DictReader(io_string)
+
+            for row in reader:
+                try:
+                    Question.objects.create(
+                        test=test,
+                        text=row['text'],
+                        type=row['type'],
+                        options=json.loads(row.get('options', '[]')),
+                        correct_answer=json.loads(row.get('correct_answer', '[]')),
+                    )
+                except Exception as e:
+                    return Response({'error': f"Failed to process row: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+
+        elif file.name.endswith('.pdf'):
+            pdf_reader = PdfReader(file)
+            full_text = ''
+            for page in pdf_reader.pages:
+                full_text += page.extract_text() + '\n'
+                question_blocks = full_text.strip().split('\n\n')
+            for block in question_blocks:
+                lines = block.strip().split('\n')
+                if not lines:
+                    continue
+                question_text = lines[0].strip()
+                options = []
+                correct_answer = []
+                answer_line = None
+            for i, line in enumerate(lines):
+                if line.lower().startswith('answer:'):
+                    answer_line = line
+                    lines.pop(i)
+                    break
+            for line in lines[1:]:
+                match = re.match(r'^(\d+)\.\s*(.+)', line.strip())
+                if match:
+                    options.append(match.group(2).strip())
+            if '____' in question_text or '__________' in question_text:
+                q_type = 'fillintheblank'
+                if answer_line:
+                    correct_answer = [answer_line.split(':', 1)[1].strip()]
+                elif len(options) == 2 and set(opt.lower() for opt in options) == {"true", "false"}:
+                    q_type = 'truefalse'
+                    if answer_line:
+                        correct_answer = [options[int(answer_line.split(':', 1)[1].strip()) - 1]]
+                elif answer_line and ',' in answer_line:
+                    q_type = 'multipleresponse'
+                    indices = [int(i.strip()) - 1 for i in answer_line.split(':', 1)[1].split(',')]
+                    correct_answer = [options[i] for i in indices if 0 <= i < len(options)]
+                elif options:
+                    q_type = 'multiplechoice'
+                    if answer_line:
+                        idx = int(answer_line.split(':', 1)[1].strip()) - 1
+                        if 0 <= idx < len(options):
+                            correct_answer = [options[idx]]
+                else:
+                    q_type = 'fillintheblank'
+                Question.objects.create(
+                    test=test,
+                    text=question_text,
+                    type=q_type,
+                    options=options,
+                     correct_answer=correct_answer
+                    )
+           
+        else:
+            return Response({'error': 'Unsupported file type. Only .csv and .pdf allowed.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'message': 'Questions imported successfully'}, status=status.HTTP_201_CREATED)

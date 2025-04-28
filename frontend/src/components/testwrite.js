@@ -124,7 +124,7 @@ const questionTypes = {
     FILL_IN_THE_BLANKS: "fillintheblanks",
 };
 
-const API_BASE_URL = "http://127.0.0.1:8000/api";
+const API_BASE_URL = "https://online-test-creation-1.onrender.com/api";
 
 export default function OnlineTestPage() {
     const { uuid } = useParams(); // ✅ Now we use uuid from the URL
@@ -763,9 +763,7 @@ export default function OnlineTestPage() {
                                 <button className="modalButton" onClick={closeScoreModal}>
                                     Close
                                 </button>
-                                <button className="modalButton" style={{ marginLeft: "10px" }} onClick={handleReview}>
-                                    Preview
-                                </button>
+                              
                             </div>
                         </div>
                     )}
@@ -775,66 +773,10 @@ export default function OnlineTestPage() {
                     <h1 style={styles.header}>Review Page</h1>
                     {questions.map((question, index) => (
                         <div key={question.id} className="reviewQuestion">
- <h2 className="questionTitle">{question.text}</h2>
-<p className="questionText">
-    <strong>Your Answer:</strong>{" "}
-    {answers[index] !== null && answers[index] !== undefined ? (
-        question.type === questionTypes.FILL_IN_THE_BLANKS ? (
-            Array.isArray(answers[index]) ? answers[index].join(", ") : "Not Attempted" // Join if it's an array
-        ) : (
-            answers[index] // Directly show the selected option
-        )
-    ) : (
-        "Not Attempted"
-    )}
-</p>
-<p className="questionText">
-    <strong>Correct Answer:</strong>{" "}
-    {question.correct_answer !== undefined ? (
-        Array.isArray(question.correct_answer) ? (
-            question.correct_answer.map(answer => 
-                typeof answer === 'string' ? answer.trim() : answer // Trim if it's a string
-            ).join(", ") // Join the trimmed answers
-        ) : (
-            typeof question.correct_answer === 'string' ? question.correct_answer.trim() : "Not Available" // Only call trim() if it's a string
-        )
-    ) : (
-        "Not Available"
-    )}
-</p>
-{Array.isArray(answers[index]) ? (
-    answers[index].every(answer => 
-        typeof answer === 'string' && answer.toLowerCase() === (
-            Array.isArray(question.correct_answer) 
-                ? question.correct_answer.map(ans => typeof ans === 'string' ? ans.toLowerCase() : '').join(", ") 
-                : typeof question.correct_answer === 'string' ? question.correct_answer.toLowerCase() : ''
-        )
-    ) ? (
-        <p className="correctAnswer">Your answer is correct!</p>
-    ) : (
-        <p className="wrongAnswer">Your answer is incorrect.</p>
-    )
-) : (
-    answers[index] && typeof answers[index] === 'string' && answers[index].toLowerCase() === (
-        Array.isArray(question.correct_answer) 
-            ? question.correct_answer.map(ans => typeof ans === 'string' ? ans.toLowerCase() : '').join(", ") 
-            : typeof question.correct_answer === 'string' ? question.correct_answer.toLowerCase() : ''
-    ) ? (
-        <p className="correctAnswer">Your answer is correct!</p>
-    ) : (
-        <p className="wrongAnswer">Your answer is incorrect.</p>
-    )
 
-        )}
     </div>
 ))}
-                    <button
-                        className="btn"
-                        style={{ marginTop: "20px" }}
-                        onClick={handleRetake}
-                    >
-                        Retake
-                    </button>
+
                 </div>
             )}
         </div>

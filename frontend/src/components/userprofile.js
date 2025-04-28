@@ -22,7 +22,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
-import logo from "../assets/Image20210206041010-1024x518.png";
+import logo from "../assets/Image20250320122406.png";
 import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
@@ -40,7 +40,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem('user_token');
 
-  const API_BASE_URL = 'http://127.0.0.1:8000/api';
+  const API_BASE_URL = 'https://online-test-creation-1.onrender.com/api';
   const USER_PROFILE_URL = `${API_BASE_URL}/users/`;
   const UPLOAD_PROFILE_PICTURE_URL = `${API_BASE_URL}/users/upload_profile_picture/`; // For uploading profile picture
   const CHANGE_PASSWORD_URL = `${API_BASE_URL}/users/change_password/`; // For changing password
@@ -217,10 +217,10 @@ const Profile = () => {
             Skill Bridge Online Test Platform
           </Typography>
           <Button color="inherit" onClick={() => navigate("/")}>Home</Button>
-          <Button color="inherit" onClick={() => navigate("/user-profile")}>Profile</Button>
-          <Button color="inherit" onClick={() => navigate("/test-list")}>Test list</Button>
-          <Button color="inherit" onClick={() => navigate("/settings")}>Settings</Button>
-          <Button color="inherit" onClick={handleLogout}>Logout</Button>
+          <Button color="inherit" onClick={() => navigate("/userprofile")}>User Profile</Button>
+          <Button color="inherit" onClick={() => navigate("/attempted-tests")}>Test List</Button>
+          <Button color="inherit" onClick={() => navigate("/usersetting")}>Settings</Button>
+          <Button color="inherit" onClick={() => navigate("/logout")}>Logout</Button>
         </Toolbar>
       </AppBar>
     );
@@ -244,31 +244,102 @@ const Profile = () => {
               }}
             />
           )}
-          <List>
-            <ListItem button onClick={() => navigate('/dashboard')}>
-              <ListItemText primary="Dashboard" />
-            </ListItem>
-            {/* Admin-specific options */}
-            {userData && userData.role === 'admin' && (
-              <>
-                <ListItem button onClick={() => navigate('/create-test')}>
-                  <ListItemText primary="Create a Test" />
-                </ListItem>
-                <ListItem button onClick={() => navigate('/manage-tests')}>
-                  <ListItemText primary="Manage Tests" />
-                </ListItem>
-                <ListItem button onClick={() => navigate('/test-analytics')}>
-                  <ListItemText primary="Test Analytics" />
-                </ListItem>
-              </>
-            )}
-            <ListItem button onClick={() => navigate('/settings')}>
-              <ListItemText primary="Settings" />
-            </ListItem>
-            <ListItem button onClick={handleLogout}>
-              <ListItemText primary="Logout" />
-            </ListItem>
-          </List>
+ <List>
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/user-dashboard')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      textAlign: "left",
+      fontSize: "16px", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Dashboard
+  </Button>
+</ListItem>
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/test-creation')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Test Creation
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/attempted-tests')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Attempted Tests
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/performancehistory')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Performance History
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/usersetting')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Settings
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/logout')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Logout
+  </Button>
+</ListItem>
+        </List>
         </Box>
       </Drawer>
 

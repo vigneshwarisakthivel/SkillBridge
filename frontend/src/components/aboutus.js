@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -13,6 +14,7 @@ import { FaChalkboardTeacher, FaBookOpen, FaUserGraduate, FaClipboardList } from
 
 
 const AboutUsPage = () => {
+  const navigate = useNavigate();
   return (
     <Box className="about-us-page">
       {/* Hero Section */}
@@ -25,7 +27,7 @@ const AboutUsPage = () => {
       }}>
         <FaChalkboardTeacher size={60} className="hero-icon" />
         <Typography variant="h3" sx={{ fontSize: "2.5rem", fontWeight: "bold" }}>
-          About SkillBridge Online Testing
+          About Skill Bridge Online Testing
         </Typography>
         <Typography variant="h6" sx={{ fontSize: "1.2rem", opacity: 0.9 }}>
           Revolutionizing assessments through secure, scalable, and accessible online testing solutions.
@@ -119,9 +121,13 @@ const AboutUsPage = () => {
           <Typography variant="body1" sx={{ marginBottom: "24px" }} paragraph>
             Join thousands of learners and professionals who trust SkillBridge for their online assessments.
           </Typography>
-          <Button variant="contained" color="primary">
-            Get Started Now
-          </Button>
+          <Button
+      variant="contained"
+      color="primary"
+      onClick={() => navigate('/register')}
+    >
+      Get Started Now
+    </Button>
         </Container>
         
       </Box>

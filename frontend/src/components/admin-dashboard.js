@@ -19,13 +19,12 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Dialog from '@mui/material/Dialog';
-
 import { PieChart,Pie, Tooltip, Cell, Legend } from "recharts";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+const API_BASE_URL = 'https://online-test-creation-1.onrender.com/api';
 const COLORS = ["#003366", "#0088FE", "#FFBB28", "#FF8042", "#00C49F"];
 const AdminDashboard = () => {
   const [userData, setUserData] = useState({});
-  const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [tabValue, setTabValue] = useState(0);
   const [feedback, setFeedback] = useState([]);
@@ -87,18 +86,18 @@ const AdminDashboard = () => {
       };
 
       try {
-        const userResponse = await axios.get('https://onlineplatform.onrender.com/api/userss/', { headers });
+        const userResponse = await axios.get(`${API_BASE_URL}/userss/`, { headers });
         setUserData(userResponse.data);
-        const dashboardResponse = await axios.get('https://onlineplatform.onrender.com/api/dashboard-overview/', { headers });
+        const dashboardResponse = await axios.get(`${API_BASE_URL}/dashboard-overview/`, { headers });
         setDashboardData(dashboardResponse.data);
-        const userManagementResponse = await axios.get("https://onlineplatform.onrender.com/api/user-management-stats/", { headers });
+        const userManagementResponse = await axios.get(`${API_BASE_URL}/user-management-stats/`, { headers });
         setUserManagement(userManagementResponse.data);
-        const response = await axios.get('https://onlineplatform.onrender.com/api/tests-data/', { headers });
+        const response = await axios.get(`${API_BASE_URL}/tests-data/`, { headers });
         setAnalyticsData(response.data);
 
         const [ feedbacksResponse] = await Promise.all([
           
-          axios.get('https://onlineplatform.onrender.com/api/feedbacks/', { headers }),
+          axios.get(`${API_BASE_URL}/feedbacks/`, { headers }),
         ]);
 
         setUserManagement(userManagementResponse.data);
@@ -106,14 +105,14 @@ const AdminDashboard = () => {
       } catch (error) {
         console.error("Error fetching data", error);
       } finally {
-        setLoading(false);
+      
       }
     };
 
   useEffect(() => {
     const fetchTests = async () => {
       try {
-        const response = await axios.get('https://onlineplatform.onrender.com/api/tests-management/');
+        const response = await axios.get(`${API_BASE_URL}/tests-management/`);
         setTests(response.data);
       } catch (error) {
         console.error("Error fetching tests:", error);
@@ -126,7 +125,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchCompletionRates = async () => {
       try {
-        const response = await axios.get('https://onlineplatform.onrender.com/api/test-completion-rates/');
+        const response = await axios.get(`${API_BASE_URL}/test-completion-rates/`);
         const completionRates = response.data;
 
         // Ensure completionRates is an object with expected structure
@@ -151,10 +150,10 @@ const AdminDashboard = () => {
 
   const fetchNotifications = async () => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "https://onlineplatform.onrender.com";
+
       const userToken = localStorage.getItem("user_token"); // Assuming token is stored in localStorage
   
-      const response = await axios.get(`${apiUrl}/api/admin-notifications/`, {
+      const response = await axios.get(`${API_BASE_URL}/admin-notifications/`, {
         headers: {
           Authorization: `Token ${userToken}`, // Adjust if using Bearer token
         },
@@ -177,11 +176,10 @@ const AdminDashboard = () => {
   
     // Mark all notifications as read
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "https://onlineplatform.onrender.com";
       const userToken = localStorage.getItem("user_token");
   
       await axios.post(
-        `${apiUrl}/api/admin-notifications/mark-read/`, 
+        `${API_BASE_URL}/admin-notifications/mark-read/`, 
         {}, 
         {
           headers: {
@@ -208,7 +206,7 @@ const AdminDashboard = () => {
     const userToken = localStorage.getItem("user_token");
 
     axios
-      .get(`https://onlineplatform.onrender.com/api/users/${userData.id}/`, {
+      .get(`${API_BASE_URL}/users/${userData.id}/`, {
         headers: { Authorization: `Token ${userToken}` },
       })
       
@@ -218,12 +216,8 @@ const AdminDashboard = () => {
       .catch((error) => {
         console.error("Error fetching user profile data:", error);
       });
-  }, [userData.id]); // ✅ Depend on `userData` to ensure it has been fetched first
-
-  if (loading) return <Typography>Loading...</Typography>;
-
+  }, [userData.id]); // ✅ Depend on `userData` to ensure it has been fetched firs
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-  
   const userManagementData = [
     {
       label: "Total Users",
@@ -298,49 +292,134 @@ const AdminDashboard = () => {
       </div>
 
       <Drawer open={isSidebarOpen} onClose={toggleSidebar}>
-        <Box sx={{ width: 220, textAlign: "center", padding: "12px" }}>
-          {isSidebarOpen && (
-            <img
-              src={logo}
-              alt="Logo"
-              style={{
-                maxWidth: "80%",
-                height: "auto",
-                marginBottom: "12px",
-                borderRadius: "8px",
-              }}
-            />
-          )}
-        <List>
-          <ListItem button onClick={() => navigate('/admin-dashboard')}>
-            <ListItemText primary="Dashboard" />
-          </ListItem>
-          <ListItem button onClick={() => navigate('/testcreation')}>
-            <ListItemText primary="Test Creation" />
-          </ListItem>
-          <ListItem button onClick={() => navigate('/questioncreation')}>
-            <ListItemText primary="Question Creation" />
-          </ListItem>
-          <ListItem button onClick={() => navigate('/manage-tests')}>
-            <ListItemText primary="Manage Tests" />
-          </ListItem>
+  <Box sx={{ width: 220, textAlign: "center", padding: "12px" }}>
+    {isSidebarOpen && (
+      <img
+        src={logo}
+        alt="Logo"
+        style={{
+          maxWidth: "80%",
+          height: "auto",
+          marginBottom: "12px",
+          borderRadius: "8px",
+        }}
+      />
+    )}
+    <List>
+    <ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/admin-dashboard')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      textAlign: "left",
+      fontSize: "16px", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Dashboard
+  </Button>
+</ListItem>
 
-          <ListItem button onClick={() => navigate('/announcement')}>
-            <ListItemText primary="Announcements" />
-          </ListItem>
-          <ListItem button onClick={() => navigate('/adminsettings')}>
-            <ListItemText primary="Settings" />
-          </ListItem>
-          <ListItem button onClick={() => {
-            localStorage.removeItem('user_token');
-            navigate('/login');
-          }}>
-            <ListItemText primary="Logout" />
-          </ListItem>
-        </List>
-        </Box>
-      </Drawer>
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/testcreation')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      textAlign: "left", // Align the text to the left
+      width: "100%",
+      fontSize: "16px", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Test Creation
+  </Button>
+</ListItem>
 
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/questioncreation')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Question Creation
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/manage-tests')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Manage Tests
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/announcement')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Announcements
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/adminsettings')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Settings
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/logout')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Logout
+  </Button>
+</ListItem>
+    </List>
+  </Box>
+</Drawer>
       <>
       <AppBar position="fixed" sx={{ backgroundColor: "#003366", padding: "6px 16px" }}>
         <Toolbar>

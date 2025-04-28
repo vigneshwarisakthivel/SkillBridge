@@ -12,7 +12,7 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/Image20250320122406.png";
 import axios from "axios"; // Import Axios
-
+const API_BASE_URL = 'https://online-test-creation-1.onrender.com/api';
 const TestHistory = () => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -31,7 +31,7 @@ const TestHistory = () => {
 
     try {
         // Fetch performance history
-        const response = await fetch("http://127.0.0.1:8000/api/performance-history/", {
+        const response = await fetch(`${API_BASE_URL}/performance-history/`, {
             headers: { Authorization: `Token ${token}` },
         });
         if (!response.ok) {
@@ -73,7 +73,7 @@ const TestHistory = () => {
     }
 
     try {
-      const response = await axios.get("http://127.0.0.1:8000/api/performance-history/", performanceData, {
+      const response = await axios.get(`${API_BASE_URL}/performance-history/`, performanceData, {
         headers: { Authorization: `Token ${token}` },
       });
 
@@ -126,10 +126,10 @@ const TestHistory = () => {
             SkillBridge Online Test Platform
           </Typography>
           <Button color="inherit" onClick={() => navigate("/")}>Home</Button>
-          <Button color="inherit" onClick={() => navigate("/admin-profile")}>User  Profile</Button>
+          <Button color="inherit" onClick={() => navigate("/userprofile")}>User Profile</Button>
           <Button color="inherit" onClick={() => navigate("/attempted-tests")}>Test List</Button>
-          <Button color="inherit" onClick={() => navigate("/usersetting")}>Setting</Button>
-          <Button color="inherit" onClick={() => navigate("/Logout")}>Logout</Button>
+          <Button color="inherit" onClick={() => navigate("/usersetting")}>Settings</Button>
+          <Button color="inherit" onClick={() => navigate("/logout")}>Logout</Button>
         </Toolbar>
       </AppBar>
   
@@ -148,24 +148,102 @@ const TestHistory = () => {
               }}
             />
           )}
-          <List>
-            <ListItem button onClick={() => navigate('/user-dashboard')}>
-              <ListItemText primary="Dashboard" />
-            </ListItem>
+ <List>
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/user-dashboard')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      textAlign: "left",
+      fontSize: "16px", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Dashboard
+  </Button>
+</ListItem>
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/test-creation')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Test Creation
+  </Button>
+</ListItem>
 
-            <ListItem button onClick={() => navigate('/attempted-tests')}>
-              <ListItemText primary="Attempted Tests" />
-            </ListItem>
-                        <ListItem button onClick={() => navigate('/performancehistory')}>
-                          <ListItemText primary="Performance History" />
-                        </ListItem>
-            <ListItem button onClick={() => navigate('/usersetting')}>
-              <ListItemText primary="Settings" />
-            </ListItem>
-            <ListItem button onClick={() => navigate('/logout')}>
-              <ListItemText primary="Logout" />
-            </ListItem>
-          </List>
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/attempted-tests')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Attempted Tests
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/performancehistory')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Performance History
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/usersetting')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Settings
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/logout')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Logout
+  </Button>
+</ListItem>
+        </List>
         </Box>
       </Drawer>
   

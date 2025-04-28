@@ -19,7 +19,7 @@ import { Lock, AccountCircle } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
 
-const API_BASE_URL = 'https://onlineplatform.onrender.com/api';
+const API_BASE_URL = 'https://online-test-creation-1.onrender.com/api';
 
 const RegisterPage = () => {
     const [formData, setFormData] = useState({ 

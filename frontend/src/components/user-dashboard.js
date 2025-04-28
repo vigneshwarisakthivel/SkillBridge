@@ -14,9 +14,11 @@ import { Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineC
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import DeleteIcon from "@mui/icons-material/Delete"; // Import the Delete icon
 import MenuIcon from "@mui/icons-material/Menu";
+const API_BASE_URL = 'https://online-test-creation-1.onrender.com/api';
 const UserDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [userData, setUserData] = useState({});
+  const [open, setOpenModal] = useState(false);
   const [error, setError] = useState(null);
   const [recentActivities, setRecentActivities] = useState([]);
   const [completedTests, setCompletedTests] = useState([]);
@@ -48,6 +50,7 @@ const onClose = () => {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+  
   useEffect(() => {
     const fetchAchievements = async () => {
       const token = localStorage.getItem("user_token");
@@ -57,7 +60,7 @@ const onClose = () => {
       };
 
       try {
-        const response = await axios.get("http://localhost:8000/api/achievements/", { headers });
+        const response = await axios.get(`${API_BASE_URL}/achievements/`, { headers });
         setAchievements(response.data.achievements || []); // Ensure it's an array
       } catch (err) {
         console.error("Error fetching achievements:", err);
@@ -70,44 +73,74 @@ const onClose = () => {
     fetchAchievements();
   }, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const token = localStorage.getItem("user_token");
-      const headers = { Authorization: `Token ${token}`, "Content-Type": "application/json" };
-  
-      try {
-        const [userRes, activitiesRes, testsRes, notificationsRes] = await Promise.all([
-          axios.get("http://localhost:8000/api/userss/", { headers }),
-          axios.get("http://localhost:8000/api/recent-activities/", { headers }),
-          axios.get("http://localhost:8000/api/completed-tests/", { headers }),
-          axios.get("http://localhost:8000/api/notifications/", { headers })
-        ]);
-  
-        setUserData(userRes.data);
-        setRecentActivities(activitiesRes.data);
-        setCompletedTests(testsRes.data);
-        setNotifications(notificationsRes.data);
-  
-        // Calculate achievements
-        const userAchievements = calculateAchievements(testsRes.data);
-        setAchievements(userAchievements);
-  
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
+  const fetchUserData = async () => {
+    const token = localStorage.getItem('user_token');
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Token ${token}`,
     };
+
+    try {
+      const response = await axios.get(`${API_BASE_URL}/userss/${userData.id}/`, { headers });
+      setUserData(response.data);
+    } catch (error) {
+      console.error("Error fetching user profile data:", error);
+    }
+  };
+  const fetchData = async () => {
+    const token = localStorage.getItem("user_token");
+    const headers = { Authorization: `Token ${token}`, "Content-Type": "application/json" };
   
-    fetchData();
+    try {
+      const [userRes, activitiesRes, testsRes, notificationsRes] = await Promise.all([
+        axios.get(`${API_BASE_URL}/userss/`, { headers }),
+        axios.get(`${API_BASE_URL}/recent-activities/`, { headers }),
+        axios.get(`${API_BASE_URL}/completed-tests/`, { headers }),
+        axios.get(`${API_BASE_URL}/notifications/`, { headers })
+      ]);
+  
+      setUserData(userRes.data);
+      setRecentActivities(activitiesRes.data);
+      setCompletedTests(testsRes.data);
+      setNotifications(notificationsRes.data);
+  
+      const userAchievements = calculateAchievements(testsRes.data);
+      setAchievements(userAchievements);
+  
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Now fetchData is globally visible inside your component
+  
+  
+  useEffect(() => {
+      fetchData();
+    }, []);
+  useEffect(() => {
+    const userRole = localStorage.getItem("role"); // Retrieve role from localStorage
+
+    if (userRole !== "user") {
+      setOpenModal(true); // Show modal if not admin
+    } else {
+      fetchData(); // Fetch data if the user is an admin
+    }
   }, []);
+
+  const handleClose = () => {
+    setOpenModal(false);
+    navigate("/"); // Redirect to home or another page
+  };
   useEffect(() => {
       if (!userData?.id) return; // ✅ Ensure user ID is available
   
       const userToken = localStorage.getItem("user_token");
   
       axios
-        .get(`http://127.0.0.1:8000/api/users/${userData.id}/`, {
+        .get(`${API_BASE_URL}/users/${userData.id}/`, {
           headers: { Authorization: `Token ${userToken}` },
         })
         .then((response) => {
@@ -128,7 +161,7 @@ const onClose = () => {
         };
   
         try {
-          const response = await axios.get("http://localhost:8000/api/performance-stats/", { headers });
+          const response = await axios.get(`${API_BASE_URL}/performance-stats/`, { headers });
           setPerformanceStats(response.data || []); // Ensure it's an array
         } catch (error) {
           console.error("Error fetching performance stats:", error);
@@ -169,7 +202,7 @@ const onClose = () => {
       };
   
       try {
-        const response = await axios.get("http://localhost:8000/api/notifications/", { headers });
+        const response = await axios.get(`${API_BASE_URL}/notifications/`, { headers });
         // Remove duplicate notifications by filtering unique announcement titles
         const allNotifications = response.data;
         const uniqueNotifications = allNotifications.reduce((acc, notif) => {
@@ -199,7 +232,7 @@ const onClose = () => {
       };
     
       try {
-        await axios.post("http://localhost:8000/api/notifications/mark-as-read/", {}, { headers });
+        await axios.post(`${API_BASE_URL}/notifications/mark-as-read/`, {}, { headers });
     
         // Update UI: Mark notifications as read
         setNotifications((prevNotifications) =>
@@ -230,7 +263,7 @@ const onClose = () => {
     };
   
     try {
-      await axios.delete(`http://localhost:8000/api/recent-activities/${activityId}/`, { headers });
+      await axios.delete(`${API_BASE_URL}/recent-activities/${activityId}/`, { headers });
   
       // Remove the deleted activity from state
       setRecentActivities(recentActivities.filter(activity => activity.id !== activityId));
@@ -243,6 +276,33 @@ const onClose = () => {
   };
   
   return (
+    <>
+    <div>
+      {/* Other components or elements */}
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+        <AppBar position="fixed" sx={{ backgroundColor: "#003366", padding: "6px 16px" }}>
+          <Toolbar>
+            <IconButton edge="start" color="inherit" onClick={toggleSidebar}>
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" sx={{ flexGrow: 1 }}>Skill Bridge Dashboard</Typography>
+            <Button color="inherit" onClick={() => navigate("/")}>Home</Button>
+            <Button color="inherit" onClick={() => navigate("/userprofile")}>User  Profile</Button>
+            <Button color="inherit" onClick={() => navigate("/attempted-tests")}>Test List</Button>
+            <Button color="inherit" onClick={() => navigate("/usersetting")}>Settings</Button>
+            <Button color="inherit" onClick={() => navigate("/logout")}>Logout</Button>
+            <IconButton color="inherit" onClick={handleOpenNotifications}>
+              <Badge badgeContent={notifications.filter(n => !n.is_read).length} color="error">
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+        {/* Other components like Drawer, main content, etc. */}
+      </Box>
+    </div>
+ 
+  
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <AppBar position="fixed" sx={{ backgroundColor: "#003366", padding: "6px 16px" }}>
         <Toolbar>
@@ -252,7 +312,7 @@ const onClose = () => {
           <Typography variant="h6" sx={{ flexGrow: 1 }}>Skill Bridge Dashboard</Typography>
           <Button color="inherit" onClick={() => navigate("/")}>Home</Button>
           <Button color="inherit" onClick={() => navigate("/userprofile")}>User Profile</Button>
-          <Button color="inherit" onClick={() => navigate("/manage-tests")}>Test List</Button>
+          <Button color="inherit" onClick={() => navigate("/attempted-tests")}>Test List</Button>
           <Button color="inherit" onClick={() => navigate("/usersetting")}>Settings</Button>
           <Button color="inherit" onClick={() => navigate("/logout")}>Logout</Button>
           <IconButton color="inherit" onClick={handleOpenNotifications}>
@@ -266,15 +326,103 @@ const onClose = () => {
       <Drawer open={isSidebarOpen} onClose={toggleSidebar}>
         <Box sx={{ width: 250, textAlign: "center", padding: "16px" }}>
           <img src={logo} alt="Logo" style={{ maxWidth: "100%", height: "auto", marginBottom: "16px" }} />
-          <List>
-            <ListItem button onClick={() => navigate('/user-dashboard')}><ListItemText primary="Dashboard" /></ListItem>
-            <ListItem button onClick={() => navigate('/attempted-tests')}><ListItemText primary="Attempted Tests" /></ListItem>
-            <ListItem button onClick={() => navigate('/Testcreation')}><ListItemText primary="TestCreation" /></ListItem>
-            <ListItem button onClick={() => navigate('/performancehistory')}><ListItemText primary="Performance History" /></ListItem>
 
-            <ListItem button onClick={() => navigate('/usersetting')}><ListItemText primary="Settings" /></ListItem>
-            <ListItem button onClick={() => navigate('/logout')}><ListItemText primary="Logout" /></ListItem>
-          </List>
+ <List>
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/user-dashboard')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      textAlign: "left",
+      fontSize: "16px", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Dashboard
+  </Button>
+</ListItem>
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/test-creation')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Test Creation
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/attempted-tests')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Attempted Tests
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/performancehistory')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Performance History
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/usersetting')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Settings
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/logout')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Logout
+  </Button>
+</ListItem>
+        </List>
         </Box>
       </Drawer>
       <Modal open={isNotificationOpen} onClose={handleCloseNotifications}>
@@ -564,8 +712,7 @@ const onClose = () => {
           </Box>
         </Box>
       </Box>
-    
-    
+ </>
   );
 };
 export default UserDashboard;
