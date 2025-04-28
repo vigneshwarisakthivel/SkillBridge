@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import * as faceapi from 'face-api.js';
 import { Button, Container, Box, Typography, CircularProgress, Alert } from '@mui/material';
 import Webcam from 'react-webcam';
-
+const API_BASE_URL = 'https://onlinetestcreationbackend.onrender.com/api';
 const CapturePage = () => {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
@@ -15,7 +15,7 @@ const CapturePage = () => {
   const [hasCameraAccess, setHasCameraAccess] = useState(false);
   const [captureDone, setCaptureDone] = useState(false); // 🔥 New state
 
-  const userToken = localStorage.getItem('usertoken');
+  const userToken = localStorage.getItem('user_token');
 
   useEffect(() => {
     const loadModels = async () => {
@@ -178,7 +178,7 @@ const CapturePage = () => {
     formData.append('image', imageBlob, 'capture.jpg');
 
     try {
-      const response = await fetch('https://onlinetestcreationbackend.onrender.com/api/capture/', {
+      const response = await fetch(`${API_BASE_URL}/capture/`, {
         method: 'POST',
         body: formData,
         headers: {

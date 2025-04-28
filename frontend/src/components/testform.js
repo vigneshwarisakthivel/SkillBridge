@@ -24,13 +24,13 @@ const PreTestForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const userData = {
       name,
       email,
-      test_id: testId, // ✅ Use decoded test ID
+      test_id: testId,
     };
-
+  
     try {
       const response = await fetch("https://onlinetestcreationbackend.onrender.com/api/test-users/", {
         method: "POST",
@@ -39,11 +39,17 @@ const PreTestForm = () => {
         },
         body: JSON.stringify(userData),
       });
-
+  
+      const data = await response.json();  // 👈 Read response body
+  
       if (response.ok) {
+        // 👇 Save new token if backend sends it
+        if (data.token) {
+          localStorage.setItem('userToken', data.token);
+        }
+  
         navigate(`/smartbridge/online-test-assessment/${uuid}/cover/`);
       } else {
-        const data = await response.json();
         alert(data.message || "You are not allowed to take this test.");
       }
     } catch (error) {
@@ -51,6 +57,7 @@ const PreTestForm = () => {
       alert("Something went wrong!");
     }
   };
+  
 
   return (
     <Box display="flex" justifyContent="center" alignItems="center" height="100vh" bgcolor="#f4f6f8">

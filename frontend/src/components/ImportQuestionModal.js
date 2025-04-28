@@ -11,7 +11,7 @@ import {
   Typography,
   CircularProgress,
 } from '@mui/material';
-
+const API_BASE_URL = 'https://onlinetestcreationbackend.onrender.com/api';
 const ImportQuestionsModal = ({ open, onClose, setSelectedImportTest }) => {
   const [publicTests, setPublicTests] = useState([]);
   const [selectedTestId, setSelectedTestId] = useState('');
@@ -24,7 +24,7 @@ const ImportQuestionsModal = ({ open, onClose, setSelectedImportTest }) => {
   useEffect(() => {
     if (open && token) {
       axios
-        .get('https://onlinetestcreationbackend.onrender.com/api/tests/public/', {
+        .get(`${API_BASE_URL}/tests/public/`, {
           headers: {
             Authorization: `Token ${token}`,
           },
@@ -42,7 +42,7 @@ const ImportQuestionsModal = ({ open, onClose, setSelectedImportTest }) => {
     setLoading(true);
 
     axios
-      .get(`https://onlinetestcreationbackend.onrender.com/api/tests/${testId}/questions/`, {
+      .get(`${API_BASE_URL}/tests/${testId}/questions/`, {
         headers: {
           Authorization: `Token ${token}`,
         },

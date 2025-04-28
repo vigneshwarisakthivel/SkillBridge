@@ -14,6 +14,7 @@ import {
   Drawer,
   List,
   ListItem,
+  ListItemText,
   IconButton,
   Card,
   CardContent,
@@ -21,6 +22,12 @@ import {
   Box,
   Grid,
   Avatar,
+  Divider,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
   Paper,
   Accordion, AccordionSummary, AccordionDetails,
 } from "@mui/material";
@@ -37,7 +44,7 @@ import image6 from '../assets/6.jfif';
 import image7 from '../assets/7.jfif';
 import image9 from '../assets/9.jfif';
 import image10 from '../assets/10.jfif';
-
+const API_BASE_URL = 'https://onlinetestcreationbackend.onrender.com/api';
 const HomePage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [categories, setCategories] = useState([]);
@@ -54,7 +61,7 @@ const HomePage = () => {
    
 
     axios
-      .get("https://onlinetestcreationbackend.onrender.com/api/performers/")
+      .get(`${API_BASE_URL}/performers/`)
       .then((response) => {
         setPerformers(response.data);
       })
@@ -63,7 +70,7 @@ const HomePage = () => {
       });
 
     axios
-      .get("https://onlinetestcreationbackend.onrender.com/api/features/")
+      .get(`${API_BASE_URL}/features/`)
       .then((response) => {
         setFeatures(response.data);
       })
@@ -73,18 +80,18 @@ const HomePage = () => {
   }, []);
 
   useEffect(() => {
-    axios.get("https://onlinetestcreationbackend.onrender.com/api/testimonials/")
+    axios.get(`${API_BASE_URL}/testimonials/`)
       .then(response => setTestimonials(response.data))
       .catch(error => console.error("Error fetching testimonials:", error));
   }, []);
 
   const testimonials = [
-    { id: 1, name: 'Jasime Doe', profile_picture_url: image7, message: 'This platform is amazing!' },
-    { id: 2, name: 'Jane Smith', profile_picture_url: image3, message: 'I learned so much from the tests!' },
-    { id: 3, name: 'Michael Johnson', profile_picture_url: image10, message: 'The tests here are well-structured and easy to follow.' },
+    { id: 1, name: 'Jessi Doe', profile_picture_url: image7, message: 'This platform is amazing!' },
+    { id: 2, name: 'John Smith', profile_picture_url: image3, message: 'I learned so much from the tests!' },
+    { id: 3, name: 'Michelle Johnson', profile_picture_url: image10, message: 'The courses here are well-structured and easy to follow.' },
     { id: 5, name: 'Emily Davis', profile_picture_url: image5, message: 'I love the interactive exercises and quizzes!' },
     { id: 6, name: 'Stephen Martinez', profile_picture_url: image1, message: 'A must-visit platform for anyone looking to upskill!' },
-    { id: 7, name: 'Jennice Andriya', profile_picture_url: image9, message: 'The best online learning experience I’ve had!' },
+    { id: 7, name: 'Jane Andriya', profile_picture_url: image9, message: 'The best online learning experience I’ve had!' },
     { id: 9, name: 'William Brown', profile_picture_url: image6, message: 'Fantastic resources and easy-to-understand lessons.' },
     { id: 10, name: 'Isaiyah White',profile_picture_url: image1, message: 'Helped me improve my skills tremendously!' },
   ];
@@ -92,12 +99,12 @@ const HomePage = () => {
   const performers = [
     { id: 1, name: 'Alan Johnson', profile_picture_url: image1, achievement: 'Top Scorer in Mathematics' },
     { id: 2, name: 'Navier Smith', profile_picture_url: image2, achievement: 'Outstanding Performance in Science' },
-    { id: 3, name: 'Rashta Brown', profile_picture_url: image3, achievement: 'Excellence in Literature' },
-    { id: 5, name: 'Jeni Williams', profile_picture_url: image5, achievement: 'Champion in Coding Competitions' },
-    { id: 6, name: 'George Lee', profile_picture_url: image6, achievement: 'Top Innovator in Robotics' },
-    { id: 7, name: 'Gloria Eshther', profile_picture_url: image7, achievement: 'Best Research Paper in Physics' },
-    { id: 9, name: 'Fiona Garcia', profile_picture_url: image9, achievement: 'Top Speaker in Debate Championships' },
-    { id: 10, name: 'John Martinez', profile_picture_url: image10, achievement: 'Gold Medalist in Sports' },
+    { id: 3, name: 'Charlie Brown', profile_picture_url: image3, achievement: 'Excellence in Literature' },
+    { id: 5, name: 'Ethan Williams', profile_picture_url: image5, achievement: 'Champion in Coding Competitions' },
+    { id: 6, name: 'Fiona Garcia', profile_picture_url: image6, achievement: 'Top Innovator in Robotics' },
+    { id: 7, name: 'George Lee', profile_picture_url: image7, achievement: 'Best Research Paper in Physics' },
+    { id: 9, name: 'Ian Thompson', profile_picture_url: image9, achievement: 'Top Speaker in Debate Championships' },
+    { id: 10, name: 'Julia Martinez', profile_picture_url: image10, achievement: 'Gold Medalist in Sports' },
   ];
 
   const HeroSection = () => (
@@ -106,7 +113,7 @@ const HomePage = () => {
         Welcome to Skill Bridge Online Test Platform
       </Typography>
       <Typography variant="h4" color="white" sx={{ marginTop: "16px" }}>
-        Explore a variety of tests across categories and track your progress!
+        Explore a variety of tests and track your progress!
       </Typography>
       <Button
         variant="contained"
@@ -598,17 +605,85 @@ const HomePage = () => {
             />
           )}
            <List>
-            <ListItem>
-            <Button color="inherit" onClick={() => navigate("/")}>Home</Button>
-            </ListItem>
-            <ListItem> <Button color="inherit" onClick={() => navigate("/login")}>Login</Button>
-            </ListItem>
-            <ListItem ><Button color="inherit" onClick={() => navigate("/register")}>Register</Button>
-            </ListItem>
-            <ListItem> <Button color="inherit" onClick={() => navigate("/aboutus")}>About Us</Button>
-            </ListItem>
-            <ListItem> <Button color="inherit" onClick={() => navigate("/contactpage")}>Contact Us</Button>
-            </ListItem>
+
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/home')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Home
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/aboutus')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    About Us
+  </Button>
+</ListItem>
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/contact')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Contact Us
+  </Button>
+</ListItem>
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/RegisterPage')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Sign-up
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/login')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Login
+  </Button>
+</ListItem>
           </List>
         </Box>
       </Drawer>
@@ -636,20 +711,19 @@ const HomePage = () => {
   <CallToAction />
   <FAQ />
 </Box>
-<footer
-  style={{
-    backgroundColor: "#003366",
-    color: "white",
-    padding: "8px 0", // Reduced vertical padding
-    fontSize: "14px", // Smaller text
-    textAlign: "center",
-    position: "fixed",
-    bottom: 0,
-    left: 0,
-    width: "100%",
-    zIndex: 1000,
-  }}
->
+      <footer
+        style={{
+          backgroundColor: "#003366",
+          color: "white",
+          padding: "16px 0",
+          textAlign: "center",
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          width: "100%",
+          zIndex: 1000,
+        }}
+      >
         <Typography>© 2025 Skill Bridge. All rights reserved.</Typography>
         <div>
           <IconButton href="https://twitter.com" color="inherit">

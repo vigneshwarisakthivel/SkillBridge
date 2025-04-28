@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Box, Typography, TextField, Button, Grid } from "@mui/material";
 import axios from "axios";
 
+const API_BASE_URL = 'https://onlinetestcreationbackend.onrender.com/api';
+
 const ContactPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -10,69 +12,76 @@ const ContactPage = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-// Function to fetch admin notifications
-const fetchAdminNotifications = async () => {
-  try {
-    const apiUrl = process.env.REACT_APP_API_URL || "https://onlinetestcreationbackend.onrender.com";
-    
-    // Retrieve user_token from localStorage (or wherever you store it after login)
-    const userToken = localStorage.getItem("user_token");
+  // Function to fetch admin notifications
+  const fetchAdminNotifications = async () => {
+    try {
+      // Retrieve user_token from localStorage (or wherever you store it after login)
+      const userToken = localStorage.getItem("user_token");
 
-    if (!userToken) {
-      console.error("User token not found");
+      if (!userToken) {
+        console.error("User token not found");
+        return;
+      }
+
+      const response = await axios.get(`${API_BASE_URL}/api/admin-notifications/`, {
+        headers: {
+          Authorization: `Token ${userToken}`, // Add user token in headers
+        },
+      });
+
+      console.log("Admin Notifications:", response.data);
+    } catch (error) {
+      console.error("Error fetching admin notifications:", error);
+    }
+  };
+
+  // Function to handle form submission
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+
+    if (!name || !email || !message) {
+      setError("Please fill out all fields.");
+      setLoading(false);
       return;
     }
 
-    const response = await axios.get(`${apiUrl}/api/admin-notifications/`, {
-      headers: {
-        Authorization: `Token ${userToken}`, // Add user token in headers
-      },
-    });
+    try {
+      await axios.post(`${API_BASE_URL}/api/contact-submissions/`, {
+        name,
+        email,
+        message,
+      });
 
-    console.log("Admin Notifications:", response.data);
-  } catch (error) {
-    console.error("Error fetching admin notifications:", error);
-  }
-};
+      setSuccess(true);
+      setName("");
+      setEmail("");
+      setMessage("");
 
-// Function to handle form submission
-const handleSubmit = async (event) => {
-  event.preventDefault();
-  setLoading(true);
-  setError(null);
-  setSuccess(false);
-
-  if (!name || !email || !message) {
-    setError("Please fill out all fields.");
-    setLoading(false);
-    return;
-  }
-
-  try {
-    const apiUrl = process.env.REACT_APP_API_URL || "https://onlinetestcreationbackend.onrender.com";
-
-    await axios.post(`${apiUrl}/api/contact-submissions/`, {
-      name,
-      email,
-      message,
-    });
-
-    setSuccess(true);
-    setName("");
-    setEmail("");
-    setMessage("");
-
-    // Fetch admin notifications after successful submission
-    fetchAdminNotifications();
-  } catch (err) {
-    setError("There was an error submitting your message. Please try again.");
-  } finally {
-    setLoading(false);
-  }
-};
+      // Fetch admin notifications after successful submission
+      fetchAdminNotifications();
+    } catch (err) {
+      setError("There was an error submitting your message. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <Box sx={{ padding: "16px", maxWidth: "600px", margin: "0 auto" }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: "16px",
+        maxWidth: "600px",
+        margin: "0 auto",
+        height: '100vh',  // Ensures the content is centered vertically
+      }}
+    >
       <Typography variant="h4" sx={{ marginBottom: "16px", textAlign: "center" }}>
         Contact Us
       </Typography>
@@ -143,9 +152,9 @@ const handleSubmit = async (event) => {
 
       <Box sx={{ marginTop: "24px", textAlign: "center" }}>
         <Typography variant="h6">Contact Information</Typography>
-        <Typography variant="body2">Email: support@Skill Bridge.com</Typography>
+        <Typography variant="body2">Email: support@SkillBridge.com</Typography>
         <Typography variant="body2">Phone: +1 (123) 456-7890</Typography>
-        <Typography variant="body2">Address: 123 Skill Brige Lane, Tech City</Typography>
+        <Typography variant="body2">Address: 123 SkillBridge Lane, Tech City</Typography>
       </Box>
     </Box>
   );

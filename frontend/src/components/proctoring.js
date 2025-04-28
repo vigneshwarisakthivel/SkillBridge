@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import * as faceapi from "face-api.js";
-
+const API_BASE_URL = 'https://onlinetestcreationbackend.onrender.com/api';
 const Proctoring = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -261,11 +261,11 @@ const Proctoring = () => {
 
         try {
           const response = await axios.post(
-            "https://onlinetestcreationbackend.onrender.com/api/analyze-frame/",
+            `${API_BASE_URL}/analyze-frame/`,
             formData,
             {
               headers: {
-                Authorization: `Token ${localStorage.getItem("usertoken")}`,
+                Authorization: `Token ${localStorage.getItem("user_token")}`,
                 "Content-Type": "multipart/form-data",
               },
             }

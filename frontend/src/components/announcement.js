@@ -26,14 +26,10 @@ import {
   Drawer,
   List,
   ListItem,
-  ListItemText,
 } from "@mui/material";
 import { Menu as MenuIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/Image20250320122406.png";
-import TwitterIcon from '@mui/icons-material/Twitter';
-import FacebookIcon from '@mui/icons-material/Facebook';
-import InstagramIcon from '@mui/icons-material/Instagram';
 
 export default function AnnouncementsPage() {
   const [announcements, setAnnouncements] = useState([]);
@@ -48,28 +44,23 @@ export default function AnnouncementsPage() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const API_BASE_URL = "https://onlinetestcreationbackend.onrender.com/api/"; // Ensure your Django URL config is correct
+  const API_BASE_URL = 'https://onlinetestcreationbackend.onrender.com/api';
   const token = localStorage.getItem("user_token");
   const navigate = useNavigate();
 
-  // Function to fetch announcements from the backend
   useEffect(() => {
     const fetchAnnouncements = async () => {
       if (!token) {
         console.error("No token found in localStorage.");
         return;
       }
-
       try {
-        const response = await axios.get(`${API_BASE_URL}announcements/`, {
+        const response = await axios.get(`${API_BASE_URL}/announcements/`, {
           headers: { Authorization: `Token ${token}` },
         });
         setAnnouncements(response.data);
       } catch (error) {
         console.error("Error fetching announcements:", error);
-        if (error.response && error.response.status === 403) {
-          console.error("Forbidden: Check your token and permissions.");
-        }
       }
     };
     fetchAnnouncements();
@@ -80,27 +71,13 @@ export default function AnnouncementsPage() {
       alert("Please fill in all required fields before posting.");
       return;
     }
-  
-    // Retrieve user_token from localStorage
-    const userToken = localStorage.getItem("user_token");
-  
-    if (!userToken) {
-      console.error("No user_token found in localStorage.");
-      return;
-    }
-  
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}announcements/`,
-        newAnnouncement,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Token ${userToken}`, // Use user_token from localStorage
-          },
-        }
-      );
-  
+      const response = await axios.post(`${API_BASE_URL}/announcements/`, newAnnouncement, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+      });
       setAnnouncements([...announcements, response.data]);
       setNewAnnouncement({
         title: "",
@@ -115,28 +92,23 @@ export default function AnnouncementsPage() {
       console.error("Error creating announcement:", error.message);
     }
   };
-  
+
   const handleDeleteAnnouncement = async (id) => {
     if (!id) {
-        console.error("Error: Announcement ID is undefined!");
-        return;
+      console.error("Error: Announcement ID is undefined!");
+      return;
     }
-
     try {
-        await axios.delete(`${API_BASE_URL}announcements/${id}/`, {
-            headers: { Authorization: `Token ${token}` },
-        });
-        console.log("Announcement deleted successfully!");
-
-        // Remove from state after deletion
-        setAnnouncements(announcements.filter(announcement => announcement.id !== id));
-
-        setSnackbarMessage("Announcement deleted successfully!");
-        setOpenSnackbar(true);
+      await axios.delete(`${API_BASE_URL}/announcements/${id}/`, {
+        headers: { Authorization: `Token ${token}` },
+      });
+      setAnnouncements(announcements.filter((announcement) => announcement.id !== id));
+      setSnackbarMessage("Announcement deleted successfully!");
+      setOpenSnackbar(true);
     } catch (error) {
-        console.error("Error deleting announcement:", error.response?.data || error);
+      console.error("Error deleting announcement:", error.response?.data || error);
     }
-};
+  };
 
   const handleCloseSnackbar = () => {
     setOpenSnackbar(false);
@@ -169,55 +141,47 @@ export default function AnnouncementsPage() {
       <Drawer open={isSidebarOpen} onClose={toggleSidebar}>
         <Box sx={{ width: 220, textAlign: "center", padding: "12px" }}>
           {isSidebarOpen && (
-            <img
-              src={logo} // Replace with the actual logo path
-              alt="Logo"
-              style={{
-                maxWidth: "80%",
-                height: "auto",
-                marginBottom: "12px",
-                borderRadius: "8px",
-              }}
-            />
+            <img src={logo} alt="Logo" style={{ maxWidth: "80%", marginBottom: "12px", borderRadius: "8px" }} />
           )}
           <List>
-                      <ListItem button onClick={() => navigate('/admin-dashboard')}>
-                        <ListItemText primary="Dashboard" />
-                      </ListItem>
-                      <ListItem button onClick={() => navigate('/testcreation')}>
-                        <ListItemText primary="Test Creation" />
-                      </ListItem>
-                      <ListItem button onClick={() => navigate('/manage-tests')}>
-                        <ListItemText primary="Manage Tests" />
-                      </ListItem>
-                      <ListItem button onClick={() => navigate('/announcement')}>
-                        <ListItemText primary="Announcements" />
-                      </ListItem>
-                      <ListItem button onClick={() => navigate('/adminsettings')}>
-                        <ListItemText primary="Settings" />
-                      </ListItem>
-                      <ListItem button onClick={() => navigate('/logout')}>
-                        <ListItemText primary="Logout" />
-                      </ListItem>
+            {[
+              { text: "Dashboard", path: "/admin-dashboard" },
+              { text: "Test Creation", path: "/testcreation" },
+              { text: "Question Creation", path: "/questioncreation" },
+              { text: "Manage Tests", path: "/manage-tests" },
+              { text: "Announcements", path: "/announcement" },
+              { text: "Settings", path: "/adminsettings" },
+              { text: "Logout", path: "/logout" },
+            ].map(({ text, path }) => (
+              <ListItem key={text}>
+                <Button
+                  onClick={() => navigate(path)}
+                  sx={{ color: "#003366", fontWeight: "bold", width: "100%", justifyContent: "flex-start" }}
+                >
+                  {text}
+                </Button>
+              </ListItem>
+            ))}
           </List>
         </Box>
       </Drawer>
 
       {/* Main Content */}
       <Box
-  component="main"
-  sx={{
-    position: "fixed", // Set position to fixed
-    top: "64px", // Set top to the height of the AppBar
-    bottom: "80px", // Adjust for footer height
-    left: 0,
-    right: 0,
-    flexGrow: 1,
-    p: 3,
-    overflowY: 'auto', // Make the content scrollable
-  }}
->
+        component="main"
+        sx={{
+          position: "fixed",
+          top: "64px",
+          bottom: "80px",
+          left: 0,
+          right: 0,
+          flexGrow: 1,
+          p: 3,
+          overflowY: "auto",
+        }}
+      >
         <Container maxWidth="lg">
+          {/* Create Announcement */}
           <Box sx={{ mb: 4, textAlign: "center" }}>
             <Typography variant="h3" sx={{ fontWeight: "bold", color: "#003366", mb: 2 }}>
               Announcements
@@ -227,11 +191,11 @@ export default function AnnouncementsPage() {
             </Typography>
           </Box>
 
-          {/* Create Announcement Section */}
           <Box sx={{ mb: 4, p: 3, borderRadius: 2, background: "linear-gradient(135deg, #f4f4f4, #e0e0e0)" }}>
             <Typography variant="h5" sx={{ mb: 2, color: "#003366", display: "flex", alignItems: "center", gap: 1 }}>
               <Megaphone size={24} /> Create New Announcement
             </Typography>
+
             <Grid container spacing={2}>
               <Grid item xs={12} md={6}>
                 <TextField
@@ -239,9 +203,7 @@ export default function AnnouncementsPage() {
                   label="Title"
                   variant="outlined"
                   value={newAnnouncement.title}
-                  onChange={(e) =>
-                    setNewAnnouncement({ ...newAnnouncement, title: e.target.value })
-                  }
+                  onChange={(e) => setNewAnnouncement({ ...newAnnouncement, title: e.target.value })}
                   sx={{ background: "white", borderRadius: 1 }}
                 />
               </Grid>
@@ -252,12 +214,8 @@ export default function AnnouncementsPage() {
                   type="date"
                   variant="outlined"
                   value={newAnnouncement.date}
-                  onChange={(e) =>
-                    setNewAnnouncement({ ...newAnnouncement, date: e.target.value })
-                  }
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
+                  onChange={(e) => setNewAnnouncement({ ...newAnnouncement, date: e.target.value })}
+                  InputLabelProps={{ shrink: true }}
                   sx={{ background: "white", borderRadius: 1 }}
                 />
               </Grid>
@@ -269,9 +227,7 @@ export default function AnnouncementsPage() {
                   rows={4}
                   variant="outlined"
                   value={newAnnouncement.message}
-                  onChange={(e) =>
-                    setNewAnnouncement({ ...newAnnouncement, message: e.target.value })
-                  }
+                  onChange={(e) => setNewAnnouncement({ ...newAnnouncement, message: e.target.value })}
                   sx={{ background: "white", borderRadius: 1 }}
                 />
               </Grid>
@@ -280,9 +236,7 @@ export default function AnnouncementsPage() {
                   <InputLabel>Audience</InputLabel>
                   <Select
                     value={newAnnouncement.audience}
-                    onChange={(e) =>
-                      setNewAnnouncement({ ...newAnnouncement, audience: e.target.value })
-                    }
+                    onChange={(e) => setNewAnnouncement({ ...newAnnouncement, audience: e.target.value })}
                     label="Audience"
                   >
                     <MenuItem value="all">All Users</MenuItem>
@@ -295,9 +249,7 @@ export default function AnnouncementsPage() {
                   control={
                     <Checkbox
                       checked={newAnnouncement.pinned}
-                      onChange={(e) =>
-                        setNewAnnouncement({ ...newAnnouncement, pinned: e.target.checked })
-                      }
+                      onChange={(e) => setNewAnnouncement({ ...newAnnouncement, pinned: e.target.checked })}
                       color="primary"
                     />
                   }
@@ -317,7 +269,7 @@ export default function AnnouncementsPage() {
             </Grid>
           </Box>
 
-          {/* Recent Announcements Section */}
+          {/* Display Announcements */}
           <Box sx={{ mt: 4 }}>
             <Typography variant="h5" sx={{ mb: 2, color: "#003366", display: "flex", alignItems: "center", gap: 1 }}>
               <Bell size={24} /> Recent Announcements
@@ -327,94 +279,45 @@ export default function AnnouncementsPage() {
                 No announcements yet.
               </Typography>
             ) : (
-              <Grid container spacing={3}>
-                {announcements.map((announcement) => (
-                  <Grid item xs={12} key={announcement.id}>
-                    <Card elevation={3} sx={{ borderRadius: 2, transition: "transform 0.3s, box-shadow 0.3s", "&:hover": { transform: "translateY(-5px)", boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)" } }}>
-                      <CardContent>
-                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <Typography variant="h6" sx={{ color: "#003366", fontWeight: "bold" }}>
-                            {announcement.title}
-                          </Typography>
-                          {announcement.pinned && (
-                            <Chip label="Pinned" icon={<Pin size={16} />} color="warning" size="small" />
-                          )}
-                        </Box>
-                        <Typography variant="body1" sx={{ mt: 1, color: "#555" }}>
-                          {announcement.message}
-                        </Typography>
-                        <Box sx={{ mt: 2, display: "flex", alignItems: "center", gap: 1 }}>
-                          <Calendar size={16} color="#555" />
-                          <Typography variant="caption" sx={{ color: "#555" }}>
-                            {announcement.date}
-                          </Typography>
-                          <Users size={16} color="#555" />
-                          <Typography variant="caption" sx={{ color: "#555" }}>
-                            Audience: {announcement.audience}
-                          </Typography>
-                        </Box>
-                      </CardContent>
-                      <CardActions sx={{ justifyContent: "flex-end" }}>
-                      <Button
-  variant="outlined"
-  color="error"
-  onClick={() => {
-    console.log("Deleting announcement ID:", announcement.id);
-    handleDeleteAnnouncement(announcement.id);
-  }}
-  startIcon={<Trash2 size={16} />}
->
-  Delete
-</Button>
-
-                      </CardActions>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
+              announcements.map((announcement) => (
+                <Card key={announcement.id} sx={{ mb: 2 }}>
+                  <CardContent>
+                    <Typography variant="h6" sx={{ fontWeight: "bold", color: "#003366" }}>
+                      {announcement.title} {announcement.pinned && <Pin size={18} />}
+                    </Typography>
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                      {announcement.message}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: "gray", mt: 1 }}>
+                      {announcement.date}
+                    </Typography>
+                  </CardContent>
+                  <CardActions>
+                    <Button
+                      startIcon={<Trash2 />}
+                      onClick={() => handleDeleteAnnouncement(announcement.id)}
+                      color="error"
+                    >
+                      Delete
+                    </Button>
+                  </CardActions>
+                </Card>
+              ))
             )}
           </Box>
-
-          {/* Snackbar for Notifications */}
-          <Snackbar
-            open={openSnackbar}
-            autoHideDuration={3000}
-            onClose={handleCloseSnackbar}
-          >
-            <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
-              {snackbarMessage}
-            </Alert>
-          </Snackbar>
         </Container>
-      </Box>
 
-      {/* Fixed Footer */}
-      <footer
-              style={{
-                backgroundColor: "#003366",
-                color: "white",
-                padding: "16px 0",
-                textAlign: "center",
-                position: "fixed",
-                bottom: 0,
-                left: 0,
-                width: "100%",
-                zIndex: 1000,
-              }}
-            >
-              <Typography>© 2025 Skill Bridge. All rights reserved.</Typography>
-              <div>
-                <IconButton href="https://twitter.com" color="inherit">
-                  <TwitterIcon />
-                </IconButton>
-                <IconButton href="https://facebook.com" color="inherit">
-                  <FacebookIcon />
-                </IconButton>
-                <IconButton href="https://instagram.com" color="inherit">
-                  <InstagramIcon />
-                </IconButton>
-              </div>
-            </footer>
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={3000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        >
+          <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: "100%" }}>
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
+      </Box>
     </Box>
   );
 }

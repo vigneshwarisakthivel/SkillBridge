@@ -163,7 +163,7 @@ const EditTestPage = () => {
   const fetchQuestions = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`https://onlinetestcreationbackend.onrender.com/api/tests/${testId}/`, {
+      const response = await axios.get(`${API_BASE_URL}tests/${testId}/`, {
         headers: { Authorization: `Token ${token()}` },
       });
       
@@ -196,11 +196,11 @@ const EditTestPage = () => {
                 <Typography variant="h6" sx={{ flexGrow: 1, fontSize: "1rem" }}>
                     Skill Bridge Online Test Platform
                 </Typography>
-                <Button color="inherit" onClick={() => navigate("/")}>Home</Button>
-                <Button color="inherit" onClick={() => navigate("/admin-profile")}>Admin profile</Button>
-                <Button color="inherit" onClick={() => navigate("/manage-tests")}>Test List</Button>
-                <Button color="inherit" onClick={() => navigate("/adminsettings")}>Settings</Button>
-                <Button color="inherit" onClick={() => navigate("/logout")}>Logout</Button>
+          <Button color="inherit" onClick={() => navigate("/")}>Home</Button>
+          <Button color="inherit" onClick={() => navigate("/admin-profile")}>Admin Profile</Button>
+          <Button color="inherit" onClick={() => navigate("/manage-tests")}>Test List</Button>
+          <Button color="inherit" onClick={() => navigate("/adminsettings")}>Settings</Button>
+          <Button color="inherit" onClick={() => navigate("/logout")}>Logout</Button>
             </Toolbar>
       </AppBar>
 
@@ -213,32 +213,118 @@ const EditTestPage = () => {
               style={{ maxWidth: "80%", height: "auto", marginBottom: "12px", borderRadius: "8px" }}
             />
           )}
-        <List>
-          <ListItem button onClick={() => navigate('/admin-dashboard')}>
-            <ListItemText primary="Dashboard" />
-          </ListItem>
-          <ListItem button onClick={() => navigate('/testcreation')}>
-            <ListItemText primary="Test Creation" />
-          </ListItem>
-          <ListItem button onClick={() => navigate('/questioncreation')}>
-            <ListItemText primary="Question Creation" />
-          </ListItem>
-          <ListItem button onClick={() => navigate('/manage-tests')}>
-            <ListItemText primary="Manage Tests" />
-          </ListItem>
+ <List>
+    <ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/admin-dashboard')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      textAlign: "left",
+      fontSize: "16px", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Dashboard
+  </Button>
+</ListItem>
 
-          <ListItem button onClick={() => navigate('/announcement')}>
-            <ListItemText primary="Announcements" />
-          </ListItem>
-          <ListItem button onClick={() => navigate('/adminsettings')}>
-            <ListItemText primary="Settings" />
-          </ListItem>
-          <ListItem button onClick={() => {
-            localStorage.removeItem('user_token');
-            navigate('/login');
-          }}>
-            <ListItemText primary="Logout" />
-          </ListItem>
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/testcreation')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      textAlign: "left", // Align the text to the left
+      width: "100%",
+      fontSize: "16px", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Test Creation
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/questioncreation')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Question Creation
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/manage-tests')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Manage Tests
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/announcement')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Announcements
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/adminsettings')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Settings
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/logout')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Logout
+  </Button>
+</ListItem>
         </List>
         </Box>
       </Drawer>

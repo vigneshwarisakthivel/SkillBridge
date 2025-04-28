@@ -5,6 +5,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { Form, useNavigate } from "react-router-dom";
 import DeleteIcon from "@mui/icons-material/Delete";
 import axios from "axios";
+import logo from "../assets/Image20250320122406.png";
 import TwitterIcon from '@mui/icons-material/Twitter';
 import Papa from "papaparse";
 import ImportQuestionsModal from './ImportQuestionModal';
@@ -13,6 +14,7 @@ import InstagramIcon from '@mui/icons-material/Instagram';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 const steps = ["Test Name & Description", "Question Creation", "Question Bank", "Set Time Limit & Marks", "Set Pass/Fail Criteria", "Settings", "Publish & Share"];
 const BASE_URL = "https://onlinetestplatformfrontend.vercel.app/smartbridge/online-test-assessment"; // Replace with your actual base URL
+const API_BASE_URL = 'https://onlinetestcreationbackend.onrender.com/api';
 const CreateNewTest = () => {
         const [option, setOption] = useState(null);
         const [file, setFile] = useState(null);
@@ -72,7 +74,7 @@ const CreateNewTest = () => {
   };
   useEffect(() => {
     if (openSuccessDialog && testId) {
-        axios.get(`https://onlinetestcreationbackend.onrender.com/api/get-secure-uuid/${testId}/`)
+        axios.get(`${API_BASE_URL}/get-secure-uuid/${testId}/`)
 
         .then((res) => {
           const encodedUuid = res.data.encoded_uuid;
@@ -92,7 +94,7 @@ const CreateNewTest = () => {
       }
 
       try {
-        const response = await axios.get("https://onlinetestcreationbackend.onrender.com/api/questions/", {
+        const response = await axios.get(`${API_BASE_URL}/questions/`, {
           headers: {
             "Authorization": `Token ${userToken}`
           }
@@ -177,7 +179,7 @@ const CreateNewTest = () => {
     try {
       setLoading(true);
  
-      const response = await fetch("https://onlinetestcreationbackend.onrender.com/api/upload-allowed-emails/", {
+      const response = await fetch(`${API_BASE_URL}/upload-allowed-emails/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -409,7 +411,7 @@ const handleSubmit = async () => {
 
         // Step 1: Create the test
         const response = await axios.post(
-            "https://onlinetestcreationbackend.onrender.com/api/tests/",
+            `${API_BASE_URL}/tests/`,
             testData,
             {
                 headers: {
@@ -429,7 +431,7 @@ const handleSubmit = async () => {
             formData.append("test_id", newTestId);
 
             await axios.post(
-                "https://onlinetestcreationbackend.onrender.com/api/questions/upload/",
+                `${API_BASE_URL}/questions/upload/`,
                 formData,
                 {
                     headers: {
@@ -472,7 +474,7 @@ const handleSubmit = async () => {
    
                 // Make the API call to save the question
                 const response = await axios.post(
-                    "https://onlinetestcreationbackend.onrender.com/api/questions/",
+                    `${API_BASE_URL}/questions/`,
                     questionData,
                     {
                         headers: {
@@ -1473,30 +1475,129 @@ const handleSubmit = async () => {
     <>
       <Drawer open={isSidebarOpen} onClose={toggleSidebar}>
         <Box sx={{ width: 220, textAlign: "center", padding: "12px" }}>
-          <List>
-            <ListItem button onClick={() => navigate("/admin-dashboard")}>
-              <ListItemText primary="Dashboard" />
-            </ListItem>
-            <ListItem button onClick={() => navigate("/testcreation")}>
-              <ListItemText primary="Test Creation" />
-            </ListItem>
-            <ListItem button onClick={() => navigate('/questioncreation')}>
-              <ListItemText primary="Question Creation" />
-            </ListItem>
-            <ListItem button onClick={() => navigate("/manage-tests")}>
-              <ListItemText primary="Manage Tests" />
-            </ListItem>
+        <img
+              src={logo}
+              alt="Logo"
+              style={{
+                maxWidth: "100%",
+                height: "auto",
+                marginBottom: "16px",
+                borderRadius: "8px",
+              }}
+            />
+ <List>
+    <ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/admin-dashboard')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      textAlign: "left",
+      fontSize: "16px", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Dashboard
+  </Button>
+</ListItem>
 
-            <ListItem button onClick={() => navigate("/announcement")}>
-              <ListItemText primary="Announcements" />
-            </ListItem>
-            <ListItem button onClick={() => navigate("/adminsettings")}>
-              <ListItemText primary="Settings" />
-            </ListItem>
-            <ListItem button onClick={() => handleLogout()}>
-              <ListItemText primary="Logout" />
-            </ListItem>
-          </List>
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/testcreation')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      textAlign: "left", // Align the text to the left
+      width: "100%",
+      fontSize: "16px", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Test Creation
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/questioncreation')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Question Creation
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/manage-tests')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Manage Tests
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/announcement')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Announcements
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/adminsettings')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Settings
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/logout')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Logout
+  </Button>
+</ListItem>
+        </List>
         </Box>
       </Drawer>
       <AppBar position="fixed" sx={{ backgroundColor: "#003366", padding: "4px 8px" }}>
@@ -1508,10 +1609,10 @@ const handleSubmit = async () => {
             Skill Bridge Online Test Platform
           </Typography>
           <Button color="inherit" onClick={() => navigate("/")}>Home</Button>
-          <Button color="inherit" onClick={() => navigate("/admin-profile")}>Admin profile</Button>
+          <Button color="inherit" onClick={() => navigate("/admin-profile")}>Admin Profile</Button>
           <Button color="inherit" onClick={() => navigate("/manage-tests")}>Test List</Button>
           <Button color="inherit" onClick={() => navigate("/adminsettings")}>Settings</Button>
-          <Button color="inherit" onClick={() => handleLogout()}>Logout</Button>
+          <Button color="inherit" onClick={() => navigate("/logout")}>Logout</Button>
         </Toolbar>
       </AppBar>
       <Box sx={{ position: "fixed", top: "64px", bottom: "80px", left: 0, right: 0, display: "flex", flexDirection: "column", padding: "16px", overflowY: "auto", height: "calc(100vh - 144px)", width: "100vw", maxWidth: "100%", margin: 0 }}>

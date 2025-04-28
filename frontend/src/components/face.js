@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as faceapi from "face-api.js";
 import axios from "axios";
-
+const API_BASE_URL = 'https://onlinetestcreationbackend.onrender.com/api';
 const WebcamProctoring = ({ studentId, testId }) => {
     const videoRef = useRef(null);
     const [alertMessage, setAlertMessage] = useState(""); // Alert message for user feedback
@@ -114,7 +114,7 @@ const WebcamProctoring = ({ studentId, testId }) => {
     };
 
     const logMalpractice = async (eventType) => {
-        const token = localStorage.getItem("usertoken"); // Retrieve user token
+        const token = localStorage.getItem("user_token"); // Retrieve user token
         if (!token) {
             console.error("❌ No token found in localStorage");
             return; // Prevent sending the request if token is missing
@@ -130,7 +130,7 @@ const WebcamProctoring = ({ studentId, testId }) => {
 
         try {
             const response = await axios.post(
-                "https://onlinetestcreationbackend.onrender.com/api/log-malpractice/",
+                `${API_BASE_URL}/log-malpractice/`,
                 data,
                 {
                     headers: {
@@ -357,9 +357,9 @@ const WebcamProctoring = ({ studentId, testId }) => {
                     formData.append("frame", blob, "frame.jpg");
 
                     try {
-                        const token = localStorage.getItem("usertoken"); // Retrieve user token
+                        const token = localStorage.getItem("user_token"); // Retrieve user token
                         const response = await axios.post(
-                            "https://onlinetestcreationbackend.onrender.com/api/log-malpractice/",
+                            `${API_BASE_URL}/log-malpractice/`,
                             formData,
                             {
                                 headers: {

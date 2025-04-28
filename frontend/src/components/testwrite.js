@@ -763,13 +763,7 @@ export default function OnlineTestPage() {
                                 <button className="modalButton" onClick={closeScoreModal}>
                                     Close
                                 </button>
-                                <button
-                        className="btn"
-                        style={{ marginTop: "20px" }}
-                        onClick={handleRetake}
-                    >
-                        Retake
-                    </button>
+                              
                             </div>
                         </div>
                     )}

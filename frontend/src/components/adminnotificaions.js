@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { List, ListItem, Typography } from '@mui/material';
-
+const API_BASE_URL = 'https://onlinetestcreationbackend.onrender.com/api';
 const AdminNotifications = () => {
     const [notifications, setNotifications] = useState([]);
 
     useEffect(() => {
         const fetchNotifications = async () => {
             try {
-                const response = await axios.get('https://onlinetestcreationbackend.onrender.com/api/admin-notifications/');
+                const response = await axios.get(`${API_BASE_URL}/admin-notifications/`);
                 setNotifications(response.data);
             } catch (error) {
                 console.error("Error fetching admin notifications:", error);

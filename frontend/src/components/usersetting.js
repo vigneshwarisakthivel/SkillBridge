@@ -36,7 +36,7 @@ import TwitterIcon from '@mui/icons-material/Twitter'; // Import Twitter icon
 import FacebookIcon from '@mui/icons-material/Facebook'; // Import Facebook icon
 import InstagramIcon from '@mui/icons-material/Instagram'; // Import Instagram icon
 import axios from 'axios'; // Import axios for API calls
-
+const API_BASE_URL = 'https://onlinetestcreationbackend.onrender.com/api';
 const SettingsCustomizationPage = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [testAccess, setTestAccess] = useState("public");
@@ -59,7 +59,7 @@ const SettingsCustomizationPage = () => {
       const headers = { Authorization: `Token ${token}` };
 
       try {
-        const response = await axios.get("https://onlinetestcreationbackend.onrender.com/api/user-settings/", { headers });
+        const response = await axios.get(`${API_BASE_URL}/user-settings/`, { headers });
         const settings = response.data;
         setDarkMode(settings.dark_mode);
         setTestAccess(settings.test_access);
@@ -80,7 +80,7 @@ const SettingsCustomizationPage = () => {
     const headers = { Authorization: `Token ${token}` };
 
     try {
-      await axios.post("https://onlinetestcreationbackend.onrender.com/api/user-settings/reset/", {}, { headers });
+      await axios.post(`${API_BASE_URL}/user-settings/reset/`, {}, { headers });
       // Reset local state to default values
       setDarkMode(false);
       setTestAccess("public");
@@ -102,7 +102,7 @@ const SettingsCustomizationPage = () => {
     const headers = { Authorization: `Token ${token}` };
 
     try {
-      await axios.put("https://onlinetestcreationbackend.onrender.com/api/user-settings/", {
+      await axios.put(`${API_BASE_URL}/user-settings/`, {
         dark_mode: darkMode,
         test_access: testAccess,
         integration: integration,
@@ -148,25 +148,102 @@ const SettingsCustomizationPage = () => {
       <Drawer open={isSidebarOpen} onClose={toggleSidebar}>
         <Box sx={{ width: 220, textAlign: "center", padding: "16px" }}>
           <img src={logo} alt="Logo" style={{ maxWidth: "100%", height: "auto", marginBottom: "12px" }} />
-          <List>
-            <ListItem button onClick={() => navigate('/user-dashboard')}>
-              <ListItemText primary="Dashboard" />
-            </ListItem>
+ <List>
+    <ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/user-dashboard')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      textAlign: "left",
+      fontSize: "16px", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Dashboard
+  </Button>
+</ListItem>
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/test-creation')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Test Creation
+  </Button>
+</ListItem>
 
-            <ListItem button onClick={() => navigate('/attempted-tests')}>
-              <ListItemText primary="Attempted Tests" />
-            </ListItem>
-            <ListItem button onClick={() => navigate('/performancehistory')}>
-              <ListItemText primary="Performance History" />
-            </ListItem>
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/attempted-tests')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Attempted Tests
+  </Button>
+</ListItem>
 
-            <ListItem button onClick={() => navigate('/usersetting')}>
-              <ListItemText primary="Settings" />
-            </ListItem>
-            <ListItem button onClick={() => navigate('/logout')}>
-              <ListItemText primary="Logout" />
-            </ListItem>
-          </List>
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/performancehistory')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Performance History
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/usersetting')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Settings
+  </Button>
+</ListItem>
+
+<ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+  <Button
+    onClick={() => navigate('/logout')}
+    sx={{
+      color: "#003366", // Dark blue color
+      fontWeight: "bold",
+      fontSize: "16px",
+      textAlign: "left", // Align the text to the left
+      width: "100%", // Take up full width of the ListItem
+      justifyContent: "flex-start", // Align the button content to the left
+    }}
+  >
+    Logout
+  </Button>
+</ListItem>
+        </List>
         </Box>
       </Drawer>
       <Container

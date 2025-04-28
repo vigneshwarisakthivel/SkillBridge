@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -13,6 +14,7 @@ import { FaChalkboardTeacher, FaBookOpen, FaUserGraduate, FaClipboardList } from
 
 
 const AboutUsPage = () => {
+  const navigate = useNavigate();
   return (
     <Box className="about-us-page">
       {/* Hero Section */}
@@ -117,11 +119,15 @@ const AboutUsPage = () => {
             Ready to Take Your Learning to the Next Level?
           </Typography>
           <Typography variant="body1" sx={{ marginBottom: "24px" }} paragraph>
-            Join thousands of learners and professionals who trust Skill Bridge for their online assessments.
+            Join thousands of learners and professionals who trust SkillBridge for their online assessments.
           </Typography>
-          <Button variant="contained" color="primary">
-            Get Started Now
-          </Button>
+          <Button
+      variant="contained"
+      color="primary"
+      onClick={() => navigate('/register')}
+    >
+      Get Started Now
+    </Button>
         </Container>
         
       </Box>
