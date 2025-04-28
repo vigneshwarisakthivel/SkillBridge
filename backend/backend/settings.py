@@ -139,7 +139,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Your React frontend URL
     "http://127.0.0.1:3000",
-    "https://online-test-creation.vercel.app",
+    "https://online-test-creation-71v5.vercel.app",
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -154,20 +154,10 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # Access token expiration time
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  # Refresh token expiration time
-    'ROTATE_REFRESH_TOKENS': False,  # Disable rotating refresh tokens
-    'BLACKLIST_AFTER_ROTATION': False,  # Disable blacklisting after token rotation
-    'ALGORITHM': 'HS256',  # JWT algorithm
-    'SIGNING_KEY': SECRET_KEY,  # Use Django's SECRET_KEY for signing JWTs
-    'VERIFYING_KEY': None,  # Set this if you have a public key for verification
-    'AUDIENCE': None,  # Optional audience (if you use it)
-    'ISSUER': None,  # Optional issuer (if you use it)
-}
+
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000","https://online-test-creation.vercel.app",
+    "http://localhost:3000","https://online-test-creation-71v5.vercel.app",
 ]
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"  
