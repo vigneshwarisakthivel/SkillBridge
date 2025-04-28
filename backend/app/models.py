@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -74,7 +75,7 @@ class Test(models.Model):
     is_proctored = models.BooleanField(default=False)
     allow_retakes = models.BooleanField(default=False)
     allow_feedback = models.BooleanField(default=False)
-
+    is_Duplicated = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     total_questions = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
@@ -113,6 +114,22 @@ class Category(models.Model):
     def __str__(self):
         return self.category_name
 
+class StudentCapture(models.Model):
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    image = models.ImageField(upload_to='captures/')
+    timestamp = models.DateTimeField(auto_now_add=True)
+    is_valid = models.BooleanField(default=False)
+    validation_message = models.CharField(max_length=255, blank=True)
+    face_detected = models.BooleanField(default=False)
+    multiple_faces = models.BooleanField(default=False)
+    looking_straight = models.BooleanField(default=False)
+    
+    class Meta:
+        ordering = ['-timestamp']
+    
+    def __str__(self):
+        return f"Capture by {self.student.username if self.student else 'Anonymous'} at {self.timestamp}"
+    
 class UserPerformance(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     total_tests = models.IntegerField(default=0)

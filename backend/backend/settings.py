@@ -13,8 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import os
-from decouple import config
-SECRET_KEY = config('SECRET_KEY')
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,7 +29,7 @@ ALLOWED_HOSTS = ['*']
 DEBUG = True
 
 
-SECRET_KEY = 'django-insecure--3uvw$200a+&a&_&=!#411+yqncsh-(-n!*r+ahey3em!6f==e'  # Keep this secret in production!
+SECRET_KEY = 'django-insecure--3uvw$200a+&a&_&=!#411+yqncsh-(-n!*r+ahey3em!6f==e'  
 
 # Application definition
 

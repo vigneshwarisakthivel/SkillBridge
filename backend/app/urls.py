@@ -6,7 +6,7 @@ from rest_framework.routers import DefaultRouter
 from django.conf import settings
 from . import views
 from django.conf.urls.static import static
-from .views import (
+from .views import (UploadQuestionsView,
     LoginView, RegisterView,RecentActivityDeleteView,get_csrf_token, get_test_questions,create_test, CategoryListCreateView, get_tests,
     CategoryRetrieveUpdateDestroyView, UserTestStatsAPIView, TestListCreateView, AvailableTestsView,
     RecentActivityListCreateView, QuestionCreateAPIView, TestDetailAPIView, ManageTestsViewSet,
@@ -120,6 +120,7 @@ urlpatterns = [
     path('tests-management/', test_management_view, name='test_management'),
     path("test-attempts/statistics/", TestAttemptViewSet.as_view({"get": "get_user_statistics"}), name="user-statistics"),
     path("test-attempts/rank/<int:test_id>/", TestAttemptViewSet.as_view({"get": "get_user_rank"}), name="user-rank"),
+    path('questions/upload/', UploadQuestionsView.as_view(), name='upload-questions'),
     path('', include(router.urls)),
 ]
 
