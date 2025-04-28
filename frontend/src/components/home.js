@@ -44,7 +44,9 @@ import image6 from '../assets/6.jfif';
 import image7 from '../assets/7.jfif';
 import image9 from '../assets/9.jfif';
 import image10 from '../assets/10.jfif';
+
 const API_BASE_URL = 'https://online-test-creation-1.onrender.com/api';
+
 const HomePage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [categories, setCategories] = useState([]);

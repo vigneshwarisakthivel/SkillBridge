@@ -12,7 +12,9 @@ const PreTestForm = () => {
 
   useEffect(() => {
     if (uuid) {
+
       axios.get(`https://online-test-creation-1.onrender.com/api/decode-test-uuid/${uuid}/`)
+
         .then(res => {
           setTestId(res.data.test_id);
         })
@@ -33,6 +35,7 @@ const PreTestForm = () => {
   
     try {
       const response = await fetch("https://online-test-creation-1.onrender.com/api/test-users/", {
+
         method: "POST",
         headers: {
           "Content-Type": "application/json",
