@@ -62,6 +62,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'backend.urls'
 
+CORS_URLS_REGEX = r'^/api/.*$'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -140,6 +142,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Your React frontend URL
     "http://127.0.0.1:3000",
     "https://online-test-creation-71v5.vercel.app",
+    'https://online-test-creation-1.onrender.com',
 ]
 
 AUTHENTICATION_BACKENDS = [
