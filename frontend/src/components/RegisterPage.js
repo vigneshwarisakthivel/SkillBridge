@@ -6,8 +6,7 @@ import {
     Typography,
     Container,
     Alert,
-    Box,
-    Card,
+
     CardContent,
     InputAdornment,
     FormControl,
@@ -15,6 +14,8 @@ import {
     FormControlLabel,
     Radio,
 } from '@mui/material';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
 import { Lock, AccountCircle } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';

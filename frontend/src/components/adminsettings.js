@@ -11,7 +11,6 @@ import {
   MenuItem,
   Button,
   FormControlLabel,
-  Box,
   Snackbar,
   AppBar,
   Toolbar,
@@ -22,6 +21,7 @@ import {
   Drawer,
   Grid,
 } from "@mui/material";
+import Box from '@mui/material/Box';
 import { Menu as MenuIcon, Brightness4, Brightness7, AdminPanelSettings, Save, Undo, Notifications as NotificationsIcon, People, Security, Settings, AssignmentInd as AssignmentIndIcon, Lock as LockIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/Image20250320122406.png";

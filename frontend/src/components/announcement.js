@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Bell, Pin, Trash2, Calendar, Users, Megaphone } from "lucide-react";
 import {
-  Box,
+ 
   Button,
   Typography,
   TextField,
@@ -27,6 +27,8 @@ import {
   List,
   ListItem,
 } from "@mui/material";
+import Box from '@mui/material/Box';
+
 import { Menu as MenuIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/Image20250320122406.png";

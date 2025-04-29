@@ -19,6 +19,8 @@ import {
   Alert,
   Paper,
 } from "@mui/material";
+import Box from '@mui/material/Box';
+
 import MenuIcon from "@mui/icons-material/Menu";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import FacebookIcon from "@mui/icons-material/Facebook";

@@ -1,15 +1,18 @@
 import React from "react";
 import { useNavigate } from 'react-router-dom';
 import {
-  Box,
   Typography,
   Grid,
-  Card,
   CardContent,
   Container,
   Button,
   Avatar,
 } from "@mui/material";
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+
 import { FaChalkboardTeacher, FaBookOpen, FaUserGraduate, FaClipboardList } from "react-icons/fa";
 
 

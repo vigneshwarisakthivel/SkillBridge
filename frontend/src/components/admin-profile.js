@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaUser , FaUpload, FaEdit } from 'react-icons/fa';
 import {
-  AppBar,
   Toolbar,
   Typography,
   Button,
@@ -18,6 +17,8 @@ import {
   Grid,
   TextField,
 } from "@mui/material";
+import { AppBar } from '@mui/material';
+
 import MenuIcon from "@mui/icons-material/Menu";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import FacebookIcon from "@mui/icons-material/Facebook";
