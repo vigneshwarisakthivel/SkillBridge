@@ -20,8 +20,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1','online-test-creation-1.onrender.com']
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') 
 
+ALLOWED_HOSTS = ['online-test-creation-1.onrender.com','localhost','127.0.0.1',]
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -30,7 +32,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1','online-test-creation-1.onrender.com']
 DEBUG = True
 
 
-SECRET_KEY = 'django-insecure--3uvw$200a+&a&_&=!#411+yqncsh-(-n!*r+ahey3em!6f==e'  # Keep this secret in production!
+SECRET_KEY = 'django-insecure--3uvw$200a+&a&_&=!#411+yqncsh-(-n!*r+ahey3em!6f==e'  
 
 # Application definition
 
@@ -61,8 +63,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'backend.urls'
-
-CORS_URLS_REGEX = r'^/api/.*$'
 
 TEMPLATES = [
     {
@@ -141,8 +141,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # Your React frontend URL
     "http://127.0.0.1:3000",
-    "https://online-test-creation-71v5.vercel.app",
-    'https://online-test-creation-1.onrender.com',
+    "https://online-test-creation.vercel.app",
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -157,10 +156,20 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
-
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),  # Access token expiration time
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  # Refresh token expiration time
+    'ROTATE_REFRESH_TOKENS': False,  # Disable rotating refresh tokens
+    'BLACKLIST_AFTER_ROTATION': False,  # Disable blacklisting after token rotation
+    'ALGORITHM': 'HS256',  # JWT algorithm
+    'SIGNING_KEY': SECRET_KEY,  # Use Django's SECRET_KEY for signing JWTs
+    'VERIFYING_KEY': None,  # Set this if you have a public key for verification
+    'AUDIENCE': None,  # Optional audience (if you use it)
+    'ISSUER': None,  # Optional issuer (if you use it)
+}
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000","https://online-test-creation-71v5.vercel.app",
+    "http://localhost:3000","https://online-test-creation.vercel.app",
 ]
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"  

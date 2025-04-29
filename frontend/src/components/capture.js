@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import * as faceapi from 'face-api.js';
 import { Button, Container, Box, Typography, CircularProgress, Alert } from '@mui/material';
 import Webcam from 'react-webcam';
-const API_BASE_URL = 'https://onlinetestcreationbackend.onrender.com/api';
+const API_BASE_URL = 'https://online-test-creation-1.onrender.com/api';
 const CapturePage = () => {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);

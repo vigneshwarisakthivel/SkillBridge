@@ -26,9 +26,7 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-
 const API_BASE_URL = "https://online-test-creation-1.onrender.com/api";
-
 
 const AttemptedTest = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -375,7 +373,7 @@ const sendDataToAttemptedTestsAPI = async (testId, testTitle, testSubject, perce
               <th style={styles.th}>Score</th>
               <th style={styles.th}>Status</th>
               <th style={styles.th}>Rank</th>
-              <th style={styles.th}>Actions</th>
+              
             </tr>
           </thead>
           <tbody>

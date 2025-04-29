@@ -21,9 +21,7 @@ import DialogActions from '@mui/material/DialogActions';
 import Dialog from '@mui/material/Dialog';
 import { PieChart,Pie, Tooltip, Cell, Legend } from "recharts";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
-
 const API_BASE_URL = 'https://online-test-creation-1.onrender.com/api';
-
 const COLORS = ["#003366", "#0088FE", "#FFBB28", "#FF8042", "#00C49F"];
 const AdminDashboard = () => {
   const [userData, setUserData] = useState({});
@@ -129,27 +127,50 @@ const AdminDashboard = () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/test-completion-rates/`);
         const completionRates = response.data;
-
-        // Ensure completionRates is an object with expected structure
+  
+        console.log("Raw API Data:", completionRates);
+  
         if (completionRates && typeof completionRates === 'object') {
-          setChartData({
-            labels: Object.keys(completionRates), // Subjects
+          const labels = Object.keys(completionRates);
+          const data = Object.values(completionRates).map(rate => parseFloat(rate));
+  
+          // Check if all values are 0 and provide a message
+          if (data.every(value => value === 0)) {
+            console.log("All data values are 0. Consider adding a visual indicator for this case.");
+          }
+  
+          const formattedData = {
+            labels: labels,
             datasets: [
               {
-                ...chartData.datasets[0],
-                data: Object.values(completionRates), // Completion rates
+                label: "Test Completion Rate",
+                data: data, // Parsed values (which are currently 0)
+                backgroundColor: "rgba(0, 51, 102, 0.7)",
+                borderColor: "#003366",
+                borderWidth: 1,
+                barThickness: 30,
               },
             ],
-          });
+          };
+  
+          console.log("Formatted Chart Data:", formattedData);
+  
+          setChartData(formattedData);
         }
       } catch (error) {
         console.error("Error fetching completion rates:", error);
       }
     };
-
+  
     fetchCompletionRates();
   }, []);
-
+  
+  // Log chartData when it changes
+  useEffect(() => {
+    console.log("Chart Data updated:", chartData);
+  }, [chartData]);
+  
+  
   const fetchNotifications = async () => {
     try {
 
@@ -789,8 +810,59 @@ const AdminDashboard = () => {
                 </Grid>
 
                 <Box sx={{ marginTop: "8px", height: 150 }}>
-                  <Bar data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />
-                </Box>
+  <Bar 
+    data={chartData} 
+    options={{
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: {
+        duration: 1000, // 1 second loading animation
+        easing: 'easeOutBounce', // bounce effect
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 10, // optional
+          },
+        },
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (context) => `${context.parsed.y}%`, // show % symbol in tooltip
+          },
+        },
+      },
+      hover: {
+        mode: 'nearest', // hover nearest bar
+        intersect: true,
+      },
+    }}
+    // ✨ ADD this prop to control hover color
+    plugins={[{
+      id: 'hoverEffect',
+      beforeEvent(chart, args) {
+        const event = args.event;
+        if (event.type === 'mousemove') {
+          chart.data.datasets.forEach((dataset) => {
+            dataset.backgroundColor = dataset.data.map(() =>
+              'rgba(0, 51, 102, 0.7)'
+            );
+          });
+          const elements = chart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, false);
+          if (elements.length) {
+            const index = elements[0].index;
+            chart.data.datasets.forEach((dataset) => {
+              dataset.backgroundColor[index] = 'rgba(0, 51, 102, 1)'; // darker color on hover
+            });
+          }
+          chart.update('none');
+        }
+      }
+    }]}
+  />
+</Box>
               </CardContent>
             </Card>
           </Grid>

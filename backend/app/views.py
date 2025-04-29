@@ -355,8 +355,6 @@ def get_tests(request):
     tests = Test.objects.all()
     serializer = TestSerializer(tests, many=True)
     return Response(serializer.data)
-import uuid  # Import UUID for unique code generation
-
 @api_view(["POST"])
 def duplicate_test(request, test_id):
     try:
@@ -368,7 +366,7 @@ def duplicate_test(request, test_id):
             end_date=test.end_date,
             due_time=test.due_time,
             owner=request.user,
-            isDuplicated=True
+            is_Duplicated=True
         )
         
         # Copy questions
@@ -378,10 +376,8 @@ def duplicate_test(request, test_id):
             question.test = new_test
             question.save()
 
-        # Generate a unique test code
-        unique_code = str(uuid.uuid4())[:10]  # Generates a short, unique 10-character string
-
-        test_link = f"http://localhost:3000/skillbridge/online-test-assessment/{unique_code}/{new_test.id}/"
+        # Now use the newly created test's UUID
+        test_link = f"https://online-test-creation.vercel.app/smartbridge/online-test-assessment/{new_test.test_uuid}/{new_test.id}/"
 
         return Response({
             "message": "Test duplicated successfully!",
@@ -391,6 +387,17 @@ def duplicate_test(request, test_id):
     
     except Test.DoesNotExist:
         return Response({"error": "Test not found"}, status=404)
+
+@api_view(["GET"])
+def get_test_questions(request, test_id):
+    try:
+        test = Test.objects.get(id=test_id)
+        questions = Question.objects.filter(test=test)
+        serializer = QuestionSerializer(questions, many=True)
+        return Response(serializer.data)
+    except Test.DoesNotExist:
+        return Response({"error": "Test not found."}, status=404)
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class LoginView(APIView):
@@ -423,6 +430,7 @@ class RegisterView(APIView):
             user = serializer.save()
             return Response({'message': 'User registered successfully', 'role': request.data.get('role', 'user')}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = CustomUser .objects.all()
     serializer_class = UserSerializer
@@ -905,6 +913,7 @@ class PasswordResetView(generics.CreateAPIView):
     queryset = PasswordReset.objects.all()
     serializer_class = PasswordResetSerializer
     permission_classes = [AllowAny]
+    
 class PerformanceHistoryView(APIView):
     def get(self, request):
         performance_history = PerformanceHistory.objects.all()
@@ -950,23 +959,32 @@ class QuestionCreateAPIView(APIView):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+from django.utils import timezone  # Add this import
+
 class AnnouncementViewSet(viewsets.ModelViewSet):
     queryset = Announcement.objects.all().order_by('-created_at')
     serializer_class = AnnouncementSerializer
-    permission_classes = [IsAuthenticated]  # Applies to all methods
+    permission_classes = [IsAuthenticated]
 
-    def perform_create(self, serializer):
-        # Log the request user for debugging
-        print("Creating announcement by:", self.request.user)
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-        # Prevent duplicate announcements by title + message
-        if not Announcement.objects.filter(
-            title=serializer.validated_data['title'],
-            message=serializer.validated_data['message']
-        ).exists():
-            serializer.save(created_by=self.request.user)
-        else:
-            print("Duplicate announcement skipped")
+        title = serializer.validated_data['title']
+        message = serializer.validated_data['message']
+
+        # Check for duplicates
+        if Announcement.objects.filter(title=title, message=message).exists():
+            return Response({"detail": "Duplicate announcement exists."}, status=400)
+
+        # Set today's date if not provided
+        if 'date' not in serializer.validated_data:
+            serializer.validated_data['date'] = timezone.now().date()
+
+        # Save normally
+        serializer.save(created_by=request.user)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=201, headers=headers)
 
 class NotificationViewSet(viewsets.ModelViewSet):
     queryset = Notification.objects.select_related('announcement')  # Prefetch related data
@@ -1761,6 +1779,4 @@ class UploadQuestionsView(APIView):
         else:
             return Response({'error': 'Unsupported file type. Only .csv and .pdf allowed.'}, status=status.HTTP_400_BAD_REQUEST)
 
-
         return Response({'message': 'Questions imported successfully'}, status=status.HTTP_201_CREATED)
-

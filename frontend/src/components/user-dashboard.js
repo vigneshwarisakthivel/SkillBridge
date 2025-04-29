@@ -14,9 +14,7 @@ import { Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineC
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import DeleteIcon from "@mui/icons-material/Delete"; // Import the Delete icon
 import MenuIcon from "@mui/icons-material/Menu";
-
 const API_BASE_URL = 'https://online-test-creation-1.onrender.com/api';
-
 const UserDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [userData, setUserData] = useState({});

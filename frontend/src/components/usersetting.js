@@ -36,9 +36,7 @@ import TwitterIcon from '@mui/icons-material/Twitter'; // Import Twitter icon
 import FacebookIcon from '@mui/icons-material/Facebook'; // Import Facebook icon
 import InstagramIcon from '@mui/icons-material/Instagram'; // Import Instagram icon
 import axios from 'axios'; // Import axios for API calls
-
 const API_BASE_URL = 'https://online-test-creation-1.onrender.com/api';
-
 const SettingsCustomizationPage = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [testAccess, setTestAccess] = useState("public");

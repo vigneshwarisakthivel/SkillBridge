@@ -2,9 +2,7 @@ import React, { useState } from "react";
 import { Box, Typography, TextField, Button, Grid } from "@mui/material";
 import axios from "axios";
 
-
 const API_BASE_URL = 'https://online-test-creation-1.onrender.com/api';
-
 
 const ContactPage = () => {
   const [name, setName] = useState("");
@@ -25,7 +23,7 @@ const ContactPage = () => {
         return;
       }
 
-      const response = await axios.get(`${API_BASE_URL}/api/admin-notifications/`, {
+      const response = await axios.get(`${API_BASE_URL}/admin-notifications/`, {
         headers: {
           Authorization: `Token ${userToken}`, // Add user token in headers
         },
@@ -51,7 +49,7 @@ const ContactPage = () => {
     }
 
     try {
-      await axios.post(`${API_BASE_URL}/api/contact-submissions/`, {
+      await axios.post(`${API_BASE_URL}/contact-submissions/`, {
         name,
         email,
         message,

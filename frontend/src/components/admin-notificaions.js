@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { List, ListItem, Typography } from '@mui/material';
-const API_BASE_URL = 'https://onlinetestcreationbackend.onrender.com/api';
+const API_BASE_URL = 'https://online-test-creation-1.onrender.com/api';
 const AdminNotifications = () => {
     const [notifications, setNotifications] = useState([]);
 

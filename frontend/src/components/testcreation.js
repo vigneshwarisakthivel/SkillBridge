@@ -13,11 +13,8 @@ import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import ContentCopy from '@mui/icons-material/ContentCopy';
 const steps = ["Test Name & Description", "Question Creation", "Question Bank", "Set Time Limit & Marks", "Set Pass/Fail Criteria", "Settings", "Publish & Share"];
-
 const BASE_URL = "https://online-test-creation.vercel.app/smartbridge/online-test-assessment"; // Replace with your actual base URL
 const API_BASE_URL = 'https://online-test-creation-1.onrender.com/api';
-
-
 const CreateNewTest = () => {
         const [option, setOption] = useState(null);
         const [file, setFile] = useState(null);

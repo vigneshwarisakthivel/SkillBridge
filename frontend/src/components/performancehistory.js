@@ -12,9 +12,7 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/Image20250320122406.png";
 import axios from "axios"; // Import Axios
-
 const API_BASE_URL = 'https://online-test-creation-1.onrender.com/api';
-
 const TestHistory = () => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -33,7 +31,7 @@ const TestHistory = () => {
 
     try {
         // Fetch performance history
-        const response = await fetch(`${API_BASE_URL}/performance-history/`, {
+        const response = await fetch(`${API_BASE_URL}/performance-stats/`, {
             headers: { Authorization: `Token ${token}` },
         });
         if (!response.ok) {
@@ -75,7 +73,7 @@ const TestHistory = () => {
     }
 
     try {
-      const response = await axios.get(`${API_BASE_URL}/performance-history/`, performanceData, {
+      const response = await axios.get(`${API_BASE_URL}/performance-stats/`, performanceData, {
         headers: { Authorization: `Token ${token}` },
       });
 
@@ -101,8 +99,8 @@ const TestHistory = () => {
       total_questions: "totalQuestions", // Replace with actual total questions
       time_taken: "timeTaken", // Replace with actual time taken
       passed: "passFailStatus", // Replace with actual pass/fail status
-      can_reattempt: false, // Set based on your logic
-      answers: "answersToSubmit", // Replace with actual answers array
+      
+      
     };
 
     submitPerformanceData(performanceData);
@@ -321,7 +319,7 @@ const TestHistoryTable = ({ tests, onReview }) => {
                   <th>Score Obtained</th>
                   <th>Time Taken</th>
                   <th>Pass /Fail Status</th>
-                  <th>Review</th>
+                  
               </tr>
           </thead>
           <tbody>

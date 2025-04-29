@@ -1,9 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as faceapi from "face-api.js";
 import axios from "axios";
-
 const API_BASE_URL = 'https://online-test-creation-1.onrender.com/api';
-
 const WebcamProctoring = ({ studentId, testId }) => {
     const videoRef = useRef(null);
     const [alertMessage, setAlertMessage] = useState(""); // Alert message for user feedback

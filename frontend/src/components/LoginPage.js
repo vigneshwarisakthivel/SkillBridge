@@ -8,11 +8,13 @@ import {
     Container,
     Alert,
     Link,
-    Box,
-    Card,
+
     CardContent,
     InputAdornment,
 } from '@mui/material';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+
 import { Lock, AccountCircle } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';

@@ -48,7 +48,7 @@ class CustomUser(AbstractUser):
         
     def __str__(self):
         return f"{self.name} - {self.role}"
-
+import uuid
 class Test(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
@@ -80,6 +80,7 @@ class Test(models.Model):
     total_questions = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
     time_limit_per_question = models.DecimalField(max_digits=5, decimal_places=2, default=1.0)  # In minutes
+    test_uuid = models.UUIDField(default=uuid.uuid4, editable=False)
 
     total_time_limit = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)  # Auto-calculated
     def save(self, *args, **kwargs):
@@ -445,7 +446,7 @@ class Announcement(models.Model):
         max_length=50, 
         choices=[("all", "All Users"), ("students", "Students Only")]
     )
-    date = models.DateField()
+    date = models.DateField(null=True, blank=True)
     pinned = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
