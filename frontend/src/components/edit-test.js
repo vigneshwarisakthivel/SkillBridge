@@ -28,7 +28,7 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 import MuiAlert from '@mui/material/Alert';
 import logo from "../assets/Image20250320122406.png";
 import { useParams } from "react-router-dom"; 
-const API_BASE_URL = "https://online-test-creation-1.onrender.com/api/questions/";
+const API_BASE_URL = "https://onlinetestcreationbackend.onrender.com/api/questions/";
 
 const EditTestPage = () => {
   const { testId } = useParams(); // Get test ID from the URL
@@ -170,10 +170,12 @@ const EditTestPage = () => {
 
       console.log("API Response:", response.data); // Debugging log
   
-      if (response.data && response.data.questions) {
-        setQuestions(response.data.questions);  
-        setFilteredQuestions(response.data.questions);
-      } else {
+      const data = Array.isArray(response.data) ? response.data : response.data.questions;
+      if (Array.isArray(data)) {
+        setQuestions(data);
+        setFilteredQuestions(data);
+      }
+       else {
         console.error("No questions found in API response");
       }
     } catch (error) {
@@ -451,33 +453,28 @@ const EditTestPage = () => {
         )}
       </Box>
 
-      <Box
-        sx={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          backgroundColor: "#003366",
-          color: "white",
-          padding: "16px",
-          textAlign: "center",
-        }}
-      >
-        <Typography variant="body2" sx={{ color: "white", marginBottom: "2px" }}>
-          © {new Date().getFullYear()} Skill Bridge Online Test Platform. All rights reserved.
-        </Typography>
-        <Box sx={{ display: "flex", justifyContent: "center", gap: "16px", marginTop: "2px" }}>
-          <IconButton color="inherit" onClick={() => window.open("https://twitter.com", "_blank")}>
-            <TwitterIcon />
-          </IconButton>
-          <IconButton color="inherit" onClick={() => window.open("https://facebook.com", "_blank")}>
-            <FacebookIcon />
-          </IconButton>
-          <IconButton color="inherit" onClick={() => window.open("https://instagram.com", "_blank")}>
-            <InstagramIcon />
-          </IconButton>
-        </Box>
-      </Box>
+ <Box
+          sx={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: "#003366",
+            color: "white",
+            padding: "4px",
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="body2" sx={{ color: "white", marginBottom: "2px" }}>
+            © {new Date().getFullYear()} SmartBridge Online Test Platform. All rights reserved.
+          </Typography>
+          <Box sx={{ display: "flex", justifyContent: "center", gap: "2px", marginTop: "2px" }}>
+            <IconButton color="inherit" onClick={() => window.open("https://twitter.com", "_blank")}><TwitterIcon /></IconButton>
+            <IconButton color="inherit" onClick={() => window.open("https://facebook.com", "_blank")}><FacebookIcon /></IconButton>
+            <IconButton color="inherit" onClick={() => window.open("https://instagram.com", "_blank")}><InstagramIcon /></IconButton>
+          </Box>
+          </Box>
+    
 
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
         <MuiAlert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
