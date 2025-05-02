@@ -879,7 +879,7 @@ const AdminDashboard = () => {
             right: 0,
             backgroundColor: "#003366",
             color: "white",
-            padding: "16px",
+            padding: "4px",
             textAlign: "center",
           }}
         >

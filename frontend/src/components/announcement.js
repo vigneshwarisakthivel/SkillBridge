@@ -28,7 +28,9 @@ import {
   ListItem,
 } from "@mui/material";
 import Box from '@mui/material/Box';
-
+import TwitterIcon from '@mui/icons-material/Twitter';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import InstagramIcon from '@mui/icons-material/Instagram';
 import { Menu as MenuIcon } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/Image20250320122406.png";
@@ -146,24 +148,117 @@ export default function AnnouncementsPage() {
             <img src={logo} alt="Logo" style={{ maxWidth: "80%", marginBottom: "12px", borderRadius: "8px" }} />
           )}
           <List>
-            {[
-              { text: "Dashboard", path: "/admin-dashboard" },
-              { text: "Test Creation", path: "/testcreation" },
-              { text: "Question Creation", path: "/questioncreation" },
-              { text: "Manage Tests", path: "/manage-tests" },
-              { text: "Announcements", path: "/announcement" },
-              { text: "Settings", path: "/adminsettings" },
-              { text: "Logout", path: "/logout" },
-            ].map(({ text, path }) => (
-              <ListItem key={text}>
-                <Button
-                  onClick={() => navigate(path)}
-                  sx={{ color: "#003366", fontWeight: "bold", width: "100%", justifyContent: "flex-start" }}
-                >
-                  {text}
-                </Button>
-              </ListItem>
-            ))}
+  <ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+   <Button
+     onClick={() => navigate('/admin-dashboard')}
+     sx={{
+       color: "#003366", // Dark blue color
+       fontWeight: "bold",
+       textAlign: "left",
+       fontSize: "16px", // Align the text to the left
+       width: "100%", // Take up full width of the ListItem
+       justifyContent: "flex-start", // Align the button content to the left
+     }}
+   >
+     Dashboard
+   </Button>
+ </ListItem>
+ 
+ <ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+   <Button
+     onClick={() => navigate('/testcreation')}
+     sx={{
+       color: "#003366", // Dark blue color
+       fontWeight: "bold",
+       textAlign: "left", // Align the text to the left
+       width: "100%",
+       fontSize: "16px", // Take up full width of the ListItem
+       justifyContent: "flex-start", // Align the button content to the left
+     }}
+   >
+     Test Creation
+   </Button>
+ </ListItem>
+ 
+ <ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+   <Button
+     onClick={() => navigate('/questioncreation')}
+     sx={{
+       color: "#003366", // Dark blue color
+       fontWeight: "bold",
+       fontSize: "16px",
+       textAlign: "left", // Align the text to the left
+       width: "100%", // Take up full width of the ListItem
+       justifyContent: "flex-start", // Align the button content to the left
+     }}
+   >
+     Question Creation
+   </Button>
+ </ListItem>
+ 
+ <ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+   <Button
+     onClick={() => navigate('/manage-tests')}
+     sx={{
+       color: "#003366", // Dark blue color
+       fontWeight: "bold",
+       fontSize: "16px",
+       textAlign: "left", // Align the text to the left
+       width: "100%", // Take up full width of the ListItem
+       justifyContent: "flex-start", // Align the button content to the left
+     }}
+   >
+     Manage Tests
+   </Button>
+ </ListItem>
+ 
+ <ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+   <Button
+     onClick={() => navigate('/announcement')}
+     sx={{
+       color: "#003366", // Dark blue color
+       fontWeight: "bold",
+       fontSize: "16px",
+       textAlign: "left", // Align the text to the left
+       width: "100%", // Take up full width of the ListItem
+       justifyContent: "flex-start", // Align the button content to the left
+     }}
+   >
+     Announcements
+   </Button>
+ </ListItem>
+ 
+ <ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+   <Button
+     onClick={() => navigate('/adminsettings')}
+     sx={{
+       color: "#003366", // Dark blue color
+       fontWeight: "bold",
+       fontSize: "16px",
+       textAlign: "left", // Align the text to the left
+       width: "100%", // Take up full width of the ListItem
+       justifyContent: "flex-start", // Align the button content to the left
+     }}
+   >
+     Settings
+   </Button>
+ </ListItem>
+ 
+ <ListItem sx={{ display: 'flex', justifyContent: 'flex-start' }}>
+   <Button
+     onClick={() => navigate('/logout')}
+     sx={{
+       color: "#003366", // Dark blue color
+       fontWeight: "bold",
+       fontSize: "16px",
+       textAlign: "left", // Align the text to the left
+       width: "100%", // Take up full width of the ListItem
+       justifyContent: "flex-start", // Align the button content to the left
+     }}
+   >
+     Logout
+   </Button>
+ </ListItem>
           </List>
         </Box>
       </Drawer>
@@ -308,7 +403,27 @@ export default function AnnouncementsPage() {
             )}
           </Box>
         </Container>
-
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: "#003366",
+            color: "white",
+            padding: "4px",
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="body2" sx={{ color: "white", marginBottom: "2px" }}>
+            © {new Date().getFullYear()} Skill Bridge Online Test Platform. All rights reserved.
+          </Typography>
+          <Box sx={{ display: "flex", justifyContent: "center", gap: "2px", marginTop: "2px" }}>
+            <IconButton color="inherit" onClick={() => window.open("https://twitter.com", "_blank")}><TwitterIcon /></IconButton>
+            <IconButton color="inherit" onClick={() => window.open("https://facebook.com", "_blank")}><FacebookIcon /></IconButton>
+            <IconButton color="inherit" onClick={() => window.open("https://instagram.com", "_blank")}><InstagramIcon /></IconButton>
+          </Box>
+        </Box>
         <Snackbar
           open={openSnackbar}
           autoHideDuration={3000}

@@ -8,7 +8,7 @@ from . import views
 from django.conf.urls.static import static
 from .views import (UploadQuestionsView,
     LoginView, RegisterView,RecentActivityDeleteView,get_csrf_token, get_test_questions,create_test, CategoryListCreateView, get_tests,
-    CategoryRetrieveUpdateDestroyView, UserTestStatsAPIView, TestListCreateView, AvailableTestsView,
+    CategoryRetrieveUpdateDestroyView, UserTestStatsAPIView, TestListCreateView,CaptureImageView, AvailableTestsView,
     RecentActivityListCreateView, QuestionCreateAPIView, TestDetailAPIView, ManageTestsViewSet,
     QuestionListCreateView, QuestionDetailAPIView, UserResponseListCreateView,complete_test,
     PerformanceHistoryView, UserProfileView, AttemptedTestViewSet, AdminSettingsViewSet,AnnouncementDetailView,
@@ -40,8 +40,10 @@ test_attempt_viewset = TestAttemptViewSet.as_view({
     'get': 'get_user_rank', # Maps GET requests to get_user_statistics
 })
 urlpatterns = [
+
     path('decode-test-uuid/<str:uuid_str>/', views.decode_uuid_and_get_test_id),
     path('announcements/<int:pk>/', AnnouncementDetailView.as_view(), name='announcement-detail'),
+    path('capture/', CaptureImageView.as_view(), name='CaptureImageView'),
     path("notifications/mark-as-read/", mark_notifications_as_read, name="mark-notifications-as-read"),
     path('forgot-password/request-otp/', request_otp, name="request_otp"),
     path('forgot-password/verify-otp/', verify_otp, name="verify_otp"),

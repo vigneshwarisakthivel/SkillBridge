@@ -16,7 +16,7 @@ import TestWritePage from './components/testwrite';
 import DashboardPage from './components/user-dashboard';
 import UserDashboard from './components/admin-dashboard';
 import CreateNewTest from './components/testcreation';
-
+import CreateTest from './components/test-creation';
 import InstructionPage from './components/instruction';
 import AnnouncementsPage from './components/announcement';
 import ManageTestsPage from './components/manage-tests';
@@ -63,6 +63,7 @@ const App = () => {
           <Route path="/user-dashboard" element={<DashboardPage />} />
           <Route path="/admin-dashboard" element={<UserDashboard />} />
           <Route path="/testcreation" element={<CreateNewTest />} />
+          <Route path="/test-creation" element={<CreateTest />} />
           <Route path="/performancehistory" element={<TestHistory />} />
           <Route path="/aboutus" element={<AboutUsPage />} />
           <Route path="/manage-tests" element={<ManageTestsPage />} />

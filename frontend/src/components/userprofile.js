@@ -372,250 +372,217 @@ const Profile = () => {
           <center>User Profile</center>
         </Typography>
         <CardContent sx={{ textAlign: "center" }}>
-          <Box sx={{ position: "relative", display: "inline-block" }}>
-            {image ? (
-              <img
-                src={image}
-                alt="Profile"
-                style={{
-                  width: "120px",
-                  height: "120px",
-                  borderRadius: "50%",
-                  objectFit: "cover",
-                  border: "4px solid #003366",
-                }}
-              />
-            ) : (
-              <FaUser size={80} style={{ color: "#003366" }} />
-            )}
-            {isEditing && (
-              <label htmlFor="upload-image" style={{ cursor: "pointer" }}>
-                <FaUpload
-                  style={{
-                    position: "absolute",
-                    bottom: "0",
-                    right: "0",
-                    backgroundColor: "#003366",
-                    color: "#fff",
-                    padding: "8px",
-                    borderRadius: "50%",
-                  }}
-                />
-              </label>
-            )}
-            <input
-              type="file"
-              id="upload-image"
-              accept="image/*"
-              onChange={handleImageUpload}
-              style={{ display: "none" }}
-            />
-          </Box>
-          <Typography variant="h6" sx={{ mt: 2, fontWeight: "bold" }}>
-            {userData ? userData.full_name : "N/A"}
-          </Typography>
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
-            {userData ? userData.role : "N/A"}
-          </Typography>
-          {!isEditing && (
-            <Button
-              variant="contained"
-              startIcon={<FaEdit />}
-              onClick={() => setIsEditing(true)}
-              sx={{
-                mt: 2,
-                backgroundColor: "#003366",
-                "&:hover": { backgroundColor: "#002244" },
-              }}
-            >
-              Edit Profile
-            </Button>
-          )}
-        </CardContent>
-      </Card>
-    </Grid>
-
-    {/* Right Side - Profile Information & Security Settings */}
-    <Grid item xs={12} md={8}>
-      <Grid container spacing={2}>
-        {/* Profile Information */}
-        <Grid item xs={12}>
-           <Card sx={{ borderRadius: 2, boxShadow: 3, flexGrow: 1 }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-                Profile Information
-              </Typography>
-              {isEditing ? (
-                <form onSubmit={handleProfileSubmit}>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} md={6}>
-                      <TextField
-                        fullWidth
-                        label="Full Name"
-                        value={userData ? userData.full_name : ""}
-                        onChange={(e) =>
-                          setUserData({ ...userData, full_name: e.target.value })
-                        }
-                        required
-                      />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                      <TextField
-                        fullWidth
-                        label="Phone"
-                        value={userData ? userData.phone : ""}
-                        onChange={(e) =>
-                          setUserData({ ...userData, phone: e.target.value })
-                        }
-                        required
-                      />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                      <TextField
-                        fullWidth
-                        label="Email"
-                        type="email"
-                        value={userData ? userData.email : ""}
-                        onChange={(e) =>
-                          setUserData({ ...userData, email: e.target.value })
-                        }
-                        required
-                      />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                      <TextField
-                        fullWidth
-                        label="Status"
-                        value={userData ? userData.status : ""}
-                        onChange={(e) =>
-                          setUserData({ ...userData, status: e.target.value })
-                        }
-                        required
-                      />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                      <TextField
-                        fullWidth
-                        label="Role"
-                        value={userData.role}
-                        InputProps={{ readOnly: true }}
-                      />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                      <TextField
-                        fullWidth
-                        label="LinkedIn"
-                        value={userData ? userData.linkedin : ""}
-                        onChange={(e) =>
-                          setUserData({ ...userData, linkedin: e.target.value })
-                        }
-                        required
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        sx={{
+                <Box sx={{ position: "relative", display: "inline-block" }}>
+                  {image ? (
+                    <img
+                      src={image}
+                      alt="Profile"
+                      style={{
+                        width: "120px",
+                        height: "120px",
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                        border: "4px solid #003366",
+                      }}
+                    />
+                  ) : (
+                    <FaUser  size={80} style={{ color: "#003366" }} />
+                  )}
+                  {isEditing && (
+                    <label htmlFor="upload-image" style={{ cursor: "pointer" }}>
+                      <FaUpload
+                        style={{
+                          position: "absolute",
+                          bottom: "0",
+                          right: "0",
                           backgroundColor: "#003366",
-                          "&:hover": { backgroundColor: "#002244" },
+                          color: "#fff",
+                          padding: "8px",
+                          borderRadius: "50%",
                         }}
-                      >
-                        Save Profile
-                      </Button>
-                    </Grid>
-                  </Grid>
-                </form>
-              ) : (
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="body1">
-                      <strong>Full Name:</strong> {userData ? userData.full_name : "N/A"}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="body1">
-                      <strong>Phone:</strong> {userData ? userData.phone : "N/A"}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="body1">
-                      <strong>Email:</strong> {userData ? userData.email : "N/A"}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="body1">
-                      <strong>Status:</strong> {userData ? userData.status : "N/A"}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="body1">
-                      <strong>Role:</strong> {userData ? userData.role : "N/A"}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <Typography variant="body1">
-                      <strong>LinkedIn:</strong>{" "}
-                      {userData ? (
-                        <a href={userData.linkedin} target="_blank" rel="noopener noreferrer">
-                          {userData.linkedin}
-                        </a>
-                      ) : (
-                        "N/A"
-                      )}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
+                      />
+                    </label>
+                  )}
+                  <input
+                    type="file"
+                    id="upload-image"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    style={{ display: "none" }}
+                  />
+                </Box>
+                <Typography variant="h6" sx={{ mt: 2, fontWeight: "bold" }}>
+                  {userData ? userData.full_name : "N/A"}
+                </Typography>
+                <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                  {userData ? userData.role : "N/A"}
+                </Typography>
+                {!isEditing && (
+                  <Button
+                    variant="contained"
+                    startIcon={<FaEdit />}
+                    onClick={() => setIsEditing(true)}
+                    sx={{
+                      mt: 2,
+                      backgroundColor: "#003366",
+                      "&:hover": { backgroundColor: "#002244" },
+                    }}
+                  >
+                    Edit Profile
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
 
-        {/* Security Settings */}
-        <Grid item xs={12}>
-        <Card sx={{ borderRadius: 2, boxShadow: 3, flexGrow: 1, mt: 2 }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-                Security Settings
-              </Typography>
-              <Button
-                variant="contained"
-                onClick={() => setIsChangingPassword(!isChangingPassword)}
-                sx={{ backgroundColor: "#003366", "&:hover": { backgroundColor: "#002244" } }}
-              >
-                Change Password
-              </Button>
-              {isChangingPassword && (
-                <form onSubmit={handleChangePassword} style={{ marginTop: "20px" }}>
-                  <TextField fullWidth label="Current Password" type="password" required />
-                  <TextField fullWidth label="New Password" type="password" required />
-                  <TextField fullWidth label="Confirm New Password" type="password" required />
-                  <Button type="submit" variant="contained">Submit</Button>
-                </form>
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+          <Grid item xs={12} md={8}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Card sx={{ borderRadius: 2, boxShadow: 3, flexGrow: 1 }}>
+                  <CardContent>
+                  <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
+  Profile Information
+</Typography>
+<form onSubmit={handleProfileSubmit}>
+  <Grid container spacing={2}>
+    <Grid item xs={12} md={6}>
+      <TextField
+        fullWidth
+        label="Full Name"
+        value={userData ? userData.full_name : ""}
+        onChange={(e) => setUserData({ ...userData, full_name: e.target.value })}
+        required
+      />
+    </Grid>
+    <Grid item xs={12} md={6}>
+      <TextField
+        fullWidth
+        label="Phone"
+        value={userData ? userData.phone : ""}
+        onChange={(e) => setUserData({ ...userData, phone: e.target.value })}
+        required
+      />
+    </Grid>
+    <Grid item xs={12} md={6}>
+      <TextField
+        fullWidth
+        label="Email"
+        type="email"
+        value={userData ? userData.email : ""}
+        onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+        required
+      />
+    </Grid>
+    <Grid item xs={12} md={6}>
+      <TextField
+        fullWidth
+        label="Status"
+        value={userData ? userData.status : ""}
+        onChange={(e) => setUserData({ ...userData, status: e.target.value })}
+        required
+      />
+    </Grid>
+    <Grid item xs={12} md={6}>
+      <TextField fullWidth
+        label="Role"
+        value={userData?.role || ""}
+        InputProps={{ readOnly: true }}
+      />
+    </Grid>
+    <Grid item xs={12} md={6}>
+      <TextField
+        fullWidth
+        label="LinkedIn"
+        value={userData ? userData.linkedin : ""}
+        onChange={(e) => setUserData({ ...userData, linkedin: e.target.value })}
+        required
+      />
+    </Grid>
+    <Grid item xs={12}>
+      <Button
+        type="submit"
+        variant="contained"
+        sx={{
+          backgroundColor: "#003366",
+          "&:hover": { backgroundColor: "#002244" },
+        }}
+      >
+        Save Profile
+      </Button>
     </Grid>
   </Grid>
-</Box>
-      <Box sx={{ backgroundColor: "#003366", color: "white", textAlign: "center", py: 2 }}>
-        <Typography variant="body2">
-          {new Date().getFullYear()} Skill Bridge Online Test Platform. All rights reserved.
-        </Typography>
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 1 }}>
-          <IconButton color="inherit" onClick={() => window.open("https://twitter.com", "_blank")}>
-            <TwitterIcon />
-          </IconButton>
-          <IconButton color="inherit" onClick={() => window.open("https://facebook.com", "_blank")}>
-            <FacebookIcon />
-          </IconButton>
-          <IconButton color="inherit" onClick={() => window.open("https://instagram.com", "_blank")}>
-            <InstagramIcon />
-          </IconButton>
-        </Box>
+</form>
+
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={12}>
+              <Card sx={{ borderRadius: 2, boxShadow: 3, flexGrow: 1, mt: 2 }}>
+
+                  <CardContent>
+                  <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
+  Security Settings
+</Typography>
+<form onSubmit={handleChangePassword}>
+  <TextField
+    fullWidth
+    label="Current Password"
+    type="password"
+    required
+    onChange={(e) => setCurrentPassword(e.target.value)}
+    sx={{ mb: 2 }}
+  />
+  <TextField
+    fullWidth
+    label="New Password"
+    type="password"
+    required
+    onChange={(e) => setNewPassword(e.target.value)}
+    sx={{ mb: 2 }}
+  />
+  <TextField
+    fullWidth
+    label="Confirm New Password"
+    type="password"
+    required
+    onChange={(e) => setConfirmPassword(e.target.value)}
+    sx={{ mb: 2 }}
+  />
+  <Button type="submit" variant="contained">
+    Submit
+  </Button>
+</form>
+
+   
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
       </Box>
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            backgroundColor: "#003366",
+            color: "white",
+            padding: "4px",
+            textAlign: "center",
+          }}
+        >
+          <Typography variant="body2" sx={{ color: "white", marginBottom: "2px" }}>
+            © {new Date().getFullYear()} Skill Bridge Online Test Platform. All rights reserved.
+          </Typography>
+          <Box sx={{ display: "flex", justifyContent: "center", gap: "2px", marginTop: "2px" }}>
+            <IconButton color="inherit" onClick={() => window.open("https://twitter.com", "_blank")}><TwitterIcon /></IconButton>
+            <IconButton color="inherit" onClick={() => window.open("https://facebook.com", "_blank")}><FacebookIcon /></IconButton>
+            <IconButton color="inherit" onClick={() => window.open("https://instagram.com", "_blank")}><InstagramIcon /></IconButton>
+          </Box>
+        </Box>
+    
 
       <Snackbar
         open={snackbarOpen}
