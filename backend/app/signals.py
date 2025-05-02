@@ -15,3 +15,4 @@ def create_notifications(sender, instance, created, **kwargs):
             # ✅ Prevent duplicate notifications
             if not Notification.objects.filter(user=user, announcement=instance).exists():
                 Notification.objects.create(user=user, announcement=instance)
+
