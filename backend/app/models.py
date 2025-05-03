@@ -236,11 +236,21 @@ class UserProfile(models.Model):
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
-    if created:  # Ensure profile is created for all users, including superusers
-        UserProfile.objects.get_or_create(user=instance)
-    else:
-        if hasattr(instance, 'userprofile'):
-            instance.userprofile.save()
+    try:
+        if created:
+            # Create a profile for a new user
+            profile, created = UserProfile.objects.get_or_create(user=instance)
+            if created:
+                print(f"Created profile for {instance.username}")
+        else:
+            # Update the profile for an existing user
+            if hasattr(instance, 'userprofile'):
+                instance.userprofile.save()
+            else:
+                print(f"No profile found for {instance.username}.")
+    except Exception as e:
+        print(f"Error in profile creation or update: {e}")
+
 
 class UserToken(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

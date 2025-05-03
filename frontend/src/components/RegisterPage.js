@@ -53,15 +53,23 @@ const RegisterPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
         if (formData.password !== formData.confirmpassword) {
             setErrorMessage("Passwords don't match!");
             enqueueSnackbar("Passwords don't match!", { variant: 'error' });
             return;
         }
-
+    
         try {
-            const response = await axios.post(`${API_BASE_URL}/register/`, formData);
+            // Capitalize the role to match the backend expectations
+            const normalizedRole = formData.role.charAt(0).toUpperCase() + formData.role.slice(1);
+            
+            // Send the normalized role
+            const response = await axios.post(`${API_BASE_URL}/register/`, {
+                ...formData,
+                role: normalizedRole,
+            });
+    
             localStorage.setItem('role', response.data.role); // Store role instead of token
             enqueueSnackbar('Registration successful!', { variant: 'success' });
             navigate('/login');
@@ -71,6 +79,7 @@ const RegisterPage = () => {
             enqueueSnackbar('Registration failed. Please check your input!', { variant: 'error' });
         }
     };
+    
 
     return (
         <Box sx={{

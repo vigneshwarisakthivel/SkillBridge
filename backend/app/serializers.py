@@ -30,8 +30,15 @@ class RegisterSerializer(serializers.ModelSerializer):
         # Hash the password before saving
         validated_data['password'] = make_password(validated_data['password'])
 
+        # Normalize role to match the choices
+        role = validated_data.pop('role', 'User')  # Default to 'User' if role is not provided
+        role = role.capitalize()  # Ensure role matches the case in ROLE_CHOICES
+
+        if role not in dict(CustomUser.ROLE_CHOICES):
+            raise serializers.ValidationError(f"Invalid role '{role}' provided. Choose 'Admin' or 'User'.")
+
         # Create the user instance with all validated data (including role)
-        user = CustomUser.objects.create(**validated_data)
+        user = CustomUser.objects.create(role=role, **validated_data)
 
         return user
 class TestSubmissionSerializer(serializers.ModelSerializer):
