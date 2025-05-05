@@ -7,6 +7,7 @@ import {
   Button,
   IconButton,
   Drawer,
+  Modal,
   Box,
   List,
   ListItem,
@@ -36,6 +37,7 @@ const Profile = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem('user_token');
@@ -57,7 +59,19 @@ const Profile = () => {
       fetchUserData();
     }
   }, [token]);
-
+    useEffect(() => {
+      const userRole = localStorage.getItem("role"); // Retrieve role from localStorage
+  
+      if (userRole !== "admin") {
+        setOpenModal(true); // Show modal if not admin
+      } else {
+        fetchUserData(); // Fetch data if the user is an admin
+      }
+    }, []);
+    const handleClose = () => {
+      setOpenModal(false);
+      navigate("/"); // Redirect to home or another page
+    };
   const fetchUserData = async () => {
     setLoading(true);
     try {
@@ -229,9 +243,45 @@ const Profile = () => {
   };
 
   return (
+    
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
       <Header />
+      <div>
+        {/* Admin Dashboard Content */}
+        <h1>Welcome to Admin Dashboard</h1>
 
+        {/* Modal for Unauthorized Access */}
+        <Modal open={openModal} onClose={handleClose}>
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: 400,
+              bgcolor: "background.paper",
+              boxShadow: 24,
+              p: 4,
+              textAlign: "center",
+              borderRadius: 2,
+            }}
+          >
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold", color: "red" }}>
+              Access Denied!
+            </Typography>
+            <Typography variant="body1">
+              This page is restricted to admins only.
+            </Typography>
+            <Button
+              variant="contained"
+              onClick={handleClose}
+              sx={{ mt: 2, backgroundColor: "#003366", "&:hover": { backgroundColor: "#002244" } }}
+            >
+              Go Back
+            </Button>
+          </Box>
+        </Modal>
+      </div>
       <Drawer anchor="left" open={isSidebarOpen} onClose={toggleSidebar}>
         <Box sx={{ width: 250, textAlign: "center", padding: "16px" }}>
           {isSidebarOpen && (

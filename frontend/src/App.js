@@ -33,6 +33,7 @@ import ChangePasswordPage from './components/changepassword';
 import CoverPage from "./components/cover";
 import ProctoringExitPage from "./components/exit";
 import PreTestForm from "./components/testform";
+
 import AdminProfile from "./components/admin-profile";
 
 
@@ -64,6 +65,7 @@ const App = () => {
           <Route path="/admin-dashboard" element={<UserDashboard />} />
           <Route path="/testcreation" element={<CreateNewTest />} />
 
+
           <Route path="/performancehistory" element={<TestHistory />} />
           <Route path="/aboutus" element={<AboutUsPage />} />
           <Route path="/manage-tests" element={<ManageTestsPage />} />
@@ -71,7 +73,7 @@ const App = () => {
           <Route path="/adminSettings" element={<AdminSettingsPage />} />
           <Route path="/announcement" element={<AnnouncementsPage />} />
           <Route path="/attempted-tests" element={<AttemptedTest />} />
-          <Route path="/smartbridge/online-test-assessment/:uuid/instructions" element={<InstructionPage />} />
+          <Route path="/instructions" element={<InstructionPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

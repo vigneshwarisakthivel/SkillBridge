@@ -355,38 +355,45 @@ def get_tests(request):
     tests = Test.objects.all()
     serializer = TestSerializer(tests, many=True)
     return Response(serializer.data)
+    
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import Test, Question
+
 @api_view(["POST"])
 def duplicate_test(request, test_id):
     try:
         test = Test.objects.get(id=test_id)
         new_test = Test.objects.create(
             title=f"{test.title} (Copy)",
-            total_time_limit=test.total_time_limit if test.total_time_limit is not None else 0,  
+            total_time_limit=test.total_time_limit or 0,
             start_date=test.start_date,
             end_date=test.end_date,
             due_time=test.due_time,
             owner=request.user,
             is_Duplicated=True
         )
-        
-        # Copy questions
+
+        # Copy all questions
         questions = Question.objects.filter(test=test)
         for question in questions:
-            question.pk = None  
+            question.pk = None  # Clone
             question.test = new_test
             question.save()
 
-        # Now use the newly created test's UUID
-        test_link = f"https://online-test-creation.vercel.app/smartbridge/online-test-assessment/{new_test.test_uuid}/{new_test.id}/"
+        # ✅ Generate frontend test link with UUID only
+        test_link = f"https://online-test-creation.vercel.app/smartbridge/online-test-assessment/{new_test.test_uuid}"
 
         return Response({
             "message": "Test duplicated successfully!",
             "new_test_id": new_test.id,
+            "test_uuid": str(new_test.test_uuid),
             "test_link": test_link
         })
-    
+
     except Test.DoesNotExist:
         return Response({"error": "Test not found"}, status=404)
+
 
 @api_view(["GET"])
 def get_test_questions(request, test_id):
@@ -1060,8 +1067,11 @@ def import_questions(request):
     source_test_id = request.data.get('source_test_id')
     target_test_id = request.data.get('target_test_id')
 
+    if not source_test_id or not target_test_id:
+        return Response({"error": "source_test_id and target_test_id are required."}, status=400)
+
     try:
-        source_test = Test.objects.get(id=source_test_id, is_public=True)
+        source_test = Test.objects.get(id=source_test_id)  # Removed is_public=True
         target_test = Test.objects.get(id=target_test_id)
     except Test.DoesNotExist:
         return Response({"error": "Invalid test IDs"}, status=400)
@@ -1072,15 +1082,15 @@ def import_questions(request):
             test=target_test,
             text=q.text,
             type=q.type,
-            options=q.options,
-            correct_answer=q.correct_answer
+            options=json.loads(json.dumps(q.options)),  # Ensure deep copy
+            correct_answer=json.loads(json.dumps(q.correct_answer))
         )
-    
-    # Optional: Update question count in target test
+
     target_test.total_questions = Question.objects.filter(test=target_test).count()
     target_test.save()
 
-    return Response({"message": "Questions imported successfully!"})
+    return Response({"message": "Questions imported successfully!"}, status=201)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -1690,7 +1700,12 @@ class UserAnswerViewSet(viewsets.ModelViewSet):
 
         return Response({"message": "Answers saved successfully"}, status=status.HTTP_201_CREATED)
     
-import re
+from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Test, Question
+import csv, io, json, re
 from PyPDF2 import PdfReader
 
 class UploadQuestionsView(APIView):
@@ -1727,35 +1742,54 @@ class UploadQuestionsView(APIView):
 
         elif file.name.endswith('.pdf'):
             pdf_reader = PdfReader(file)
-            full_text = ''
+            lines = []
             for page in pdf_reader.pages:
-                full_text += page.extract_text() + '\n'
-                question_blocks = full_text.strip().split('\n\n')
-            for block in question_blocks:
-                lines = block.strip().split('\n')
-                if not lines:
+                page_text = page.extract_text()
+                if page_text:
+                    lines.extend(page_text.strip().split('\n'))
+
+            questions = []
+            current_block = []
+
+            for line in lines:
+                line = line.strip()
+                if not line:
                     continue
-                question_text = lines[0].strip()
+                # Start new block when a question line appears
+                if re.match(r'^[A-Z].*\?$', line) or '____' in line or '__________' in line:
+                    if current_block:
+                        questions.append(current_block)
+                    current_block = [line]
+                else:
+                    current_block.append(line)
+
+            if current_block:
+                questions.append(current_block)
+
+            questions_created = 0
+
+            for block in questions:
+                question_text = block[0]
                 options = []
                 correct_answer = []
                 answer_line = None
-            for i, line in enumerate(lines):
-                if line.lower().startswith('answer:'):
-                    answer_line = line
-                    lines.pop(i)
-                    break
-            for line in lines[1:]:
-                match = re.match(r'^(\d+)\.\s*(.+)', line.strip())
-                if match:
-                    options.append(match.group(2).strip())
-            if '____' in question_text or '__________' in question_text:
-                q_type = 'fillintheblank'
-                if answer_line:
-                    correct_answer = [answer_line.split(':', 1)[1].strip()]
+
+                for line in block[1:]:
+                    if line.lower().startswith('answer:'):
+                        answer_line = line
+                        continue
+                    match = re.match(r'^(\d+)\.\s*(.+)', line.strip())
+                    if match:
+                        options.append(match.group(2).strip())
+
+                if '____' in question_text or '__________' in question_text:
+                    q_type = 'fillintheblank'
+                    if answer_line:
+                        correct_answer = [answer_line.split(':', 1)[1].strip()]
                 elif len(options) == 2 and set(opt.lower() for opt in options) == {"true", "false"}:
                     q_type = 'truefalse'
                     if answer_line:
-                        correct_answer = [options[int(answer_line.split(':', 1)[1].strip()) - 1]]
+                        correct_answer = [answer_line.split(':', 1)[1].strip().capitalize()]
                 elif answer_line and ',' in answer_line:
                     q_type = 'multipleresponse'
                     indices = [int(i.strip()) - 1 for i in answer_line.split(':', 1)[1].split(',')]
@@ -1768,14 +1802,21 @@ class UploadQuestionsView(APIView):
                             correct_answer = [options[idx]]
                 else:
                     q_type = 'fillintheblank'
+                    if answer_line:
+                        correct_answer = [answer_line.split(':', 1)[1].strip()]
+
                 Question.objects.create(
                     test=test,
                     text=question_text,
                     type=q_type,
                     options=options,
-                     correct_answer=correct_answer
-                    )
-           
+                    correct_answer=correct_answer
+                )
+                questions_created += 1
+
+            if questions_created == 0:
+                return Response({'error': 'No valid questions found in PDF.'}, status=status.HTTP_400_BAD_REQUEST)
+
         else:
             return Response({'error': 'Unsupported file type. Only .csv and .pdf allowed.'}, status=status.HTTP_400_BAD_REQUEST)
 

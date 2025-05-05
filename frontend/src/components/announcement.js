@@ -54,10 +54,7 @@ export default function AnnouncementsPage() {
 
   useEffect(() => {
     const fetchAnnouncements = async () => {
-      if (!token) {
-        console.error("No token found in localStorage.");
-        return;
-      }
+
       try {
         const response = await axios.get(`${API_BASE_URL}/announcements/`, {
           headers: { Authorization: `Token ${token}` },
