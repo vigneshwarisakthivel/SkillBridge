@@ -33,6 +33,13 @@ from rest_framework.response import Response
 from rest_framework import status
 
 
+from django.conf import settings
+from django.core.mail import send_mail
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+
+
 @api_view(['POST'])
 def register(request):
     serializer = RegisterSerializer(data=request.data)
@@ -40,22 +47,35 @@ def register(request):
     if serializer.is_valid():
         user = serializer.save()
 
-        # Send welcome email
+        # Send admin access email
         send_mail(
-            subject="Welcome to Skill Bridge 🎉 - Registration Successful",
+            subject="Admin Access Granted - Skill Bridge",
             message=(
-                f"Dear User,\n\n"
-                f"Welcome to Skill Bridge! Your registration was successful.\n\n"
+                f"Dear {user.name},\n\n"
+                f"You have been successfully granted administrator access to the Skill Bridge platform.\n\n"
 
-                f"You can now log in and access your dashboard.\n\n"
-                f"Next Steps:\n"
-                f"  • Log in to your account\n"
-                f"  • Explore available tests\n"
-                f"  • Start practicing and improving your skills\n\n"
-                f"If you did not create this account, please ignore this email.\n\n"
-                f"Warm regards,\n"
-                f"The Skill Bridge Team\n"
+
+                f"You can now log in to the Admin Dashboard and manage the platform.\n\n"
+
+                f"With your admin access, you can:\n"
+                f"  • Create and manage tests\n"
+                f"  • Manage candidates\n"
+                f"  • Assign assessments\n"
+                f"  • View performance analytics\n"
+                f"  • Monitor test activities\n\n"
+
+                f"Important Notes:\n"
+                f"  • Keep your credentials secure\n"
+                f"  • Do not share admin access\n"
+                f"  • All admin actions are logged for security purposes\n\n"
+
                 f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"Skill Bridge Admin System\n"
+                f"This is a secure administrator account.\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+
+                f"Warm regards,\n"
+                f"The Skill Bridge System\n"
                 f"This is an automated message. Please do not reply."
             ),
             from_email=settings.DEFAULT_FROM_EMAIL,
@@ -64,11 +84,14 @@ def register(request):
         )
 
         return Response(
-            {"message": "User created successfully"},
+            {
+                "message": "Admin created successfully",
+            },
             status=status.HTTP_201_CREATED
         )
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 # 🔐 LOGIN
 @api_view(['POST'])
 def login(request):

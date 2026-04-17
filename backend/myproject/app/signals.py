@@ -65,6 +65,5 @@ def log_user_save(sender, instance, created, **kwargs):
     ActivityLog.objects.create(
         owner=instance,
         type="user",
-        text=f"{instance.get_full_name() or instance.username} registered",
-        detail="Role: Student",
+        text=f"{instance.get_full_name() or instance.username} registered"
     )
