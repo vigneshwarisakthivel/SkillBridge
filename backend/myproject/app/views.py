@@ -20,7 +20,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.utils import timezone
-from django.core.mail import send_mail
+
 from django.db.models import Count, Q
 from django.utils import timezone
 from datetime import timedelta
@@ -32,14 +32,42 @@ def register(request):
     serializer = RegisterSerializer(data=request.data)
 
     if serializer.is_valid():
-        serializer.save()
+        user = serializer.save()
+
+        # Send welcome email
+        send_mail(
+            subject="Welcome to Skill Bridge 🎉 - Registration Successful",
+            message=(
+                f"Dear {user.name or 'User'},\n\n"
+                f"Welcome to Skill Bridge! Your registration was successful.\n\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"  ACCOUNT DETAILS\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"  Name  : {user.name}\n"
+                f"  Email : {user.email}\n\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                f"You can now log in and access your dashboard.\n\n"
+                f"Next Steps:\n"
+                f"  • Log in to your account\n"
+                f"  • Explore available tests\n"
+                f"  • Start practicing and improving your skills\n\n"
+                f"If you did not create this account, please ignore this email.\n\n"
+                f"Warm regards,\n"
+                f"The Skill Bridge Team\n"
+                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                f"This is an automated message. Please do not reply."
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+
         return Response(
             {"message": "User created successfully"},
             status=status.HTTP_201_CREATED
         )
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 # 🔐 LOGIN
 @api_view(['POST'])
 def login(request):
