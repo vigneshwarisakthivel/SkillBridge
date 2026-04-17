@@ -26,6 +26,12 @@ from django.utils import timezone
 from datetime import timedelta
 from django.core.mail import send_mail
 from django.conf import settings
+from django.core.mail import send_mail
+from django.conf import settings
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+
 
 @api_view(['POST'])
 def register(request):
@@ -38,14 +44,9 @@ def register(request):
         send_mail(
             subject="Welcome to Skill Bridge 🎉 - Registration Successful",
             message=(
-                f"Dear {user.name or 'User'},\n\n"
+                f"Dear User,\n\n"
                 f"Welcome to Skill Bridge! Your registration was successful.\n\n"
-                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                f"  ACCOUNT DETAILS\n"
-                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-                f"  Name  : {user.name}\n"
-                f"  Email : {user.email}\n\n"
-                f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+
                 f"You can now log in and access your dashboard.\n\n"
                 f"Next Steps:\n"
                 f"  • Log in to your account\n"
