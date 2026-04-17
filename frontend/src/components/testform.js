@@ -59,7 +59,7 @@ const [formData, setFormData] = useState({
     setLoading(true);
 
     try {
-const res = await axios.post("http://localhost:8000/api/test-login/", {
+const res = await axios.post("https://skillbridge-4tqu.onrender.com/api/test-login/", {
   name: formData.name,
   email: formData.email,
   passcode: formData.passcode,

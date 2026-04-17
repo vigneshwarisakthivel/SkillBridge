@@ -484,7 +484,7 @@ function ProctoringPanel({ testId, studentId, referenceImageDataURL, onAlert, on
         if (!blob) return;
         const fd = new FormData(); fd.append("frame", blob, "frame.jpg"); fd.append("test_id", testId); fd.append("name", candidateName);
 fd.append("email", candidateEmail); fd.append("event_type", "object_detected");
-        try { const base = import.meta?.env?.VITE_API_BASE_URL || "http://localhost:8000/api"; const res = await fetch(`${base}/log-malpractice/`, { method: "POST", body: fd }); const data = await res.json(); if (data.malpractice_detected) fireAlert(data.message || "⚠ Prohibited object detected.", "object_detected", true); } catch(e) {}
+        try { const base = import.meta?.env?.VITE_API_BASE_URL || "https://skillbridge-4tqu.onrender.com/api"; const res = await fetch(`${base}/log-malpractice/`, { method: "POST", body: fd }); const data = await res.json(); if (data.malpractice_detected) fireAlert(data.message || "⚠ Prohibited object detected.", "object_detected", true); } catch(e) {}
       }, "image/jpeg", .7);
     }, FRAME_EVERY);
     return () => clearInterval(id);

@@ -1,6 +1,6 @@
 // src/apiServices.js
 
-const BASE_URL = "http://127.0.0.1:8000/api";
+const BASE_URL = "https://skillbridge-4tqu.onrender.com/api";
 
 // 🔥 GLOBAL API HANDLER
 const apiFetch = async (url, options = {}) => {
