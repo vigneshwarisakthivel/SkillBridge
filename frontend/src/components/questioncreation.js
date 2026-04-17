@@ -368,7 +368,7 @@ const handleSave = async () => {
           q.type === "multipleresponse" ? q.correctAnswers : q.correctAnswer,
       }))
     );
-    navigate("/QuestionManagement");
+    navigate("/question-management");
     showToast(result.message, true);
     setQuestions([]);
     setNewOption("");
